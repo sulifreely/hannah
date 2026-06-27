@@ -24,15 +24,22 @@ const fmt = (d: Date) =>
     {talks.length === 0 && <p class="empty">还没有公开的分享。</p>}
     {talks.map((talk) => (
       <article class="talk-card">
-        <div class="meta">
-          <time datetime={talk.data.date.toISOString()}>{fmt(talk.data.date)}</time>
-          {talk.data.event && <span class="event">{talk.data.event}</span>}
-          {talk.data.tags.map((tag) => <span class="tag">#{tag}</span>)}
+        <div class="card-body">
+          <div class="meta">
+            <time datetime={talk.data.date.toISOString()}>{fmt(talk.data.date)}</time>
+            {talk.data.event && <span class="event">{talk.data.event}</span>}
+            {talk.data.tags.map((tag) => <span class="tag">#{tag}</span>)}
+          </div>
+          <h2 class="title">
+            <a href={`/talks/${talk.slug}/`}>{talk.data.title}</a>
+          </h2>
+          <p class="desc">{talk.data.description}</p>
         </div>
-        <h2 class="title">
-          <a href={`/talks/${talk.slug}/`}>{talk.data.title}</a>
-        </h2>
-        <p class="desc">{talk.data.description}</p>
+        {talk.data.cover && (
+          <a class="thumb" href={`/talks/${talk.slug}/`} aria-hidden="true" tabindex="-1">
+            <img src={talk.data.cover} alt="" loading="lazy" />
+          </a>
+        )}
       </article>
     ))}
   </section>
@@ -55,8 +62,34 @@ const fmt = (d: Date) =>
     margin-top: 2rem;
   }
   .talk-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
     padding: 1.75rem 0;
     border-bottom: 1px solid var(--border);
+  }
+  .card-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .thumb {
+    flex-shrink: 0;
+    display: block;
+    width: 132px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .thumb img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+  @media (max-width: 540px) {
+    .thumb {
+      width: 96px;
+    }
   }
   .meta {
     display: flex;

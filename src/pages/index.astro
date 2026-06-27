@@ -25,6 +25,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
         date={post.data.date}
         description={post.data.description}
         tags={post.data.tags}
+        cover={post.data.cover}
       />
     ))}
   </section>

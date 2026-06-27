@@ -5,9 +5,10 @@ interface Props {
   date: Date;
   description: string;
   tags?: string[];
+  cover?: string;
 }
 
-const { url, title, date, description, tags = [] } = Astro.props;
+const { url, title, date, description, tags = [], cover } = Astro.props;
 
 const dateStr = new Intl.DateTimeFormat('zh-CN', {
   year: 'numeric',
@@ -17,24 +18,57 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
 ---
 
 <article class="post-card">
-  <div class="meta">
-    <time datetime={date.toISOString()}>{dateStr}</time>
-    {tags.length > 0 && (
-      <span class="tags">
-        {tags.map((tag) => <span class="tag">#{tag}</span>)}
-      </span>
-    )}
+  <div class="card-body">
+    <div class="meta">
+      <time datetime={date.toISOString()}>{dateStr}</time>
+      {tags.length > 0 && (
+        <span class="tags">
+          {tags.map((tag) => <span class="tag">#{tag}</span>)}
+        </span>
+      )}
+    </div>
+    <h2 class="title">
+      <a href={url}>{title}</a>
+    </h2>
+    <p class="desc">{description}</p>
   </div>
-  <h2 class="title">
-    <a href={url}>{title}</a>
-  </h2>
-  <p class="desc">{description}</p>
+  {cover && (
+    <a class="thumb" href={url} aria-hidden="true" tabindex="-1">
+      <img src={cover} alt="" loading="lazy" />
+    </a>
+  )}
 </article>
 
 <style>
   .post-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
     padding: 1.75rem 0;
     border-bottom: 1px solid var(--border);
+  }
+  .card-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .thumb {
+    flex-shrink: 0;
+    display: block;
+    width: 132px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .thumb img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+  @media (max-width: 540px) {
+    .thumb {
+      width: 96px;
+    }
   }
   .meta {
     display: flex;

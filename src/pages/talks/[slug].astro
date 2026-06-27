@@ -23,7 +23,7 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
 }).format(data.date);
 ---
 
-<BaseLayout title={data.title} description={data.description}>
+<BaseLayout title={data.title} description={data.description} image={data.cover}>
   <article class="talk">
     <p class="eyebrow">Talk</p>
     <h1>{data.title}</h1>
@@ -33,6 +33,8 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
       {data.event && <span>{data.event}</span>}
       {data.tags.map((tag) => <span class="tag">#{tag}</span>)}
     </div>
+
+    {data.cover && <img class="cover" src={data.cover} alt={data.title} />}
 
     <section class="materials">
       <h2>Materials</h2>
@@ -77,6 +79,15 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
   }
   .tag {
     color: var(--fg-muted);
+  }
+  .cover {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    margin-top: 2rem;
   }
   .materials {
     margin-top: 2.5rem;

@@ -4,6 +4,7 @@ subtitle: AI Coding 时代的软件工程重构
 event: AI Coding / 2026
 date: 2026-06-22
 description: 工作重心从写步骤转向管反馈：上下文怎么说清楚，反馈怎么接回来，经验怎么留给下一轮 Agent。
+# cover: /images/from-spec-to-loop.jpg   # 可选封面图：把图片放到 public/ 下，这里写绝对路径
 tags:
   - AI Coding
 ---
