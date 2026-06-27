@@ -8,20 +8,22 @@
 
 - 框架：Astro 5（静态站点，`output: static`）
 - 内容：Markdown 内容集合（博客 + 演讲）
-- 字体：西文 Monaco（macOS 系统等宽，优先）→ 自托管 JetBrains Mono（`@fontsource/jetbrains-mono`，跨平台兜底）→ 中文霞鹜文楷 Lite（`lxgw-wenkai-lite-webfont`，自托管、按 unicode-range 分片）。完整字族栈见 `src/styles/global.css` 的 `--font-sans`；正文关闭连字，代码块保留
+- 字体：正文西文用 Mulish（自托管 `@fontsource/mulish`，权重 400/600/700/800）→ 中文霞鹜文楷 Lite（`lxgw-wenkai-lite-webfont`，自托管、按 unicode-range 分片）→ `PingFang SC` / `Microsoft YaHei` 系统兜底；代码块用 JetBrains Mono（`@fontsource/jetbrains-mono`）。完整字族栈见 `src/styles/global.css` 的 `--font-sans` / `--font-mono`；正文关闭连字，代码块保留
 - 幻灯片渲染：`marked`
-- 风格：极简、内容优先，支持明暗主题
+- 图表：`mermaid`，仅在文章含图表时由客户端按需懒加载，并跟随明暗主题重渲染
+- 风格：极简、内容优先，支持明暗主题；正文文字偏柔和（`--fg-body`），标题更深更重（`--fg`）以拉开层级
 
 ## 常用命令
 
 ```bash
 npm install      # 安装依赖（使用公共 npm registry，见 .npmrc）
 npm run dev      # 本地开发，http://localhost:4321
-npm run build    # 构建到 dist/
+npm run check    # 类型检查（astro check，等价于「tslint」门禁）
+npm run build    # 先 astro check 再构建到 dist/（类型不通过则构建失败）
 npm run preview  # 预览构建产物
 ```
 
-修改后请至少跑通 `npm run build`，确保无报错。
+修改后请跑通 `npm run build`，确保无报错。
 
 ## 目录结构
 
@@ -50,7 +52,7 @@ public/
   images/
     blogs/           博客用图（按需新建）
     talks/           演讲用图
-astro.config.mjs     site 域名与集成（mdx / sitemap / 代码高亮）
+astro.config.mjs     site 域名与集成（mdx / sitemap / Shiki 代码高亮 / remarkMermaid 图表）
 ```
 
 ## 内容写作约定
@@ -72,6 +74,38 @@ draft: false                    # true 则不在列表/详情/RSS 中出现
 
 - 列表按 `date` 倒序。
 - 正文是标准 Markdown，代码块自动高亮并跟随主题。
+
+### 趣味性：emoji 与图表
+
+为了让文章读起来更轻松、信息结构更直观，鼓励（但不滥用）以下两种手段。原则是**服务于理解，点到为止**，不要为了热闹而堆砌。
+
+**Emoji**
+
+- 给二级标题（`##`）前置一个贴合主题的 emoji，帮助读者扫读时快速定位，例如 `## 🧠 先分清两个词`、`## 📊 数据`、`## 🛠️ 写进流程`。同一篇里尽量每个标题一个、不重复、语义相关。
+- 正文中偶尔用 emoji 点缀情绪或结论即可，避免每段都加；切忌出现在严肃数据/引用旁边喧宾夺主。
+- 三级标题与列表默认不加，除非确有必要。
+
+**图表（mermaid）**
+
+用围栏代码块声明，语言标记为 `mermaid`，构建时会被 `astro.config.mjs` 里的 `remarkMermaid` 转成 `<pre class="mermaid">`，跳过 Shiki，由 `PostLayout.astro` 的客户端脚本渲染：
+
+````md
+```mermaid
+flowchart TD
+    A["🤖 AI 给出答案"] --> B{"我有没有独立判断?"}
+    B -->|"有"| C["✅ 认知卸载"]
+    B -->|"没有"| D["⚠️ 认知投降"]
+```
+````
+
+约定与注意：
+
+- 节点文案含中文、标点、`<br/>` 换行或 emoji 时，**用双引号包起来**（如 `A["文案"]`），避免 mermaid 解析报错。
+- 优先用 `flowchart TD/LR`（流程/决策）与 `flowchart LR` 闭环（正循环），简单清晰即可；一篇文章 1~3 张为宜，别把表格能讲清的东西画成图。
+- 图表会自动适配明暗主题（light → `neutral`，dark → `dark`），无需手动配色。
+- **风格：手绘/漫画风**。`PostLayout.astro` 的 `mermaid.initialize` 已固定 `look: 'handDrawn'`（rough.js 草图线条）+ `handDrawnSeed: 1`（线条稳定不抖动），字体用 Comic Neue（西文，`@fontsource/comic-neue`）+ 霞鹜文楷（中文）。如需改回常规风格，把 `look` 去掉或设为 `'classic'` 即可。
+- 语法错误不会阻断页面（脚本内 `try/catch`），但请本地 `npm run dev` 确认能正常出图。
+- 同样适用于演讲（Talks）正文。
 
 ### 演讲（Talks）
 
@@ -105,6 +139,9 @@ GitHub 仓库：https://github.com/sulifreely/hannah
 
 ## 约定与注意
 
+- **类型门禁（必须遵守）**：项目必须通过所有 TypeScript / tslint 检查，**不得留有任何类型报错**。提交前请确保 `npm run check`（即 `astro check`）输出 `0 errors`；`npm run build` 已内置 `astro check`，类型不通过会直接构建失败。
+  - 所有 `.astro` / `.ts` 文件及 `<script>` 内联脚本都在检查范围内；为隐式 `any` 的参数补类型、为可能为 `null` 的 DOM 查询做判空或断言。
+  - `astro.config.mjs` 顶部的 `// @ts-check` 必须保留；其中的 remark/工具函数请用 JSDoc 标注类型（mdast 类型来自 `@types/mdast`）。
 - 包管理走公共 npm registry（项目级 `.npmrc`），不要切回内网源。
 - 不要把构建产物 `dist/` 或 `node_modules/` 提交（已在 `.gitignore`）。
 - 改名 / 身份信息变更时，注意全站一致（页头、页脚、SEO、RSS、About）。

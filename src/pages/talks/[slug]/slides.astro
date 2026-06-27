@@ -72,11 +72,12 @@ const scenes = talk.body
     </div>
 
     <script>
-      const deck = document.getElementById('deck');
+      const deck = document.getElementById('deck')!;
       const slides = Array.from(deck.querySelectorAll('.slide'));
       const sceneCount = slides.length;
-      const beatsOf = (i) => slides[i].querySelectorAll('.beat').length;
-      const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+      const beatsOf = (i: number) => slides[i].querySelectorAll('.beat').length;
+      const clamp = (n: number, lo: number, hi: number) =>
+        Math.max(lo, Math.min(hi, n));
 
       let scene = 0;
       let beat = 0;
@@ -123,7 +124,7 @@ const scenes = talk.body
         render();
       }
 
-      function go(s, b) {
+      function go(s: number, b: number) {
         scene = clamp(s, 0, sceneCount - 1);
         beat = clamp(b, 0, Math.max(0, beatsOf(scene) - 1));
         render();
@@ -158,7 +159,7 @@ const scenes = talk.body
       });
 
       deck.addEventListener('click', (e) => {
-        if (e.target.closest('a, button')) return;
+        if ((e.target as Element | null)?.closest('a, button')) return;
         const x = e.clientX / window.innerWidth;
         if (x > 0.5) next(); else prev();
       });

@@ -6,17 +6,25 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "astro check && astro build",
     "preview": "astro preview",
+    "check": "astro check",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.2.0",
     "@astrojs/rss": "^4.0.11",
     "@astrojs/sitemap": "^3.2.1",
+    "@fontsource/comic-neue": "^5.2.7",
     "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/mulish": "^5.2.8",
     "astro": "^5.5.0",
     "lxgw-wenkai-lite-webfont": "^1.7.0",
-    "marked": "^15.0.12"
+    "marked": "^15.0.12",
+    "mermaid": "^11.16.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "typescript": "^5.9.3"
   }
 }

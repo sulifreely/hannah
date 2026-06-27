@@ -1,12 +1,13 @@
 :root {
   --max-width: 720px;
-  --font-sans: Monaco, Menlo, "JetBrains Mono", Consolas, "LXGW WenKai Lite",
-    "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-sans: Mulish, "LXGW WenKai Lite", "PingFang SC", "Microsoft YaHei",
+    sans-serif;
   --font-mono: "SF Mono", SFMono-Regular, ui-monospace, "JetBrains Mono", Menlo,
     Consolas, monospace;
 
   --bg: #ffffff;
-  --fg: #1a1a1a;
+  --fg: #171717;
+  --fg-body: #3f4046;
   --fg-muted: #6b7280;
   --fg-subtle: #9ca3af;
   --border: #ececec;
@@ -19,7 +20,8 @@
 
 :root[data-theme="dark"] {
   --bg: #0f0f10;
-  --fg: #e8e8e8;
+  --fg: #f0f0f0;
+  --fg-body: #c2c5cc;
   --fg-muted: #9aa0a6;
   --fg-subtle: #6b7280;
   --border: #26262a;
@@ -42,7 +44,7 @@ html {
 body {
   margin: 0;
   background: var(--bg);
-  color: var(--fg);
+  color: var(--fg-body);
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.7;
@@ -77,8 +79,16 @@ h1,
 h2,
 h3,
 h4 {
-  line-height: 1.3;
-  font-weight: 650;
+  color: var(--fg);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+strong,
+b {
+  color: var(--fg);
+  font-weight: 700;
 }
 
 img {
