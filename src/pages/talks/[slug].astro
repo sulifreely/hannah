@@ -1,0 +1,124 @@
+---
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const talks = await getCollection('talks', ({ data }) => !data.draft);
+  return talks.map((talk) => ({
+    params: { slug: talk.slug },
+    props: { talk },
+  }));
+}
+
+type Props = { talk: CollectionEntry<'talks'> };
+
+const { talk } = Astro.props;
+const { data } = talk;
+
+const dateStr = new Intl.DateTimeFormat('zh-CN', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+}).format(data.date);
+---
+
+<BaseLayout title={data.title} description={data.description}>
+  <article class="talk">
+    <p class="eyebrow">Talk</p>
+    <h1>{data.title}</h1>
+    {data.subtitle && <p class="subtitle">{data.subtitle}</p>}
+    <div class="meta">
+      <time datetime={data.date.toISOString()}>{dateStr}</time>
+      {data.event && <span>{data.event}</span>}
+      {data.tags.map((tag) => <span class="tag">#{tag}</span>)}
+    </div>
+
+    <section class="materials">
+      <h2>Materials</h2>
+      <p>{data.description}</p>
+    </section>
+
+    <div class="actions">
+      <a class="btn primary" href={`/talks/${talk.slug}/slides/`}>Open slides →</a>
+      <a class="btn" href="/talks">All talks</a>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .talk {
+    max-width: 640px;
+  }
+  .eyebrow {
+    margin: 0 0 0.75rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+    line-height: 1.25;
+  }
+  .subtitle {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+    color: var(--fg-muted);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--fg-subtle);
+  }
+  .tag {
+    color: var(--fg-muted);
+  }
+  .materials {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+  .materials h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.2rem;
+  }
+  .materials p {
+    margin: 0;
+    color: var(--fg-muted);
+    line-height: 1.8;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1.1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 0.95rem;
+    color: var(--fg);
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+  .btn:hover {
+    text-decoration: none;
+    background: var(--tag-bg);
+  }
+  .btn.primary {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+  .btn.primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+</style>

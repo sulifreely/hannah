@@ -2,11 +2,14 @@
 import ThemeToggle from './ThemeToggle.astro';
 
 const links = [
-  { href: '/', label: '文章' },
-  { href: '/about', label: '关于' },
+  { href: '/', label: 'Blogs' },
+  { href: '/talks', label: 'Talks' },
+  { href: '/about', label: 'About' },
 ];
 
 const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isActive = (href: string) =>
+  href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/');
 ---
 
 <header class="site-header">
@@ -16,7 +19,7 @@ const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
       {links.map((link) => (
         <a
           href={link.href}
-          class:list={['nav-link', { active: pathname === link.href }]}
+          class:list={['nav-link', { active: isActive(link.href) }]}
         >
           {link.label}
         </a>
