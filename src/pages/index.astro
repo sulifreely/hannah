@@ -10,8 +10,11 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 
 <BaseLayout>
   <section class="intro">
-    <h1>言光杰</h1>
-    <p>记录工程、产品与个人成长的思考。</p>
+    <img class="avatar" src="/Y.png" width="72" height="72" alt="蘇里的头像" />
+    <div class="intro-text">
+      <h1>蘇里</h1>
+      <p>记录工程、产品与个人成长的思考。</p>
+    </div>
   </section>
 
   <section class="posts">
@@ -29,10 +32,21 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 
 <style>
   .intro {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
     margin-bottom: 1rem;
   }
+  .avatar {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+  }
   .intro h1 {
-    margin: 0 0 0.5rem;
+    margin: 0 0 0.35rem;
     font-size: 2rem;
   }
   .intro p {

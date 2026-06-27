@@ -7,8 +7,8 @@ export async function GET(context) {
   );
 
   return rss({
-    title: '言光杰',
-    description: '言光杰的个人博客，记录工程、产品与个人成长的思考。',
+    title: '蘇里',
+    description: '蘇里的个人博客，记录工程、产品与个人成长的思考。',
     site: context.site,
     items: posts.map((post) => ({
       title: post.data.title,

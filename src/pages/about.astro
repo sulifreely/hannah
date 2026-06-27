@@ -2,11 +2,12 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="关于" description="关于言光杰：个人简介与联系方式。">
+<BaseLayout title="关于" description="关于蘇里：个人简介与联系方式。">
   <article class="prose about">
+    <img class="avatar" src="/Y.png" width="112" height="112" alt="蘇里的头像" />
     <h1>关于</h1>
     <p>
-      你好，我是言光杰。这里是我的个人博客，用来记录工程实践、产品思考与个人成长。
+      你好，我是蘇里。这里是我的个人博客，用来记录工程实践、产品思考与个人成长。
     </p>
     <p>这是占位内容，欢迎随时替换为你的真实简介。</p>
 
@@ -19,6 +20,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <style is:global>
+  .about .avatar {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    margin-bottom: 1.25rem;
+  }
   .about h1 {
     font-size: 1.9rem;
     margin: 0 0 1.5rem;

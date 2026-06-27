@@ -1,6 +1,6 @@
 # yanguangjie.com
 
-言光杰的个人博客，基于 [Astro](https://astro.build) 构建。极简、内容优先，支持深色模式、RSS 与 sitemap。
+蘇里的个人博客，基于 [Astro](https://astro.build) 构建。极简、内容优先，支持深色模式、RSS 与 sitemap。
 
 ## 本地开发
 

@@ -1,4 +1,5 @@
 ---
+import 'lxgw-wenkai-webfont/style.css';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -8,8 +9,8 @@ interface Props {
   description?: string;
 }
 
-const siteName = '言光杰';
-const defaultDesc = '言光杰的个人博客，记录工程、产品与个人成长的思考。';
+const siteName = '蘇里';
+const defaultDesc = '蘇里的个人博客，记录工程、产品与个人成长的思考。';
 const { title, description = defaultDesc } = Astro.props;
 const pageTitle = title ? `${title} · ${siteName}` : `${siteName} · 个人博客`;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
@@ -23,7 +24,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/Y.png" />
+    <link rel="apple-touch-icon" href="/Y.png" />
     <link rel="alternate" type="application/rss+xml" title={siteName} href="/rss.xml" />
 
     <meta property="og:type" content="website" />

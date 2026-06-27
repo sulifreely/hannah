@@ -1,5 +1,5 @@
 {
-  "name": "yanguangjie-blog",
+  "name": "hannah",
   "type": "module",
   "version": "0.1.0",
   "private": true,
@@ -14,6 +14,7 @@
     "@astrojs/mdx": "^4.2.0",
     "@astrojs/rss": "^4.0.11",
     "@astrojs/sitemap": "^3.2.1",
-    "astro": "^5.5.0"
+    "astro": "^5.5.0",
+    "lxgw-wenkai-webfont": "^1.7.0"
   }
 }
