@@ -35,7 +35,7 @@ const scenes = talk.body
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{talk.data.title} · Slides</title>
-    <link rel="icon" type="image/png" href="/Y.png" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="robots" content="noindex" />
     <script is:inline>
       (function () {
@@ -252,6 +252,33 @@ const scenes = talk.body
     padding: 0.1em 0.35em;
     border-radius: 5px;
     font-size: 0.85em;
+  }
+  .slide-inner :global(pre) {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    font-size: clamp(0.9rem, 2vw, 1.25rem);
+    line-height: 1.5;
+  }
+  .slide-inner :global(pre code) {
+    background: none;
+    padding: 0;
+    font-size: 1em;
+  }
+  .slide-inner :global(img) {
+    display: block;
+    max-width: 100%;
+    max-height: 56vh;
+    margin: 0.5rem auto 0;
+    border-radius: 10px;
+    background: #fff;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+  }
+  .slide-inner :global(strong) {
+    font-weight: 700;
   }
 
   .hud {
