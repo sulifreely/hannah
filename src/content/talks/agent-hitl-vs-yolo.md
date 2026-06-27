@@ -4,7 +4,7 @@ subtitle: 从「每一步都问」到「放手让它跑」
 event: Agent 学习 / 2026
 date: 2026-05-21
 description: 把 HITL 与 YOLO 讲清楚：它们差在哪一步、代价分别是什么，为什么「关掉确认」不是真正的 YOLO，以及成熟工作流如何把安全前移到环境。
-cover: /images/hitl-vs-yolo-loop.png
+cover: /images/talks/hitl-vs-yolo-loop.png
 tags:
   - AI Agent
   - 工程
@@ -118,7 +118,7 @@ Agent 本质是一个能调 shell、能改文件、能发请求的程序。
 
 ## 两条回路放在一起看
 
-![HITL 与 YOLO 的两条决策回路](/images/hitl-vs-yolo-loop.png)
+![HITL 与 YOLO 的两条决策回路](/images/talks/hitl-vs-yolo-loop.png)
 
 +++
 
@@ -165,7 +165,7 @@ YOLO 砍掉了「暂停 + 人类审批」两步——短，意味着快，也意
 
 ## 裸 YOLO vs YOLO + 隔离
 
-![裸 YOLO vs YOLO + 隔离](/images/yolo-with-containment.png)
+![裸 YOLO vs YOLO + 隔离](/images/talks/yolo-with-containment.png)
 
 +++
 

@@ -2,7 +2,7 @@
 title: 你好，世界
 date: 2026-06-27
 description: 这是博客的第一篇文章，介绍这个站点的由来、定位，以及我打算在这里写些什么。
-# cover: /images/hello-world.jpg   # 可选封面图：把图片放到 public/ 下，这里写绝对路径
+# cover: /images/blogs/hello-world.jpg   # 可选封面图：图片放到 public/images/blogs/ 下，这里写绝对路径
 tags:
   - 随笔
 ---
