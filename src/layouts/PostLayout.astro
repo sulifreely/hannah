@@ -228,12 +228,14 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     text-align: center;
     line-height: normal;
     overflow-x: auto;
-    /* 渲染完成前隐藏源码文本，避免闪烁 */
+    /* 渲染完成前隐藏源码文本并预留高度，减少加载时的布局抖动 */
     color: transparent;
     font-size: 0;
+    min-height: 200px;
   }
   .prose pre.mermaid[data-processed] {
     color: inherit;
+    min-height: 0;
   }
   .prose pre.mermaid svg {
     max-width: 100%;
@@ -281,6 +283,10 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
       })
       .filter(Boolean);
 
+    // 用户点击目录后短暂锁定高亮，避免滚动监听把它改掉
+    var manualSlug = null;
+    var manualTimer = null;
+
     var visible = new Set();
     var observer = new IntersectionObserver(
       function (entries) {
@@ -288,6 +294,7 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
           if (e.isIntersecting) visible.add(e.target.id);
           else visible.delete(e.target.id);
         });
+        if (manualSlug) return;
         for (var i = 0; i < headings.length; i++) {
           if (visible.has(headings[i].id)) {
             setActive(headings[i].id);
@@ -301,6 +308,32 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     headings.forEach(function (h) {
       observer.observe(h);
     });
+
+    // 点击目录项：立即高亮 + 平滑滚动到对应标题
+    links.forEach(function (l) {
+      l.addEventListener('click', function (e) {
+        var slug = l.getAttribute('data-slug');
+        var target = document.getElementById(slug);
+        if (!target) return;
+        e.preventDefault();
+        manualSlug = slug;
+        setActive(slug);
+        if (history.replaceState) {
+          history.replaceState(null, '', '#' + slug);
+        }
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        clearTimeout(manualTimer);
+        manualTimer = setTimeout(function () {
+          manualSlug = null;
+        }, 900);
+      });
+    });
+
+    // 带 #hash 直接进入时，让对应项高亮
+    if (location.hash) {
+      var initial = decodeURIComponent(location.hash.slice(1));
+      if (initial) setActive(initial);
+    }
   })();
 </script>
 

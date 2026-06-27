@@ -1,6 +1,6 @@
 ---
 title: 你好，世界
-date: 2026-06-27
+date: 2026-06-27T10:00:00+08:00
 description: 这个博客的第一篇文章。聊聊我为什么又想认真写点东西，以及之后大概会在这里写些什么。
 cover: /images/blogs/hello-world.jpg
 tags:
