@@ -14,8 +14,9 @@
     "@astrojs/mdx": "^4.2.0",
     "@astrojs/rss": "^4.0.11",
     "@astrojs/sitemap": "^3.2.1",
+    "@fontsource/jetbrains-mono": "^5.2.8",
     "astro": "^5.5.0",
-    "lxgw-wenkai-webfont": "^1.7.0",
+    "lxgw-wenkai-lite-webfont": "^1.7.0",
     "marked": "^15.0.12"
   }
 }

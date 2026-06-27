@@ -8,7 +8,7 @@
 
 - 框架：Astro 5（静态站点，`output: static`）
 - 内容：Markdown 内容集合（博客 + 演讲）
-- 字体：霞鹜文楷（`lxgw-wenkai-webfont`，自托管、按 unicode-range 分片）
+- 字体：西文 Monaco（macOS 系统等宽，优先）→ 自托管 JetBrains Mono（`@fontsource/jetbrains-mono`，跨平台兜底）→ 中文霞鹜文楷 Lite（`lxgw-wenkai-lite-webfont`，自托管、按 unicode-range 分片）。完整字族栈见 `src/styles/global.css` 的 `--font-sans`；正文关闭连字，代码块保留
 - 幻灯片渲染：`marked`
 - 风格：极简、内容优先，支持明暗主题
 
