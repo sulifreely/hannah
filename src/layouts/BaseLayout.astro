@@ -12,7 +12,7 @@ interface Props {
 
 const siteName = '蘇里';
 const defaultDesc = '蘇里的个人博客，记录工程、产品与个人成长的思考。';
-const { title, description = defaultDesc, image = '/Y.png' } = Astro.props;
+const { title, description = defaultDesc, image = '/favicon.png' } = Astro.props;
 const pageTitle = title ? `${title} · ${siteName}` : `${siteName} · 个人博客`;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 const ogImage = new URL(image, Astro.site).toString();
@@ -26,8 +26,8 @@ const ogImage = new URL(image, Astro.site).toString();
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" type="image/png" href="/Y.png" />
-    <link rel="apple-touch-icon" href="/Y.png" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
     <link rel="alternate" type="application/rss+xml" title={siteName} href="/rss.xml" />
 
     <meta property="og:type" content="website" />
