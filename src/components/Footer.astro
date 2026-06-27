@@ -1,0 +1,28 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap inner">
+    <span>© {year} 言光杰</span>
+    <a href="/rss.xml">RSS</a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 4rem;
+    color: var(--fg-subtle);
+    font-size: 0.875rem;
+  }
+  .inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .site-footer a:hover {
+    color: var(--fg);
+  }
+</style>

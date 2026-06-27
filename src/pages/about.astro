@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="关于" description="关于言光杰：个人简介与联系方式。">
+  <article class="prose about">
+    <h1>关于</h1>
+    <p>
+      你好，我是言光杰。这里是我的个人博客，用来记录工程实践、产品思考与个人成长。
+    </p>
+    <p>这是占位内容，欢迎随时替换为你的真实简介。</p>
+
+    <h2>联系</h2>
+    <ul>
+      <li>邮箱：<a href="mailto:hello@yanguangjie.com">hello@yanguangjie.com</a></li>
+      <li>GitHub：<a href="https://github.com/" target="_blank" rel="noopener">@yanguangjie</a></li>
+    </ul>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  .about h1 {
+    font-size: 1.9rem;
+    margin: 0 0 1.5rem;
+  }
+  .about h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+  }
+  .about p {
+    margin: 1.25rem 0;
+    line-height: 1.8;
+  }
+  .about ul {
+    padding-left: 1.4rem;
+    line-height: 1.9;
+  }
+  .about a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--fg-subtle);
+  }
+</style>

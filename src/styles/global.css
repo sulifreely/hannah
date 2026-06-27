@@ -1,0 +1,120 @@
+:root {
+  --max-width: 720px;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+  --font-mono: "SF Mono", SFMono-Regular, ui-monospace, "JetBrains Mono",
+    Menlo, Consolas, monospace;
+
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --fg-muted: #6b7280;
+  --fg-subtle: #9ca3af;
+  --border: #ececec;
+  --accent: #1a1a1a;
+  --accent-hover: #000000;
+  --tag-bg: #f4f4f5;
+  --code-bg: #f6f8fa;
+  --selection: #d6e4ff;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f0f10;
+  --fg: #e8e8e8;
+  --fg-muted: #9aa0a6;
+  --fg-subtle: #6b7280;
+  --border: #26262a;
+  --accent: #e8e8e8;
+  --accent-hover: #ffffff;
+  --tag-bg: #1c1c20;
+  --code-bg: #16161a;
+  --selection: #2a3f63;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+::selection {
+  background: var(--selection);
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+:not(pre) > code {
+  background: var(--code-bg);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+pre {
+  padding: 1rem 1.15rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* Shiki dual theme: swap on data-theme */
+:root[data-theme="dark"] .astro-code,
+:root[data-theme="dark"] .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}

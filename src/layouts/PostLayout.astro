@@ -1,0 +1,125 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  date: Date;
+  description: string;
+  tags?: string[];
+}
+
+const { title, date, description, tags = [] } = Astro.props;
+
+const dateStr = new Intl.DateTimeFormat('zh-CN', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+}).format(date);
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="post">
+    <header class="post-header">
+      <div class="meta">
+        <time datetime={date.toISOString()}>{dateStr}</time>
+        {tags.length > 0 && (
+          <span class="tags">
+            {tags.map((tag) => <span class="tag">#{tag}</span>)}
+          </span>
+        )}
+      </div>
+      <h1>{title}</h1>
+    </header>
+    <div class="prose">
+      <slot />
+    </div>
+    <footer class="post-footer">
+      <a href="/">← 返回文章列表</a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .post-header {
+    margin-bottom: 2.5rem;
+  }
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--fg-subtle);
+    margin-bottom: 0.6rem;
+  }
+  .tags {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .tag {
+    color: var(--fg-muted);
+  }
+  .post-header h1 {
+    margin: 0;
+    font-size: 1.9rem;
+    line-height: 1.25;
+  }
+  .post-footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.95rem;
+    color: var(--fg-muted);
+  }
+  .post-footer a:hover {
+    color: var(--fg);
+  }
+</style>
+
+<style is:global>
+  .prose {
+    font-size: 1.02rem;
+    line-height: 1.8;
+  }
+  .prose > * + * {
+    margin-top: 1.25rem;
+  }
+  .prose h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+  }
+  .prose h3 {
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.15rem;
+  }
+  .prose ul,
+  .prose ol {
+    padding-left: 1.4rem;
+  }
+  .prose li + li {
+    margin-top: 0.4rem;
+  }
+  .prose a {
+    color: var(--fg);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--fg-subtle);
+  }
+  .prose a:hover {
+    text-decoration-color: var(--fg);
+  }
+  .prose blockquote {
+    margin: 1.5rem 0;
+    padding: 0.25rem 0 0.25rem 1.2rem;
+    border-left: 3px solid var(--border);
+    color: var(--fg-muted);
+  }
+  .prose blockquote p {
+    margin: 0;
+  }
+  .prose img {
+    border-radius: 8px;
+  }
+</style>
