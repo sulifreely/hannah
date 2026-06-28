@@ -1,5 +1,5 @@
 ---
-title: 认知投降：我有 AI，脑子却在偷偷退化
+title: 解读《Cognitive Surrender》：认知投降 —— AI 可以帮我们工作，但不该替我们接管判断
 date: 2026-06-27T16:00:00+08:00
 description: 解读 Addy Osmani 的《Cognitive Surrender》。聊聊 cognitive offloading 与 cognitive surrender 的区别，以及天天用 AI 写代码的工程师，怎么待在"用 AI 思考"而不是"让 AI 替你思考"这一边。
 cover: /images/blogs/cognitive-surrender.jpg
