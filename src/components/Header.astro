@@ -1,6 +1,5 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
-import BrandMark from './BrandMark.astro';
 
 const links = [
   { href: '/', label: '博客' },
@@ -15,10 +14,7 @@ const isActive = (href: string) =>
 
 <header class="site-header">
   <div class="wrap inner">
-    <a href="/" class="brand">
-      <BrandMark class="brand-mark" />
-      <span class="brand-text">蘇里</span>
-    </a>
+    <a href="/" class="brand">蘇里</a>
     <nav>
       {links.map((link) => (
         <a
@@ -44,22 +40,12 @@ const isActive = (href: string) =>
     height: 64px;
   }
   .brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
     font-weight: 700;
     font-size: 1.05rem;
     letter-spacing: 0.01em;
   }
   .brand:hover {
     text-decoration: none;
-  }
-  .brand-mark {
-    width: 1.9em;
-    height: 1.9em;
-    flex: none;
-    display: block;
-    color: currentColor;
   }
   nav {
     display: flex;
