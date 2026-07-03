@@ -1,5 +1,5 @@
 ---
-title: 认知投降：AI 可以帮忙，但判断和学习要留在自己手里
+title: 谈一谈 AI 时代中的认知投降
 date: 2026-06-27T16:00:00+08:00
 description: 解读 Addy Osmani 的《Cognitive Surrender》和《Don't Outsource the Learning》。聊聊 cognitive offloading、cognitive surrender 与 cognitive debt，以及天天用 AI 写代码的工程师，怎么在提效的同时保住自己的判断力和学习能力。
 cover: /images/blogs/cognitive-surrender.jpg
