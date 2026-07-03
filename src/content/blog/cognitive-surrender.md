@@ -1,5 +1,5 @@
 ---
-title: 谈一谈 AI 时代中的认知投降
+title: 解读《Cognitive Surrender》：AI 时代中的认知投降
 date: 2026-06-27T16:00:00+08:00
 description: 解读 Addy Osmani 的《Cognitive Surrender》和《Don't Outsource the Learning》。聊聊 cognitive offloading、cognitive surrender 与 cognitive debt，以及天天用 AI 写代码的工程师，怎么在提效的同时保住自己的判断力和学习能力。
 cover: /images/blogs/cognitive-surrender.jpg
@@ -21,7 +21,7 @@ tags:
 
 agent 生成了一个 600 行的 MR。变量名看起来合理，测试是绿的，改动也符合需求描述。你扫了一遍，点了 approve。中间有一处事务边界的微妙变化，你没仔细看。
 
-从流程上看，这叫 review；但从认知动作上看，它更接近"批准"。Addy 在文里有一句话说得很准确：
+从流程上看，这叫 review；但从认知动作上看，它其实是"批准"。Addy 在文里有一句话说得很准确：
 
 > the surrender was the absence of a decision
 
