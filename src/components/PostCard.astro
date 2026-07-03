@@ -43,7 +43,7 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
   .post-card {
     display: flex;
     align-items: flex-start;
-    gap: 1.25rem;
+    gap: clamp(1.25rem, 3vw, 2rem);
     padding: 1.75rem 0;
     border-bottom: 1px solid var(--border);
   }
@@ -54,8 +54,8 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
   .thumb {
     flex-shrink: 0;
     display: block;
-    width: 132px;
-    border-radius: 10px;
+    width: clamp(180px, 30vw, 260px);
+    border-radius: 14px;
     overflow: hidden;
     border: 1px solid var(--border);
   }
@@ -65,9 +65,18 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     aspect-ratio: 16 / 10;
     object-fit: cover;
   }
-  @media (max-width: 540px) {
+  @media (max-width: 680px) {
     .thumb {
-      width: 96px;
+      width: 136px;
+    }
+  }
+  @media (max-width: 480px) {
+    .post-card {
+      gap: 1rem;
+    }
+    .thumb {
+      width: 112px;
+      border-radius: 12px;
     }
   }
   .meta {
