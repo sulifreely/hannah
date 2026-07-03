@@ -9,7 +9,9 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "astro": "astro"
+    "astro": "astro",
+    "install-skills": "./scripts/install-skills.sh",
+    "install-skills:force": "./scripts/install-skills.sh --force"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.2.0",
@@ -21,7 +23,8 @@
     "astro": "^5.5.0",
     "lxgw-wenkai-lite-webfont": "^1.7.0",
     "marked": "^15.0.12",
-    "mermaid": "^11.16.0"
+    "mermaid": "^11.16.0",
+    "photoswipe": "^5.4.4"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",

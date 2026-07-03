@@ -28,6 +28,10 @@ npm run preview  # 预览构建产物
 ## 目录结构
 
 ```
+skills/
+  personal/          y-fable, y-writer, y-thought, y-share
+scripts/
+  install-skills.sh  安装 skills 到 agent 技能目录
 src/
   content/
     blog/            博客文章（Markdown）
@@ -54,6 +58,20 @@ public/
     talks/           演讲用图
 astro.config.mjs     site 域名与集成（mdx / sitemap / Shiki 代码高亮 / remarkMermaid 图表）
 ```
+
+## Skills 安装
+
+`skills/` 下含 `SKILL.md` 的目录会被 `scripts/install-skills.sh` 发现，并按目录名软链到 agent 技能目录（默认 `~/.cursor/skills` 与 `~/.claude/skills`）。
+
+```bash
+npm run install-skills              # 软链安装（跳过已存在）
+npm run install-skills:force        # 覆盖同名链接（移动过 skill 目录后用它重指）
+scripts/install-skills.sh --list    # 列出发现的 skill
+scripts/install-skills.sh --dry-run # 预演，不改动
+scripts/install-skills.sh --uninstall  # 移除指回本仓的链接
+```
+
+安装或改动 skill 后需**重载 Cursor / 重启 agent** 才生效。
 
 ## 内容写作约定
 

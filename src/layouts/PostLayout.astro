@@ -219,6 +219,10 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
   .prose img {
     border-radius: 8px;
   }
+  .prose img,
+  .prose pre.mermaid[data-processed] svg {
+    cursor: zoom-in;
+  }
   .prose pre.mermaid {
     margin: 1.75rem 0;
     padding: 1.25rem 1rem;
@@ -261,6 +265,31 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
   }
   .prose tbody tr:nth-child(even) {
     background: color-mix(in srgb, var(--tag-bg) 45%, transparent);
+  }
+  .pswp {
+    --pswp-bg: color-mix(in srgb, #000 86%, transparent);
+    z-index: 1000;
+  }
+  .pswp__img {
+    background: var(--code-bg);
+  }
+  .pswp__svg-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--code-bg);
+  }
+  .pswp__svg-content svg {
+    width: 100%;
+    height: 100%;
+    font-family: "Comic Neue", "LXGW WenKai Lite", cursive !important;
+  }
+  .pswp__svg-content text,
+  .pswp__svg-content tspan,
+  .pswp__svg-content foreignObject {
+    font-family: inherit !important;
   }
 </style>
 
@@ -338,6 +367,154 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
 </script>
 
 <script>
+  (function () {
+    type ImagePreviewItem = {
+      src: string;
+      type: 'image';
+      width: number;
+      height: number;
+      element: HTMLImageElement;
+    };
+
+    type SvgPreviewItem = {
+      type: 'svg';
+      width: number;
+      height: number;
+      element: SVGSVGElement;
+    };
+
+    type PreviewItem = ImagePreviewItem | SvgPreviewItem;
+
+    let items: PreviewItem[] = [];
+
+    function dimensionsFromSvg(svg: SVGSVGElement) {
+      const viewBox = svg.viewBox.baseVal;
+      if (viewBox && viewBox.width > 0 && viewBox.height > 0) {
+        return { width: viewBox.width, height: viewBox.height };
+      }
+      const rect = svg.getBoundingClientRect();
+      return {
+        width: Math.max(1, Math.round(rect.width || 1200)),
+        height: Math.max(1, Math.round(rect.height || 800)),
+      };
+    }
+
+    function getPreviewItem(el: HTMLImageElement | SVGSVGElement): PreviewItem | null {
+      if (el instanceof HTMLImageElement) {
+        const src = el.currentSrc || el.src;
+        if (!src) return null;
+        return {
+          src,
+          type: 'image',
+          width: Math.max(1, el.naturalWidth || el.clientWidth || 1200),
+          height: Math.max(1, el.naturalHeight || el.clientHeight || 800),
+          element: el,
+        };
+      }
+
+      const { width, height } = dimensionsFromSvg(el);
+      return {
+        type: 'svg',
+        width,
+        height,
+        element: el,
+      };
+    }
+
+    async function openPreview(index: number) {
+      const { default: PhotoSwipe } = await import('photoswipe');
+      await import('photoswipe/style.css');
+
+      const pswp = new PhotoSwipe({
+        dataSource: items.map((item) => {
+          if (item.type === 'svg') {
+            return {
+              type: 'svg',
+              width: item.width,
+              height: item.height,
+              svgElement: item.element,
+            };
+          }
+          return {
+            src: item.src,
+            width: item.width,
+            height: item.height,
+            element: item.element,
+          };
+        }) as import('photoswipe').SlideData[],
+        index,
+        showHideAnimationType: 'zoom',
+        initialZoomLevel: 'fit',
+        secondaryZoomLevel: 1.6,
+        maxZoomLevel: 4,
+        wheelToZoom: true,
+        bgOpacity: 0.9,
+      });
+      pswp.on('contentLoad', (event) => {
+        const { content } = event;
+        if (content.data.type !== 'svg') return;
+
+        event.preventDefault();
+
+        const source = content.data.svgElement as SVGSVGElement | undefined;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'pswp__svg-content';
+
+        if (source) {
+          const clone = source.cloneNode(true) as SVGSVGElement;
+          clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+          clone.setAttribute('width', '100%');
+          clone.setAttribute('height', '100%');
+          clone.style.fontFamily = '"Comic Neue", "LXGW WenKai Lite", cursive';
+          wrapper.append(clone);
+        }
+
+        content.element = wrapper;
+      });
+      pswp.addFilter('isContentZoomable', (isZoomable, content) =>
+        content.data.type === 'svg' ? true : isZoomable
+      );
+      pswp.init();
+    }
+
+    function bind(el: HTMLImageElement | SVGSVGElement) {
+      if (el.dataset.previewBound === 'true') return;
+      el.dataset.previewBound = 'true';
+      el.tabIndex = 0;
+      el.setAttribute('role', 'button');
+      el.setAttribute('aria-label', '点击放大查看');
+      el.addEventListener('click', (event) => {
+        event.preventDefault();
+        const index = items.findIndex((item) => item.element === el);
+        if (index >= 0) openPreview(index);
+      });
+      el.addEventListener('keydown', (event) => {
+        const keyboardEvent = event as KeyboardEvent;
+        if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
+          keyboardEvent.preventDefault();
+          const index = items.findIndex((item) => item.element === el);
+          if (index >= 0) openPreview(index);
+        }
+      });
+    }
+
+    function setupPostFigurePreview() {
+      const figures = Array.from(
+        document.querySelectorAll<HTMLImageElement | SVGSVGElement>('.prose img, .prose pre.mermaid svg')
+      );
+      items = figures
+        .map(getPreviewItem)
+        .filter((item): item is PreviewItem => Boolean(item));
+      figures.forEach(bind);
+    }
+
+    window.addEventListener('DOMContentLoaded', setupPostFigurePreview);
+    (window as typeof window & { setupPostFigurePreview?: () => void }).setupPostFigurePreview =
+      setupPostFigurePreview;
+  })();
+</script>
+
+<script>
   // 仅当文章里存在图表时才按需加载 mermaid，并跟随明暗主题重渲染
   (async function () {
     const blocks = Array.from(
@@ -366,14 +543,20 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
         look: 'handDrawn',
         handDrawnSeed: 1,
         theme: themeName(),
-        securityLevel: 'loose',
+        securityLevel: 'strict',
         fontFamily: '"Comic Neue", "LXGW WenKai Lite", cursive',
       });
-      try {
-        await mermaid.run({ nodes: blocks });
-      } catch (e) {
-        /* 图表语法错误时不阻断页面 */
+      for (const el of blocks) {
+        try {
+          await mermaid.run({ nodes: [el] });
+        } catch (e) {
+          el.dataset.processed = 'error';
+          /* 单个图表语法错误时不阻断其他图表 */
+        }
       }
+      (
+        window as typeof window & { setupPostFigurePreview?: () => void }
+      ).setupPostFigurePreview?.();
     }
 
     await render();
