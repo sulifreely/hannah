@@ -67,11 +67,12 @@
 统一的"避坑词"：
 
 ```
-ugly, deformed, blurry, extra limbs, distorted face, mismatched eyes, messy background, text, watermark, signature, multiple characters overlapping, broken proportions
+ugly, deformed, blurry, extra limbs, missing limbs, floating limbs, extra fingers, missing fingers, fused fingers, distorted face, mismatched eyes, messy background, text, watermark, signature, multiple characters overlapping, broken proportions, inconsistent perspective, multiple vanishing points, mismatched shadow direction, object clipping through another object
 ```
 
 按图像后端处理方式不同：
 
 - **支持负面 prompt 的后端**（Stable Diffusion / ComfyUI / Midjourney 的 `--no` 等）：直接填进 negative prompt 字段。
-- **没有负面字段的后端**（如 Cursor `GenerateImage`）：在正向描述末尾写一句 `Avoid: ...`，把上面的词翻译进去，例如 `Avoid: deformed hands, extra limbs, distorted faces, messy cluttered background, unwanted text/watermark, overlapping characters, broken proportions`。
+- **没有负面字段的后端**（如 Cursor `GenerateImage`）：在正向描述末尾写一句 `Avoid: ...`，把上面的词翻译进去，例如 `Avoid: deformed hands, extra/missing fingers, extra limbs, distorted faces, messy cluttered background, unwanted text/watermark, overlapping characters, broken proportions, inconsistent perspective or shadow direction`。
 - 注意 `text, watermark` 是防**多余乱码文字**；如果这张图**本来就要**中文短标签或 "APPROVE" 之类的 meme 文字，别把有意的标签也一起 avoid 掉——只压制随机水印和乱字。
+- 手指数量、透视消失点、光影方向这几项和 SKILL.md「Prompt 公式」里的 Anatomy / Perspective & light 正向段是同一件事的一体两面：正向段说清楚"要什么"，这里的避坑词兜底"不要什么"。多角色、多物体同框（对比式、四宫格）时两边都要用上，单靠一边压不住穿帮。
