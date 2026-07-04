@@ -146,10 +146,12 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     border-radius: 3px;
   }
   .post-header h1 {
-    display: inline-block;
     margin: 0;
-    padding-bottom: 0.75rem;
-    border-bottom: 3px solid var(--accent);
+    padding-bottom: 0.5rem;
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 0.3em;
     font-size: clamp(2rem, 1.3rem + 2.8vw, 2.6rem);
     font-weight: 750;
     line-height: 1.18;
