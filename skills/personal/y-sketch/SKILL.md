@@ -158,7 +158,7 @@ Hand-drawn meme-style illustration, white background, colorful sketchy internet 
 
 Anatomy: correct cartoon body proportions, each hand clearly drawn with five fingers, no extra or missing limbs, natural joint bending direction, symmetrical facial features unless the expression itself deliberately calls for asymmetry (e.g. one-eye smug squint) — if using an asymmetric expression, state it explicitly in the scene description so it reads as intentional, not a drawing error.
 
-Perspective & light: every character and object in the same panel shares one consistent eye-level and vanishing point, clear foreground/midground/background separation, no object overlapping or clipping through another, objects scale down correctly with distance, one consistent light direction with matching flat shadow shapes — keep shading flat and graphic, not photorealistic volumetric rendering.
+Perspective & light: every character and object in the same panel shares one consistent eye-level and vanishing point, clear foreground/midground/background separation, no object overlapping or clipping through another, objects scale down correctly with distance, one consistent light direction with matching flat shadow shapes — keep shading flat and graphic, not photorealistic volumetric rendering. If the scene implies a direction of travel or attention (walking toward a goal, looking at something, moving along a path), the character's body orientation, gaze, and stride must point toward that same direction, not away from it or sideways to it.
 
 Art style: Bold black sketch outlines, bright color fills, slightly wobbly imperfect lines, humorous exaggerated expressions, meme energy. Clean uncluttered composition with generous whitespace, only a few key elements, no background clutter. Image ratio 16:9, landscape format for blog cover.
 ```
@@ -168,6 +168,8 @@ Art style: Bold black sketch outlines, bright color fills, slightly wobbly imper
 **减法原则**：prompt 里主动写明 "clean, uncluttered, minimal elements, lots of whitespace"，避免模型自行往画面里塞满道具、背景和小图标。
 
 **解剖与透视段是硬约束，不是可选装饰**：手绘 meme 风格允许夸张变形（大头小身子、超长手臂强调动作），但"夸张"和"画崩"是两件事——夸张是刻意为之、逐格/逐图保持一致的风格化处理；画崩是手指数量随机、肢体凭空多一只、视平线和消失点各画各的、光源和阴影方向随手乱画。上面两段的目的是压住后者，不是禁止前者。多角色、多物体同框（尤其是四宫格、对比式构图）时最容易出问题，组装 prompt 时要显式检查这两段是否覆盖了当前构图里的所有角色和物体。
+
+**角色朝向要服务于场景的方向性叙事，不能套用默认行走姿势模板**：模型很容易不管背景往哪延伸，习惯性画一个正面偏左侧的"走路贴纸"——如果场景本身有方向性（沿一条路径/轨道走向某个目标、盯着某个东西看、朝某个方向移动），角色的身体朝向、视线、迈步方向要跟这个方向大致一致，不能背对目标走、也不能和路径方向岔开甚至垂直。组装 prompt 前先想清楚：场景里的消失点/目标物（终点旗、路的尽头、屏幕、箭头指向）在画面哪一侧，再把角色的头、身体、脚步都往那一侧偏，在 prompt 里直接写清楚朝向（如 "facing/walking toward the upper-right, toward the flag/goal"），不要只写"角色在走路"这种不含方向的描述。
 
 ## 屏幕朝向（透视一致性的专项情况）
 
@@ -199,5 +201,6 @@ back view of monitor, screen facing away from camera, screen towards the charact
 - 每个角色都自带笑点或讽刺吗？有没有纯卖萌 / 纯中性、只是凑数的形象？
 - 手/肢体正常吗？每只手五指、没有多余或缺失的肢体、关节弯曲方向自然？（区分"夸张风格化"和"画崩"，前者保留，后者要修）
 - 多角色/多物体同框时透视和光影统一吗？同一视平线、同一消失点、近大远小、没有穿模重叠、阴影方向一致？
+- 场景有方向性（走向目标、看向某处、沿路径移动）时，角色的头、身体、脚步朝向是不是也指向同一个方向，而不是背对目标、或和路径岔开/垂直？
 - 有屏幕/记事本等元素时，朝向和透视是否合理？没有"背面却露正面内容"的穿帮？
 - 封面图已按项目约定落盘，并写入 frontmatter 对应字段？

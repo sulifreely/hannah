@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>主题四：大胆现代</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --max-width: 900px;
+    --font-sans: Mulish, "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-mono: "SF Mono", SFMono-Regular, ui-monospace, Menlo, Consolas, monospace;
+    --bg: #f7f6fb;
+    --fg: #14121f;
+    --fg-body: #38364a;
+    --fg-muted: #6f6c85;
+    --fg-subtle: #a3a0b8;
+    --border: #e2dff0;
+    --accent: #5b3df6;
+    --accent-2: #ff6b4a;
+    --accent-fg: #ffffff;
+    --tag-bg: #ece8fb;
+    --code-bg: #eeecf8;
+    --pre-bg: #14121f;
+    --pre-fg: #f7f6fb;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0b14;
+    --fg: #f4f3fa;
+    --fg-body: #cbc8dc;
+    --fg-muted: #8f8ba8;
+    --fg-subtle: #524d6b;
+    --border: #221f33;
+    --accent: #8b74ff;
+    --accent-2: #ff8a6a;
+    --accent-fg: #0c0b14;
+    --tag-bg: #1c1930;
+    --code-bg: #171526;
+    --pre-bg: #050409;
+    --pre-fg: #ded9ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg-body);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  .wrap { max-width: var(--max-width); margin: 0 auto; padding: 0 28px; }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3 { color: var(--fg); line-height: 1.1; font-weight: 900; letter-spacing: -0.025em; }
+  header.site { border-bottom: 2px solid var(--border); }
+  header.site .inner { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .brand { font-weight: 900; font-size: 1.3rem; letter-spacing: -0.02em; }
+  nav { display: flex; align-items: center; gap: .4rem; }
+  .nav-link { padding: .5rem .9rem; border-radius: 100px; font-size: .92rem; font-weight: 700; color: var(--fg-muted); }
+  .nav-link:hover { color: var(--fg); background: var(--tag-bg); }
+  .nav-link.active { color: var(--accent-fg); background: var(--accent); }
+  .toggle { border: 2px solid var(--fg); background: none; color: var(--fg); border-radius: 100px; width: 36px; height: 36px; cursor: pointer; margin-left: .5rem; font-size: 1rem; font-weight: 700; }
+  main { padding-top: 3.5rem; padding-bottom: 4rem; }
+  .intro { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 3.5rem; }
+  .avatar { width: 84px; height: 84px; border-radius: 20px; object-fit: cover; border: 3px solid var(--fg); }
+  .intro h1 { margin: 0 0 .4rem; font-size: clamp(2.4rem, 1.6rem + 3vw, 3.2rem); }
+  .intro p { margin: 0; color: var(--fg-muted); font-size: 1.1rem; font-weight: 600; }
+  .section-label { display: inline-block; font-size: .82rem; font-weight: 800; letter-spacing: .04em; color: var(--accent-fg); background: var(--accent); padding: .35rem .9rem; border-radius: 100px; margin: 3.5rem 0 1.5rem; }
+  .post-card { display: flex; gap: 2rem; padding: 1.6rem; margin-bottom: 1.4rem; border: 2px solid var(--fg); border-radius: 20px; background: var(--bg); transition: transform .15s ease; }
+  .post-card:hover { transform: translate(-3px, -3px); box-shadow: 5px 5px 0 var(--accent); }
+  .card-body { flex: 1; min-width: 0; }
+  .meta { display: flex; gap: .6rem; align-items: center; font-size: .8rem; font-weight: 700; color: var(--fg-subtle); margin-bottom: .7rem; }
+  .tag { color: var(--accent); background: var(--tag-bg); padding: .15em .6em; border-radius: 100px; }
+  .title { margin: 0 0 .6rem; font-size: 1.5rem; }
+  .title a:hover { color: var(--accent); }
+  .desc { margin: 0; color: var(--fg-muted); font-size: .98rem; line-height: 1.65; font-weight: 500; }
+  .thumb { flex-shrink: 0; width: 220px; border-radius: 14px; overflow: hidden; border: 2px solid var(--fg); }
+  .thumb img { display: block; width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+  .divider { text-align: center; font-weight: 900; font-size: 1rem; color: var(--fg-subtle); margin: 5.5rem 0 3rem; text-transform: uppercase; letter-spacing: .08em; }
+  article.post .p-meta { display: flex; gap: .6rem; align-items: center; font-size: .8rem; font-weight: 700; color: var(--fg-subtle); margin-bottom: 1rem; }
+  article.post h1 { font-size: clamp(2.4rem, 1.4rem + 3.6vw, 3.6rem); margin: 0 0 1.75rem; }
+  .cover { display: block; width: 100%; border-radius: 20px; border: 2px solid var(--fg); margin-bottom: 2.5rem; }
+  .prose { font-size: 1.06rem; }
+  .prose > * + * { margin-top: 1.4rem; }
+  .prose h2 { font-size: 1.8rem; margin-top: 2.6rem; }
+  .prose blockquote { margin: 1.75rem 0; padding: 1.1rem 1.4rem; border: none; border-left: 5px solid var(--accent); background: var(--tag-bg); color: var(--fg); border-radius: 0 14px 14px 0; font-weight: 600; }
+  .prose code { font-family: var(--font-mono); background: var(--code-bg); padding: .15em .45em; border-radius: 5px; font-size: .875em; color: var(--accent); font-weight: 700; }
+  .prose pre { background: var(--pre-bg); border-radius: 14px; padding: 1.15rem 1.3rem; overflow-x: auto; font-size: .85rem; font-family: var(--font-mono); }
+  .prose pre code { color: var(--pre-fg); background: none; padding: 0; font-weight: 400; }
+  footer.site { border-top: 2px solid var(--border); padding: 2.2rem 0; color: var(--fg-subtle); font-size: .85rem; text-align: center; font-weight: 700; }
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="wrap inner">
+    <a href="#" class="brand">蘇里</a>
+    <nav>
+      <a class="nav-link active" href="#">博客</a>
+      <a class="nav-link" href="#">分享</a>
+      <a class="nav-link" href="#">关于</a>
+      <button class="toggle" onclick="document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark')">◐</button>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  <section class="intro">
+    <img class="avatar" src="../public/favicon.png" alt="" />
+    <div>
+      <h1>蘇里</h1>
+      <p>记录工程、产品与个人成长的思考。</p>
+    </div>
+  </section>
+
+  <span class="section-label">最新文章</span>
+
+  <article class="post-card">
+    <div class="card-body">
+      <div class="meta"><time>2026-07-03</time><span class="tag">AI</span><span class="tag">Agent</span><span class="tag">Skill</span></div>
+      <h2 class="title"><a href="#">在 Skill 中"软编排"工作流</a></h2>
+      <p class="desc">聊聊如何把链式、并行、路由、循环、编排和层级这些工作流模式写进 Skill，让 Agent 不靠玄学提示词乱跑，而是沿着有检查点、有护栏的路线完成复杂任务。</p>
+    </div>
+    <a class="thumb" href="#"><img src="../public/images/blogs/soft-orchestration-in-skills/00-cover-soft-orchestration-in-skills.jpg" alt="" /></a>
+  </article>
+
+  <article class="post-card">
+    <div class="card-body">
+      <div class="meta"><time>2026-06-27</time><span class="tag">AI</span><span class="tag">思考</span><span class="tag">读书笔记</span></div>
+      <h2 class="title"><a href="#">解读《Cognitive Surrender》：AI 时代中的认知投降</a></h2>
+      <p class="desc">解读 Addy Osmani 的《Cognitive Surrender》和《Don't Outsource the Learning》。聊聊天天用 AI 写代码的工程师，怎么在提效的同时保住自己的判断力和学习能力。</p>
+    </div>
+    <a class="thumb" href="#"><img src="../public/images/blogs/cognitive-surrender.jpg" alt="" /></a>
+  </article>
+
+  <div class="divider">文章内页预览</div>
+
+  <article class="post">
+    <div class="p-meta"><time>2026-07-03</time><span class="tag">AI</span><span class="tag">Agent</span></div>
+    <h1>在 Skill 中"软编排"工作流</h1>
+    <img class="cover" src="../public/images/blogs/soft-orchestration-in-skills/00-cover-soft-orchestration-in-skills.jpg" alt="" />
+    <div class="prose">
+      <p>提到 Agent 工作流，大家可能会先想到一些很硬的东西：状态机、DAG、workflow engine、可视化节点编排，最好还能拖拖拽拽，像在控制室里调度一整排闪着灯的机器。</p>
+      <p>这些当然很重要。但在很多日常 AI Coding 场景里，我们其实并不一定需要一套重型编排系统。更多时候，我们需要的是一种更轻的东西：把任务拆开，把顺序讲清楚，把分叉条件写明白。</p>
+      <h2>六种基础模式</h2>
+      <p>链式、并行、路由、循环、编排、层级——这六种模式几乎能覆盖日常工作里绝大多数「多步骤」任务。</p>
+      <blockquote><p>好的 Skill 不是一段更聪明的提示词，而是一张画好护栏的路线图。</p></blockquote>
+      <pre><code>flowchart TD
+  A[拆解任务] --&gt; B{是否有分叉?}
+  B --&gt;|是| C[路由到子任务]
+  B --&gt;|否| D[顺序执行]</code></pre>
+    </div>
+  </article>
+</main>
+<footer class="site">© 2026 蘇里 · 主题四：大胆现代</footer>
+</body>
+</html>
