@@ -105,8 +105,8 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     text-decoration: none;
   }
   .toc a.active {
-    color: var(--fg);
-    border-left-color: var(--fg);
+    color: var(--accent);
+    border-left-color: var(--accent);
   }
   @media (max-width: 1355px) {
     .toc {
@@ -121,7 +121,7 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     display: block;
     width: 100%;
     height: auto;
-    border-radius: 12px;
+    border-radius: 4px;
     border: 1px solid var(--border);
     margin-bottom: 2.5rem;
   }
@@ -129,7 +129,8 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
     color: var(--fg-subtle);
     margin-bottom: 0.6rem;
   }
@@ -139,10 +140,16 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     gap: 0.4rem;
   }
   .tag {
-    color: var(--fg-muted);
+    color: var(--accent);
+    background: var(--tag-bg);
+    padding: 0.1em 0.55em;
+    border-radius: 3px;
   }
   .post-header h1 {
+    display: inline-block;
     margin: 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 3px solid var(--accent);
     font-size: clamp(2rem, 1.3rem + 2.8vw, 2.6rem);
     font-weight: 750;
     line-height: 1.18;
@@ -177,6 +184,10 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     line-height: 1.3;
     scroll-margin-top: 1.5rem;
   }
+  .prose h2::before {
+    content: "· ";
+    color: var(--accent);
+  }
   .prose h3 {
     margin-top: 2.25rem;
     margin-bottom: 0.75rem;
@@ -207,8 +218,10 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
   }
   .prose blockquote {
     margin: 1.75rem 0;
-    padding: 0.5rem 0 0.5rem 1.3rem;
-    border-left: 3px solid var(--fg-subtle);
+    padding: 0.75rem 1.25rem;
+    background: var(--tag-bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
     color: var(--fg);
     font-weight: 450;
   }
@@ -216,7 +229,7 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     margin: 0;
   }
   .prose img {
-    border-radius: 8px;
+    border-radius: 4px;
   }
   .prose img,
   .prose pre.mermaid[data-processed] svg {
