@@ -219,6 +219,25 @@ flowchart TD
 
 这里最直接的例子是 [`dispatching-parallel-agents`](https://github.com/obra/superpowers/blob/main/skills/dispatching-parallel-agents/SKILL.md)。它的核心判断很明确：当有多个独立问题域、彼此没有共享状态、也不会互相影响时，就应该“一个问题域一个 Agent”，并发推进。
 
+skill 里的分支图，非常清晰的说明白了什么时候应该用并行：
+
+```dot
+digraph when_to_use {
+    "有多个失败吗？" [shape=diamond];
+    "它们彼此独立吗？" [shape=diamond];
+    "单个 Agent 统一排查" [shape=box];
+    "一个问题域一个 Agent" [shape=box];
+    "能并行处理吗？" [shape=diamond];
+    "改为串行执行" [shape=box];
+    "并行派发" [shape=box];
+
+    "有多个失败吗？" -> "它们彼此独立吗？" [label="是"];
+    "它们彼此独立吗？" -> "单个 Agent 统一排查" [label="否 - 相互关联"];
+    "它们彼此独立吗？" -> "能并行处理吗？" [label="是"];
+    "能并行处理吗？" -> "并行派发" [label="是"];
+    "能并行处理吗？" -> "改为串行执行" [label="否 - 共享状态"];
+}
+```
 
 比如 6 个测试失败分布在 3 个文件里，而且根因分别属于 abort、batch completion、race condition。顺序排查当然也能做，但会浪费大量等待时间。并行 Skill 的做法是把每个文件或子系统交给一个独立 Agent，最后再由主 Agent 审阅总结、检查冲突、跑完整测试。
 

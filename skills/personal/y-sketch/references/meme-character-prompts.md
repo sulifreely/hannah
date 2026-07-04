@@ -73,6 +73,7 @@ ugly, deformed, blurry, extra limbs, missing limbs, floating limbs, extra finger
 按图像后端处理方式不同：
 
 - **支持负面 prompt 的后端**（Stable Diffusion / ComfyUI / Midjourney 的 `--no` 等）：直接填进 negative prompt 字段。
-- **没有负面字段的后端**（如 Cursor `GenerateImage`）：在正向描述末尾写一句 `Avoid: ...`，把上面的词翻译进去，例如 `Avoid: deformed hands, extra/missing fingers, extra limbs, distorted faces, messy cluttered background, unwanted text/watermark, overlapping characters, broken proportions, inconsistent perspective or shadow direction`。
+- **没有负面字段的后端**（如 Cursor `GenerateImage`）：在正向描述末尾写一句 `Avoid: ...`，把上面的词翻译进去，例如 `Avoid: deformed hands, extra/missing fingers, extra/missing/floating limbs, distorted faces, unintentional asymmetric eyes, messy cluttered background, unwanted text/watermark, overlapping characters, broken proportions, inconsistent perspective or shadow direction`。
 - 注意 `text, watermark` 是防**多余乱码文字**；如果这张图**本来就要**中文短标签或 "APPROVE" 之类的 meme 文字，别把有意的标签也一起 avoid 掉——只压制随机水印和乱字。
-- 手指数量、透视消失点、光影方向这几项和 SKILL.md「Prompt 公式」里的 Anatomy / Perspective & light 正向段是同一件事的一体两面：正向段说清楚"要什么"，这里的避坑词兜底"不要什么"。多角色、多物体同框（对比式、四宫格）时两边都要用上，单靠一边压不住穿帮。
+- 同理，`mismatched eyes` 是防**意外的表情崩坏**（两眼大小/位置对不上、看起来像画错了）；如果角色本来就要用 Smug Wojak 那种"一只眼眯起"的**刻意**不对称表情，别把这个有意的表情也一起 avoid 掉——只压制无意的脸部崩坏，且要在正向 prompt 里把这个不对称表情写清楚（见 SKILL.md Anatomy 段），让模型知道这是设计好的。
+- 手指数量、肢体缺失、透视消失点、光影方向这几项和 SKILL.md「Prompt 公式」里的 Anatomy / Perspective & light 正向段是同一件事的一体两面：正向段说清楚"要什么"，这里的避坑词兜底"不要什么"。多角色、多物体同框（对比式、四宫格）时两边都要用上，单靠一边压不住穿帮。

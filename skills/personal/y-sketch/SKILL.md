@@ -156,7 +156,7 @@ Hand-drawn meme-style illustration, white background, colorful sketchy internet 
 
 {色彩：负面 / 混乱一侧用红 / 橙 / 灰色调；正面 / 有序一侧用蓝 / 绿色调；背景白色；线稿黑色；强调标签用黄色或粗黑体}
 
-Anatomy: correct cartoon body proportions, each hand clearly drawn with five fingers, no extra or missing limbs, natural joint bending direction, symmetrical facial features unless the expression itself calls for asymmetry (e.g. smug squint).
+Anatomy: correct cartoon body proportions, each hand clearly drawn with five fingers, no extra or missing limbs, natural joint bending direction, symmetrical facial features unless the expression itself deliberately calls for asymmetry (e.g. one-eye smug squint) — if using an asymmetric expression, state it explicitly in the scene description so it reads as intentional, not a drawing error.
 
 Perspective & light: every character and object in the same panel shares one consistent eye-level and vanishing point, clear foreground/midground/background separation, no object overlapping or clipping through another, objects scale down correctly with distance, one consistent light direction with matching flat shadow shapes — keep shading flat and graphic, not photorealistic volumetric rendering.
 
@@ -167,7 +167,7 @@ Art style: Bold black sketch outlines, bright color fills, slightly wobbly imper
 
 **减法原则**：prompt 里主动写明 "clean, uncluttered, minimal elements, lots of whitespace"，避免模型自行往画面里塞满道具、背景和小图标。
 
-**解剖与透视段是硬约束，不是可选装饰**：手绘 meme 风格允许夸张变形（大头小身子、超长手臂强调动作），但"夸张"和"画崩"是两件事——夸张是刻意为之、逐格/逐图保持一致的风格化处理；画崩是手指数量随机、肢体凭空多一只、地平线和消失点各画各的。上面这段的目的是压住后者，不是禁止前者。多角色、多物体同框（尤其是四宫格、对比式构图）时最容易出问题，组装 prompt 时要显式检查这段是否覆盖了当前构图里的所有角色和物体。
+**解剖与透视段是硬约束，不是可选装饰**：手绘 meme 风格允许夸张变形（大头小身子、超长手臂强调动作），但"夸张"和"画崩"是两件事——夸张是刻意为之、逐格/逐图保持一致的风格化处理；画崩是手指数量随机、肢体凭空多一只、视平线和消失点各画各的、光源和阴影方向随手乱画。上面两段的目的是压住后者，不是禁止前者。多角色、多物体同框（尤其是四宫格、对比式构图）时最容易出问题，组装 prompt 时要显式检查这两段是否覆盖了当前构图里的所有角色和物体。
 
 ## 屏幕朝向（透视一致性的专项情况）
 
