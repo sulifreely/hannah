@@ -31,3 +31,5 @@ pnpm-debug.log*
 
 # learn projects
 .projects
+.vercel
+.env*

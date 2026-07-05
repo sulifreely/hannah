@@ -105,7 +105,7 @@ const storageKey = `liked:${contentType}:${slug}`;
     btn.classList.toggle('is-liked', liked);
     btn.setAttribute('aria-pressed', String(liked));
     const label = btn.querySelector('.like-label');
-    if (label) label.textContent = liked ? '感谢喜欢 ♥' : '喜欢这篇文章';
+    if (label) label.textContent = liked ? '感谢喜欢' : '喜欢这篇文章';
   }
 
   function initLikeButtons() {
