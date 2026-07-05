@@ -50,6 +50,8 @@ const { slug, contentType = 'blog', mode = 'readonly' } = Astro.props;
 </style>
 
 <script>
+  import { formatCount } from '../lib/format';
+
   interface ViewsResponse {
     views: Record<string, number>;
   }
@@ -59,17 +61,9 @@ const { slug, contentType = 'blog', mode = 'readonly' } = Astro.props;
     views: number;
   }
 
-  function formatViews(n: number): string {
-    if (n >= 10000) {
-      const wan = (n / 10000).toFixed(1).replace(/\.0$/, '');
-      return `${wan}万`;
-    }
-    return String(n);
-  }
-
   function setValue(el: HTMLElement, views: number) {
     const target = el.querySelector('.view-count-value');
-    if (target) target.textContent = formatViews(views);
+    if (target) target.textContent = formatCount(views);
   }
 
   async function initReadonly() {

@@ -39,6 +39,7 @@ const storageKey = `liked:${contentType}:${slug}`;
     ></path>
   </svg>
   <span class="like-label">喜欢这篇文章</span>
+  <span class="like-count" data-like-count>···</span>
 </button>
 
 <style>
@@ -74,6 +75,18 @@ const storageKey = `liked:${contentType}:${slug}`;
     flex-shrink: 0;
     transition: transform 0.2s ease, color 0.2s ease;
   }
+  .like-count {
+    font-variant-numeric: tabular-nums;
+    color: var(--fg-subtle);
+  }
+  .like-count::before {
+    content: "·";
+    margin-right: 0.5rem;
+    color: var(--border);
+  }
+  .like-button.is-liked .like-count {
+    color: var(--accent);
+  }
   .like-button.is-liked {
     color: var(--accent);
     border-color: var(--accent);
@@ -100,6 +113,16 @@ const storageKey = `liked:${contentType}:${slug}`;
 
 <script>
   import { AnalyticsEvents, type ContentType } from '../lib/analytics';
+  import { formatCount } from '../lib/format';
+
+  interface LikesResponse {
+    likes: Record<string, number>;
+  }
+  interface ToggleResponse {
+    slug: string;
+    contentType: string;
+    likes: number;
+  }
 
   function setState(btn: HTMLButtonElement, liked: boolean) {
     btn.classList.toggle('is-liked', liked);
@@ -108,43 +131,107 @@ const storageKey = `liked:${contentType}:${slug}`;
     if (label) label.textContent = liked ? '感谢喜欢' : '喜欢这篇文章';
   }
 
-  function initLikeButtons() {
-    document
-      .querySelectorAll<HTMLButtonElement>('.like-button[data-like-button]:not([data-bound])')
-      .forEach((btn) => {
-        btn.dataset.bound = 'true';
+  function setCount(btn: HTMLButtonElement, count: number) {
+    const target = btn.querySelector('.like-count');
+    if (target) target.textContent = formatCount(Math.max(0, count));
+  }
 
-        const key = btn.dataset.storageKey || '';
-        const slug = btn.dataset.slug || '';
-        const title = btn.dataset.title || '';
-        const contentType = (btn.dataset.contentType || 'blog') as ContentType;
+  function currentCount(btn: HTMLButtonElement): number {
+    const target = btn.querySelector('.like-count');
+    return Number(target?.textContent) || 0;
+  }
 
-        let liked = false;
+  async function fetchInitialCounts(buttons: HTMLButtonElement[]) {
+    // 按 contentType 分组批量查询，避免一个页面多个点赞按钮各发一个请求。
+    const groups = new Map<string, HTMLButtonElement[]>();
+    buttons.forEach((btn) => {
+      const contentType = btn.dataset.contentType || 'blog';
+      const list = groups.get(contentType) || [];
+      list.push(btn);
+      groups.set(contentType, list);
+    });
+
+    await Promise.all(
+      Array.from(groups.entries()).map(async ([contentType, group]) => {
+        const slugs = group.map((btn) => btn.dataset.slug || '').filter(Boolean);
+        if (!slugs.length) return;
         try {
-          liked = key ? localStorage.getItem(key) === '1' : false;
-        } catch {}
+          const res = await fetch(
+            `/api/likes?contentType=${encodeURIComponent(contentType)}&slugs=${encodeURIComponent(
+              slugs.join(','),
+            )}`,
+          );
+          if (!res.ok) return;
+          const data: LikesResponse = await res.json();
+          group.forEach((btn) => {
+            const slug = btn.dataset.slug || '';
+            setCount(btn, data.likes?.[slug] ?? 0);
+          });
+        } catch {
+          /* 点赞数只是锦上添花，静默失败即可，不影响点赞交互本身 */
+        }
+      }),
+    );
+  }
+
+  function initLikeButtons() {
+    const buttons = Array.from(
+      document.querySelectorAll<HTMLButtonElement>('.like-button[data-like-button]:not([data-bound])'),
+    );
+    if (!buttons.length) return;
+    buttons.forEach((btn) => (btn.dataset.bound = 'true'));
+
+    // 计数只是锦上添花，不阻塞按钮的可点击状态；本机点赞状态（localStorage）
+    // 同步读取、立即生效。
+    fetchInitialCounts(buttons);
+
+    buttons.forEach((btn) => {
+      const key = btn.dataset.storageKey || '';
+      const slug = btn.dataset.slug || '';
+      const title = btn.dataset.title || '';
+      const contentType = (btn.dataset.contentType || 'blog') as ContentType;
+
+      let liked = false;
+      try {
+        liked = key ? localStorage.getItem(key) === '1' : false;
+      } catch {}
+      setState(btn, liked);
+
+      btn.addEventListener('click', () => {
+        liked = !liked;
         setState(btn, liked);
+        setCount(btn, currentCount(btn) + (liked ? 1 : -1));
 
-        btn.addEventListener('click', () => {
-          liked = !liked;
-          setState(btn, liked);
+        btn.classList.remove('is-animating');
+        void btn.offsetWidth; // 强制重排，让动画在连续点击时也能重新播放
+        btn.classList.add('is-animating');
 
-          btn.classList.remove('is-animating');
-          void btn.offsetWidth; // 强制重排，让动画在连续点击时也能重新播放
-          btn.classList.add('is-animating');
+        try {
+          if (key) localStorage.setItem(key, liked ? '1' : '0');
+        } catch {}
 
-          try {
-            if (key) localStorage.setItem(key, liked ? '1' : '0');
-          } catch {}
+        const eventProps = { contentType, slug, title, path: location.pathname };
+        if (liked) {
+          AnalyticsEvents.postLike(eventProps);
+        } else {
+          AnalyticsEvents.postUnlike(eventProps);
+        }
 
-          const eventProps = { contentType, slug, title, path: location.pathname };
-          if (liked) {
-            AnalyticsEvents.postLike(eventProps);
-          } else {
-            AnalyticsEvents.postUnlike(eventProps);
-          }
-        });
+        // 服务端计数是最终真相，返回后用真实值纠正一次本地乐观更新的漂移。
+        fetch('/api/likes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug, contentType, liked }),
+        })
+          .then((res) => (res.ok ? (res.json() as Promise<ToggleResponse>) : null))
+          .then((data) => {
+            if (data) setCount(btn, data.likes);
+          })
+          .catch(() => {
+            /* 点赞数只是锦上添花，静默失败即可 */
+          });
       });
+    });
   }
 
   initLikeButtons();
