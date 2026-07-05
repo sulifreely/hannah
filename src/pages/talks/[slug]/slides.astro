@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import { marked } from 'marked';
+import Analytics from '@vercel/analytics/astro';
 import ThemeToggle from '../../../components/ThemeToggle.astro';
 import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/700.css';
@@ -49,6 +50,7 @@ const scenes = talk.body
         } catch (e) {}
       })();
     </script>
+    <Analytics />
   </head>
   <body class="deck-body">
     <main id="deck" class="deck">

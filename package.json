@@ -20,6 +20,7 @@
     "@fontsource/comic-neue": "^5.2.7",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/mulish": "^5.2.8",
+    "@vercel/analytics": "^2.0.1",
     "astro": "^5.5.0",
     "lxgw-wenkai-lite-webfont": "^1.7.0",
     "marked": "^15.0.12",
