@@ -4,7 +4,6 @@ date: 2026-07-03T16:56:00+08:00
 description: 聊聊如何把链式、并行、路由、循环、编排和层级这些工作流模式写进 Skill，让 Agent 不靠玄学提示词乱跑，而是沿着有检查点、有护栏的路线完成复杂任务。
 cover: /images/blogs/soft-orchestration-in-skills/00-cover-soft-orchestration-in-skills.jpg
 tags:
-  - AI
   - Agent
   - Skill
   - 工程实践

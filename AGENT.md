@@ -92,6 +92,7 @@ draft: false                    # true 则不在列表/详情/RSS 中出现
 
 - 列表（首页博客、Talks）按 `date` **倒序**（越新越靠前）。同一天有多篇时，用带时间的 ISO 形式区分先后，例如 `date: 2026-06-27T16:00:00+08:00`；页面只展示到「年-月-日」，时间仅用于排序。
 - 正文是标准 Markdown，代码块自动高亮并跟随主题。
+- `tags` **最多 3 个**，选最贴切的即可，不要为了覆盖搜索词而堆砌标签。已在 `src/content/config.ts` 的 zod schema 中用 `.max(3)` 硬校验，超过会导致 `npm run check` / `npm run build` 报错。
 
 ### 趣味性：emoji 与图表
 
