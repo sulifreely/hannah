@@ -64,7 +64,7 @@ const fmt = (d: Date) =>
   .talk-card {
     display: flex;
     align-items: flex-start;
-    gap: 1.25rem;
+    gap: clamp(1.25rem, 3vw, 2rem);
     padding: 1.75rem 0;
     border-bottom: 1px solid var(--border);
   }
@@ -75,7 +75,7 @@ const fmt = (d: Date) =>
   .thumb {
     flex-shrink: 0;
     display: block;
-    width: 132px;
+    width: clamp(132px, 24vw, 200px);
     border-radius: 10px;
     overflow: hidden;
     border: 1px solid var(--border);
@@ -86,9 +86,23 @@ const fmt = (d: Date) =>
     aspect-ratio: 16 / 10;
     object-fit: cover;
   }
-  @media (max-width: 540px) {
+  @media (max-width: 680px) {
     .thumb {
-      width: 96px;
+      width: 112px;
+    }
+  }
+  @media (max-width: 560px) {
+    .talk-card {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.85rem;
+    }
+    .thumb {
+      order: -1;
+      width: 100%;
+    }
+    .thumb img {
+      aspect-ratio: 16 / 9;
     }
   }
   .meta {
