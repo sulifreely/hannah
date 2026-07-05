@@ -1,5 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import LikeButton from '../components/LikeButton.astro';
+import ViewCount from '../components/ViewCount.astro';
 
 interface Heading {
   depth: number;
@@ -8,6 +10,7 @@ interface Heading {
 }
 
 interface Props {
+  slug: string;
   title: string;
   date: Date;
   description: string;
@@ -16,7 +19,7 @@ interface Props {
   headings?: Heading[];
 }
 
-const { title, date, description, tags = [], cover, headings = [] } = Astro.props;
+const { slug, title, date, description, tags = [], cover, headings = [] } = Astro.props;
 
 const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
@@ -46,6 +49,7 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     <header class="post-header">
       <div class="meta">
         <time datetime={date.toISOString()}>{dateStr}</time>
+        <ViewCount slug={slug} contentType="blog" mode="increment" />
         {tags.length > 0 && (
           <span class="tags">
             {tags.map((tag) => <span class="tag">#{tag}</span>)}
@@ -60,6 +64,7 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     </div>
     <footer class="post-footer">
       <a href="/">← 返回文章列表</a>
+      <LikeButton slug={slug} title={title} contentType="blog" />
     </footer>
   </article>
   <button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部">
@@ -164,6 +169,10 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
     letter-spacing: -0.02em;
   }
   .post-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
     margin-top: 3rem;
     padding-top: 1.5rem;
     border-top: 1px solid var(--border);
@@ -172,6 +181,12 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
   }
   .post-footer a:hover {
     color: var(--fg);
+  }
+  @media (max-width: 480px) {
+    .post-footer {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+    }
   }
   .back-to-top {
     position: fixed;

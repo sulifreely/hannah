@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
+import vercel from '@astrojs/vercel';
 
 /**
  * 把 ```mermaid 代码块转成 <pre class="mermaid">，跳过 Shiki 高亮，
@@ -192,6 +193,9 @@ function rehypeArticleLinks() {
 // https://astro.build/config
 export default defineConfig({
   site: 'https://yanguangjie.com',
+  // 站点整体仍是 output: 'static'（默认值），仅 src/pages/api/ 下的接口通过
+  // `export const prerender = false` 按需渲染，因此需要 adapter 才能部署这部分函数。
+  adapter: vercel(),
   integrations: [mdx(), sitemap()],
   markdown: {
     remarkPlugins: [remarkMermaid, remarkDot],

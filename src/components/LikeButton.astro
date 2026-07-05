@@ -1,0 +1,151 @@
+---
+import type { ContentType } from '../lib/analytics';
+
+interface Props {
+  slug: string;
+  title: string;
+  contentType?: ContentType;
+}
+
+const { slug, title, contentType = 'blog' } = Astro.props;
+// 每个内容各自记一份「本机是否已点赞」状态，纯前端展示用，不代表全站真实点赞数。
+const storageKey = `liked:${contentType}:${slug}`;
+---
+
+<button
+  class="like-button"
+  type="button"
+  aria-pressed="false"
+  data-like-button
+  data-slug={slug}
+  data-title={title}
+  data-content-type={contentType}
+  data-storage-key={storageKey}
+>
+  <svg
+    class="like-icon"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width="16"
+    height="16"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path
+      d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"
+    ></path>
+  </svg>
+  <span class="like-label">喜欢这篇文章</span>
+</button>
+
+<style>
+  .like-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--fg-muted);
+    font-family: inherit;
+    font-size: 0.85rem;
+    line-height: 1;
+    box-shadow: 2px 2px 0 var(--border);
+    cursor: pointer;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+  .like-button:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .like-button:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--border);
+  }
+  .like-icon {
+    flex-shrink: 0;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  .like-button.is-liked {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .like-button.is-liked .like-icon {
+    fill: var(--accent);
+    color: var(--accent);
+  }
+  .like-button.is-animating .like-icon {
+    animation: like-pop 0.35s ease;
+  }
+  @keyframes like-pop {
+    0% {
+      transform: scale(1);
+    }
+    45% {
+      transform: scale(1.35);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+</style>
+
+<script>
+  import { AnalyticsEvents, type ContentType } from '../lib/analytics';
+
+  function setState(btn: HTMLButtonElement, liked: boolean) {
+    btn.classList.toggle('is-liked', liked);
+    btn.setAttribute('aria-pressed', String(liked));
+    const label = btn.querySelector('.like-label');
+    if (label) label.textContent = liked ? '感谢喜欢 ♥' : '喜欢这篇文章';
+  }
+
+  function initLikeButtons() {
+    document
+      .querySelectorAll<HTMLButtonElement>('.like-button[data-like-button]:not([data-bound])')
+      .forEach((btn) => {
+        btn.dataset.bound = 'true';
+
+        const key = btn.dataset.storageKey || '';
+        const slug = btn.dataset.slug || '';
+        const title = btn.dataset.title || '';
+        const contentType = (btn.dataset.contentType || 'blog') as ContentType;
+
+        let liked = false;
+        try {
+          liked = key ? localStorage.getItem(key) === '1' : false;
+        } catch {}
+        setState(btn, liked);
+
+        btn.addEventListener('click', () => {
+          liked = !liked;
+          setState(btn, liked);
+
+          btn.classList.remove('is-animating');
+          void btn.offsetWidth; // 强制重排，让动画在连续点击时也能重新播放
+          btn.classList.add('is-animating');
+
+          try {
+            if (key) localStorage.setItem(key, liked ? '1' : '0');
+          } catch {}
+
+          const eventProps = { contentType, slug, title, path: location.pathname };
+          if (liked) {
+            AnalyticsEvents.postLike(eventProps);
+          } else {
+            AnalyticsEvents.postUnlike(eventProps);
+          }
+        });
+      });
+  }
+
+  initLikeButtons();
+</script>

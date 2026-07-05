@@ -1,0 +1,164 @@
+---
+import type { ContentType } from '../lib/analytics';
+
+interface Props {
+  slug: string;
+  contentType?: ContentType;
+  /**
+   * readonly：只展示阅读量，不计数（用于列表页卡片）。
+   * increment：展示的同时给阅读量 +1（用于详情页，每个浏览器标签页只计一次）。
+   */
+  mode?: 'readonly' | 'increment';
+}
+
+const { slug, contentType = 'blog', mode = 'readonly' } = Astro.props;
+---
+
+<span
+  class="view-count"
+  data-view-count
+  data-slug={slug}
+  data-content-type={contentType}
+  data-mode={mode}
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    width="14"
+    height="14"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+  </svg>
+  <span class="view-count-value">···</span>
+</span>
+
+<style>
+  .view-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .view-count-value {
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+
+<script>
+  interface ViewsResponse {
+    views: Record<string, number>;
+  }
+  interface IncrementResponse {
+    slug: string;
+    contentType: string;
+    views: number;
+  }
+
+  function formatViews(n: number): string {
+    if (n >= 10000) {
+      const wan = (n / 10000).toFixed(1).replace(/\.0$/, '');
+      return `${wan}万`;
+    }
+    return String(n);
+  }
+
+  function setValue(el: HTMLElement, views: number) {
+    const target = el.querySelector('.view-count-value');
+    if (target) target.textContent = formatViews(views);
+  }
+
+  async function initReadonly() {
+    const els = Array.from(
+      document.querySelectorAll<HTMLElement>('.view-count[data-mode="readonly"]:not([data-bound])'),
+    );
+    if (!els.length) return;
+
+    // 按 contentType 分组，每组一次批量请求，避免列表页每张卡片各发一个请求。
+    const groups = new Map<string, HTMLElement[]>();
+    els.forEach((el) => {
+      el.dataset.bound = 'true';
+      const contentType = el.dataset.contentType || 'blog';
+      const list = groups.get(contentType) || [];
+      list.push(el);
+      groups.set(contentType, list);
+    });
+
+    await Promise.all(
+      Array.from(groups.entries()).map(async ([contentType, group]) => {
+        const slugs = group.map((el) => el.dataset.slug || '').filter(Boolean);
+        if (!slugs.length) return;
+        try {
+          const res = await fetch(
+            `/api/views?contentType=${encodeURIComponent(contentType)}&slugs=${encodeURIComponent(
+              slugs.join(','),
+            )}`,
+          );
+          if (!res.ok) return;
+          const data: ViewsResponse = await res.json();
+          group.forEach((el) => {
+            const slug = el.dataset.slug || '';
+            setValue(el, data.views?.[slug] ?? 0);
+          });
+        } catch {
+          /* 阅读量只是锦上添花，静默失败即可，不影响页面其它交互 */
+        }
+      }),
+    );
+  }
+
+  async function initIncrement() {
+    const els = Array.from(
+      document.querySelectorAll<HTMLElement>('.view-count[data-mode="increment"]:not([data-bound])'),
+    );
+
+    await Promise.all(
+      els.map(async (el) => {
+        el.dataset.bound = 'true';
+        const slug = el.dataset.slug || '';
+        const contentType = el.dataset.contentType || 'blog';
+        if (!slug) return;
+
+        // 同一浏览器标签页会话内，同一篇文章只上报一次，避免反复刷新页面刷阅读量。
+        const sessionKey = `viewed:${contentType}:${slug}`;
+        let alreadyCounted = false;
+        try {
+          alreadyCounted = sessionStorage.getItem(sessionKey) === '1';
+        } catch {}
+
+        try {
+          if (alreadyCounted) {
+            const res = await fetch(
+              `/api/views?contentType=${encodeURIComponent(contentType)}&slugs=${encodeURIComponent(slug)}`,
+            );
+            if (!res.ok) return;
+            const data: ViewsResponse = await res.json();
+            setValue(el, data.views?.[slug] ?? 0);
+            return;
+          }
+
+          const res = await fetch('/api/views', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug, contentType }),
+          });
+          if (!res.ok) return;
+          const data: IncrementResponse = await res.json();
+          setValue(el, data.views);
+          try {
+            sessionStorage.setItem(sessionKey, '1');
+          } catch {}
+        } catch {
+          /* 阅读量只是锦上添花，静默失败即可 */
+        }
+      }),
+    );
+  }
+
+  initReadonly();
+  initIncrement();
+</script>
