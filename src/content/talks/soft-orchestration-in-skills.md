@@ -34,8 +34,8 @@ deck:
     - type: quote
       section: '1'
       eyebrow: 一个天天在用，却很少被追问的问题
-      quote: 我们每天都在用 Skill，甚至自己在写 Skill —— 但有没有真正拆开看过，它里面到底藏着哪些结构、哪些模式？
-      lead: 今天想和大家一起，把这层"结构"挖出来看看。
+      quote: 我们每天都在用 Skill，有人还在自己写 Skill。但认真拆开看过里面是什么结构的，好像不多。
+      lead: 今天想一起把这层东西翻出来看看。
 
     - type: split
       section: '1'
@@ -58,7 +58,7 @@ deck:
     - type: quote
       section: '1'
       quote: 一个复杂任务，应该按什么顺序、以什么边界、由谁来完成？
-      lead: 编排要回答的，就是这一句话。任务足够简单时不需要它；任务一复杂，就会长出岔路。
+      lead: 编排回答的就是这一个问题。任务简单时用不着；任务一复杂，岔路自然就有了。
 
     - type: diagram
       section: '1'
@@ -115,7 +115,7 @@ deck:
             B --> C
             C --> D
             D --> E
-      lead: 关键不是编号本身，而是每一步的输入输出要清楚 —— 没看清楚火从哪冒出来，就急着往墙上浇水，只会把屋子弄得更湿。
+      lead: 步骤编号不重要，每一步的输入输出说清楚才重要。上一步交了什么，下一步才知道从哪接。
       refs:
         - label: executing-plans
           href: https://github.com/obra/superpowers/blob/main/skills/executing-plans/SKILL.md
@@ -140,7 +140,7 @@ deck:
             C --> F
             D --> F
             E --> F
-      lead: 并行的收益是快，风险是散。Skill 要把"散"收回来：各查各的边界，但按同一种格式把证据交回来。
+      lead: 并行跑得快，但容易各说各话。Skill 要做的是：边界分开，格式统一，证据汇总进来。
       refs:
         - label: dispatching-parallel-agents
           href: https://github.com/obra/superpowers/blob/main/skills/dispatching-parallel-agents/SKILL.md
@@ -220,7 +220,7 @@ deck:
             C --> F
             D --> F
             E --> F
-      lead: 和并行的区别：Parallel 关注"能不能同时做"，Orchestrate 关注"谁来决定下一步"。工具和子 Agent 能搬砖，但房子歪没歪，得有人抬头看一眼。
+      lead: Parallel 是"这些事可以同时跑"，Orchestrate 是"有人要一直盯着全局"。搬砖的可以很多，但得有人抬头看房子歪没歪。
       refs:
         - label: subagent-driven-development
           href: https://github.com/obra/superpowers/blob/main/skills/subagent-driven-development/SKILL.md
@@ -325,7 +325,7 @@ deck:
         - label: '外部动作<br/><span style="opacity:.65">必须可控</span>'
         - label: '交付结果<br/><span style="opacity:.8">必须可验证</span>'
           variant: hero
-      lead: 越往右，越不能靠模型"自由发挥"。我们不是把风变成石头，而是给帆、舵和锚各自安排好位置。
+      lead: 越往右，越不能靠模型自己摸索。不是要把随机性消掉，而是在该约束的地方约束到位。
 
     - type: grid
       section: '4'
@@ -381,7 +381,7 @@ deck:
 
     - type: quote
       section: '5'
-      quote: Skill 不是魔法咒语，而是一份工程操作手册 —— 把路径写清楚，该自由发挥时自由发挥，该踩刹车时就踩刹车。
+      quote: Skill 不是咒语，是一份操作手册。把路径写清楚，该发挥时发挥，该收住时收住。
       heading: 谢谢 Thank You
       centered: true
 draft: false
