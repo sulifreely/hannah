@@ -1,5 +1,5 @@
 ---
-title: Skill 中的软编排
+title: 深入浅出 Skill 中的执行拓扑
 subtitle: 给 Agent 一条有检查点、有护栏的路线
 event: Agent 工程分享 / 2026
 date: 2026-07-07
@@ -47,13 +47,13 @@ deck:
           items:
             - 状态机 / DAG / workflow engine
             - 可视化节点，拖拽调度
-            - 把每一步焐死成代码节点
+            - 把每一步写死成代码节点
         - label: 软编排
           dot: var(--tab-warn)
           items:
             - 写进 Skill 的操作手册
             - 顺序、分叉、检查点、退出条件
-            - 把行动边界写清楚，而非焐死
+            - 把行动边界写清楚，而非写死
 
     - type: quote
       section: '1'
@@ -190,7 +190,7 @@ deck:
             C -- "否" --> E
             E --> A
       bullets:
-        - 一定要写清楚退出条件，否则会烧干上下文和耐心
+        - 一定要写清楚退出条件，否则会耗尽上下文窗口和耐心
         - 最多重复 N 次，每轮都要留下判断记录，不是瞎撞
       refs:
         - label: loop-on-ci
@@ -330,7 +330,7 @@ deck:
     - type: grid
       section: '4'
       kicker: '14'
-      heading: 六条压住"确定性光谱"右侧的做法
+      heading: 六个让结果更可控的做法
       columns: 3
       cards:
         - num: '1'
