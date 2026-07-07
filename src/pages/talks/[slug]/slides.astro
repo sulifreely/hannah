@@ -11,7 +11,8 @@ import 'lxgw-wenkai-lite-webfont/lxgwwenkailite-bold.css';
 import '../../../styles/global.css';
 
 export async function getStaticPaths() {
-  const talks = await getCollection('talks', ({ data }) => !data.draft);
+  // deckUrl 的分享用的是独立的富交互 HTML 幻灯片，不需要这条站内路由。
+  const talks = await getCollection('talks', ({ data }) => !data.draft && !data.deckUrl);
   return talks.map((talk) => ({
     params: { slug: talk.slug },
     props: { talk },

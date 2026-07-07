@@ -23,6 +23,10 @@ const talks = defineCollection({
     tags: z.array(z.string()).default([]),
     cover: z.string().optional(),
     draft: z.boolean().default(false),
+    // 指向独立的富交互 HTML 幻灯片（如 /decks/xxx/），
+    // 设置后详情页的“Open slides”按钮会跳到这里，
+    // 而不是站内基于正文 markdown 渲染的 /talks/[slug]/slides/。
+    deckUrl: z.string().optional(),
   }),
 });
 
