@@ -1,0 +1,596 @@
+/* ===========================================
+     NOTEBOOK TABS DECK THEME
+     Cream paper card on charcoal, colourful section tabs
+     on the right edge. Ported from the original standalone
+     deck (public/decks/soft-orchestration-in-skills/) so it
+     can now be shared by any talk with template: deck.
+     This file is imported as a plain global stylesheet
+     (not an Astro-scoped <style>) because its selectors need
+     to match markup rendered by several child components
+     (the per-slide-type partials under decks/notebook-tabs/).
+     =========================================== */
+:root {
+  --bg-outer: #262523;
+  --bg-outer-2: #1b1a19;
+  --bg-page: #f8f5ee;
+  --bg-page-soft: #f1ede2;
+  --text-primary: #201d18;
+  --text-secondary: #726b5e;
+  --text-faint: #a49b8a;
+
+  --tab-1: #98d4bb; /* Chain — mint */
+  --tab-2: #c7b8ea; /* Parallel — lavender */
+  --tab-3: #f4b8c5; /* Route — pink */
+  --tab-4: #a8d8ea; /* Loop — sky */
+  --tab-5: #f0c88a; /* Orchestrate — amber */
+  --tab-6: #d8b8a0; /* Hierarchy — terracotta */
+  --tab-warn: #c14a3a;
+
+  --font-display: "Bodoni Moda", "Noto Serif SC", serif;
+  --font-body: "DM Sans", "Noto Sans SC", sans-serif;
+  --font-mono: "DM Mono", "Noto Sans SC", monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-normal: 0.7s;
+
+  --slide-padding: clamp(1.5rem, 4vw, 4rem);
+  --content-gap: clamp(1rem, 2vw, 2rem);
+  --title-size: clamp(1.6rem, 4.6vw, 3.4rem);
+  --h2-size: clamp(1.2rem, 3vw, 2.1rem);
+  --h3-size: clamp(1rem, 2.2vw, 1.4rem);
+  --body-size: clamp(0.78rem, 1.35vw, 1.05rem);
+  --small-size: clamp(0.65rem, 1vw, 0.82rem);
+}
+
+.deck-root * { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===========================================
+     VIEWPORT FITTING: MANDATORY BASE STYLES
+     =========================================== */
+.deck-root, .deck-root body { height: 100%; overflow-x: hidden; }
+.deck-root { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+
+.deck-root .slide {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.deck-root .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: clamp(0.5rem, 1.5vw, 1rem);
+}
+
+@media (max-height: 700px) {
+  .deck-root {
+    --slide-padding: clamp(0.75rem, 3vw, 2rem);
+    --content-gap: clamp(0.4rem, 1.5vw, 1rem);
+    --title-size: clamp(1.25rem, 4.5vw, 2.5rem);
+    --h2-size: clamp(1rem, 3vw, 1.75rem);
+  }
+}
+@media (max-height: 600px) {
+  .deck-root {
+    --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem);
+    --content-gap: clamp(0.3rem, 1vw, 0.75rem);
+    --title-size: clamp(1.1rem, 4vw, 2rem);
+    --body-size: clamp(0.7rem, 1.2vw, 0.95rem);
+  }
+  .deck-root .nav-dots, .deck-root .keyboard-hint, .deck-root .decorative { display: none; }
+}
+@media (max-height: 500px) {
+  .deck-root {
+    --slide-padding: clamp(0.4rem, 2vw, 1rem);
+    --title-size: clamp(1rem, 3.5vw, 1.5rem);
+    --h2-size: clamp(0.9rem, 2.5vw, 1.25rem);
+    --body-size: clamp(0.65rem, 1vw, 0.85rem);
+  }
+}
+@media (max-width: 600px) {
+  .deck-root { --title-size: clamp(1.25rem, 7vw, 2.5rem); }
+  .deck-root .grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .deck-root *, .deck-root *::before, .deck-root *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.2s !important;
+  }
+  .deck-root { scroll-behavior: auto; }
+}
+
+/* ===========================================
+     BODY / OUTER STAGE
+     =========================================== */
+.deck-root {
+  font-family: var(--font-body);
+  background: var(--bg-outer);
+  color: var(--text-primary);
+}
+
+.deck-root .slide {
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at 15% 10%, rgba(255,255,255,0.05) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 90%, rgba(255,255,255,0.04) 0%, transparent 45%),
+    var(--bg-outer);
+}
+
+/* ===========================================
+     THE PAGE — notebook card, present on every slide
+     =========================================== */
+.deck-root .page {
+  position: relative;
+  width: min(92vw, 1180px);
+  height: min(86vh, 720px);
+  background: var(--bg-page);
+  box-shadow: 0 40px 90px rgba(0,0,0,0.45), 0 4px 18px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.6rem, 4.5vw, 4.4rem);
+  overflow: hidden;
+}
+
+.deck-root .binder {
+  position: absolute;
+  left: clamp(10px, 1.6vw, 22px);
+  top: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  z-index: 2;
+}
+.deck-root .binder span {
+  width: clamp(8px, 0.9vw, 12px);
+  height: clamp(8px, 0.9vw, 12px);
+  border-radius: 50%;
+  background: var(--bg-outer);
+  opacity: 0.13;
+}
+
+/* Section tabs on right edge — active one brightens per section */
+.deck-root .tabs {
+  position: fixed;
+  right: 0;
+  top: 10%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.2vh, 14px);
+  z-index: 50;
+}
+.deck-root .tab {
+  writing-mode: vertical-rl;
+  padding: clamp(0.6rem, 1.3vh, 1rem) clamp(0.32rem, 0.7vw, 0.5rem);
+  border-radius: 8px 0 0 8px;
+  font-family: var(--font-body);
+  font-size: clamp(0.5rem, 0.85vh, 0.68rem);
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+  opacity: 0.28;
+  transition: opacity 0.4s var(--ease-out-expo), transform 0.4s var(--ease-out-expo);
+  transform: translateX(4px);
+}
+.deck-root .tab.active { opacity: 1; transform: translateX(0); }
+.deck-root .tab[data-tab="1"] { background: var(--tab-1); }
+.deck-root .tab[data-tab="2"] { background: var(--tab-2); }
+.deck-root .tab[data-tab="3"] { background: var(--tab-4); }
+.deck-root .tab[data-tab="4"] { background: var(--tab-5); }
+.deck-root .tab[data-tab="5"] { background: var(--tab-3); }
+
+/* ===========================================
+     TYPOGRAPHY
+     =========================================== */
+.deck-root .eyebrow {
+  font-family: var(--font-body);
+  font-size: clamp(0.62rem, 1.1vw, 0.85rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.deck-root h1, .deck-root h2, .deck-root h3 { font-family: var(--font-display); color: var(--text-primary); }
+
+.deck-root h1 {
+  font-weight: 700;
+  font-size: clamp(2rem, 5.6vw, 4.2rem);
+  line-height: 1.14;
+}
+.deck-root .accent { color: var(--tab-warn); }
+
+.deck-root h2 {
+  font-weight: 700;
+  font-size: var(--h2-size);
+  line-height: 1.2;
+}
+
+.deck-root .kicker-num {
+  font-family: var(--font-mono);
+  font-size: clamp(0.7rem, 1.3vw, 0.95rem);
+  color: var(--text-faint);
+  letter-spacing: 0.08em;
+}
+
+.deck-root p.lead {
+  font-size: clamp(0.9rem, 1.7vw, 1.2rem);
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 640px;
+}
+
+.deck-root .rule {
+  width: 52px;
+  height: 2px;
+  background: var(--text-primary);
+  opacity: 0.7;
+}
+
+/* ===========================================
+     REVEAL ANIMATIONS
+     =========================================== */
+.deck-root .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity var(--duration-normal) var(--ease-out-expo),
+    transform var(--duration-normal) var(--ease-out-expo);
+}
+.deck-root .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+.deck-root .reveal:nth-child(1) { transition-delay: 0.05s; }
+.deck-root .reveal:nth-child(2) { transition-delay: 0.15s; }
+.deck-root .reveal:nth-child(3) { transition-delay: 0.25s; }
+.deck-root .reveal:nth-child(4) { transition-delay: 0.35s; }
+.deck-root .reveal:nth-child(5) { transition-delay: 0.45s; }
+.deck-root .reveal:nth-child(6) { transition-delay: 0.55s; }
+
+/* ===========================================
+     SHARED CONTENT PATTERNS
+     =========================================== */
+.deck-root .stack { display: flex; flex-direction: column; gap: var(--content-gap); }
+.deck-root .head-block { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.3vh, 0.9rem); margin-bottom: clamp(0.8rem, 2vh, 1.6rem); }
+
+.deck-root ul.bullets { list-style: none; display: flex; flex-direction: column; gap: clamp(0.5rem, 1.4vh, 0.95rem); }
+.deck-root ul.bullets li {
+  position: relative;
+  padding-left: 1.5em;
+  font-size: var(--body-size);
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+.deck-root ul.bullets li::before {
+  content: "—";
+  position: absolute; left: 0; top: 0;
+  color: var(--tab-warn);
+  font-weight: 700;
+}
+
+/* Two column split */
+.deck-root .split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.2rem, 3vw, 3rem); align-items: start; }
+.deck-root .split-col { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.6vh, 1rem); }
+.deck-root .split-col .col-label {
+  font-family: var(--font-body); font-weight: 700; font-size: var(--h3-size);
+  display: flex; align-items: center; gap: 0.5em;
+}
+.deck-root .dot { width: 0.6em; height: 0.6em; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+/* ===========================================
+     DIAGRAM SYSTEM — Blueprint Outline
+     Outline-only nodes in a single ink colour, monospace
+     uppercase labels, right-angle connectors, on a faint
+     dot-grid backdrop.
+     =========================================== */
+.deck-root .diagram-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.35rem, 1.1vh, 0.65rem);
+  padding: clamp(0.9rem, 2.4vh, 1.5rem) clamp(0.8rem, 2vw, 1.4rem);
+  background-image: radial-gradient(circle, rgba(32, 29, 24, 0.16) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border: 1px solid rgba(32, 29, 24, 0.14);
+  border-radius: 10px;
+}
+
+.deck-root .chip {
+  background: var(--bg-page);
+  border: 1.5px solid var(--text-primary);
+  border-radius: 3px;
+  padding: clamp(0.55rem, 1.5vh, 0.85rem) clamp(0.85rem, 1.9vw, 1.35rem);
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 1.3vw, 0.92rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.deck-root .chip.chip-hero {
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+  border-width: 2.5px;
+  color: var(--bg-page);
+  font-weight: 700;
+  padding: clamp(0.65rem, 1.8vh, 1rem) clamp(1rem, 2.1vw, 1.7rem);
+  white-space: normal;
+  max-width: min(90vw, 620px);
+}
+.deck-root .chip.chip-ghost {
+  background: transparent;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--text-primary) 50%, transparent);
+  color: var(--text-secondary);
+}
+
+.deck-root .diagram-row { display: flex; align-items: flex-start; justify-content: center; gap: clamp(0.4rem, 1.3vw, 1rem); flex-wrap: wrap; row-gap: clamp(0.5rem, 1.4vh, 0.9rem); }
+.deck-root .diagram-col { display: flex; flex-direction: column; align-items: center; gap: clamp(0.25rem, 0.8vh, 0.5rem); }
+
+/* Thin rule + right-angle chevron, drawn purely with borders */
+.deck-root .arrow-h {
+  flex-shrink: 0;
+  width: clamp(22px, 2.8vw, 40px);
+  height: 14px;
+  position: relative;
+  align-self: center;
+}
+.deck-root .arrow-h::before {
+  content: "";
+  position: absolute; left: 0; right: 7px; top: 50%;
+  height: 1.5px; background: var(--text-primary); opacity: 0.65;
+  transform: translateY(-50%);
+}
+.deck-root .arrow-h::after {
+  content: "";
+  position: absolute; right: 0; top: 50%;
+  width: 7px; height: 7px;
+  border-top: 1.5px solid var(--text-primary);
+  border-right: 1.5px solid var(--text-primary);
+  opacity: 0.65;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.deck-root .arrow-v {
+  width: 1.5px;
+  height: clamp(20px, 3vh, 30px);
+  background: var(--text-primary);
+  opacity: 0.6;
+  margin: 0 auto;
+}
+
+/* Branch line spanning a row, with a short drop above each node */
+.deck-root .branch-line { width: min(90%, 640px); height: 1.5px; background: var(--text-primary); opacity: 0.6; }
+.deck-root .branch-drop { width: 1.5px; height: clamp(12px, 1.8vh, 18px); background: var(--text-primary); opacity: 0.6; margin: 0 auto; }
+
+/* Muted "retry" line used on the Loop slide */
+.deck-root .arrow-loop {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-family: var(--font-mono);
+  font-size: clamp(0.68rem, 1.1vw, 0.85rem);
+  color: var(--text-secondary);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.deck-root .arrow-loop .loop-glyph { font-size: 1.3em; color: var(--text-primary); }
+
+@media (max-height: 700px) {
+  .deck-root .chip { padding: clamp(0.4rem, 1.2vh, 0.7rem) clamp(0.7rem, 1.6vw, 1.1rem); }
+  .deck-root .chip.chip-hero { padding: clamp(0.5rem, 1.4vh, 0.8rem) clamp(0.8rem, 1.8vw, 1.3rem); }
+}
+
+/* Feature grid cards */
+.deck-root .card-grid { display: grid; gap: clamp(0.6rem, 1.5vw, 1.1rem); }
+.deck-root .feature-card {
+  background: var(--bg-page-soft);
+  border-radius: 12px;
+  padding: clamp(0.7rem, 1.8vh, 1.2rem);
+  border-left: 4px solid var(--tab-1);
+  display: flex; flex-direction: column; gap: 0.4em;
+}
+.deck-root .feature-card .f-num { font-family: var(--font-mono); font-size: var(--small-size); color: var(--text-faint); }
+.deck-root .feature-card .f-title { font-family: var(--font-body); font-weight: 700; font-size: clamp(0.85rem, 1.5vw, 1.05rem); }
+.deck-root .feature-card .f-desc { font-size: clamp(0.68rem, 1.1vw, 0.85rem); color: var(--text-secondary); line-height: 1.45; }
+
+/* Code block */
+.deck-root .code-block {
+  background: var(--text-primary);
+  color: #f3efe4;
+  border-radius: 12px;
+  padding: clamp(0.9rem, 2vh, 1.4rem) clamp(1rem, 2.4vw, 1.8rem);
+  font-family: var(--font-mono);
+  font-size: clamp(0.65rem, 1.25vw, 0.92rem);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+/* Reference skill links — clickable during the talk */
+.deck-root .ref-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: clamp(0.4rem, 1vw, 0.7rem);
+  margin-top: clamp(0.7rem, 1.8vh, 1.1rem);
+}
+.deck-root .ref-links .ref-label {
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: var(--text-faint);
+  margin-right: 0.2em;
+}
+.deck-root .ref-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--small-size);
+  color: var(--text-primary);
+  background: var(--bg-page-soft);
+  border: 1px solid rgba(32, 29, 24, 0.16);
+  border-radius: 999px;
+  padding: clamp(0.22rem, 0.55vh, 0.38rem) clamp(0.55rem, 1.1vw, 0.85rem);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.25s var(--ease-out-expo), border-color 0.25s, transform 0.25s var(--ease-out-expo);
+}
+.deck-root .ref-link:hover, .deck-root .ref-link:focus-visible {
+  background: #ffffff;
+  border-color: var(--tab-warn);
+  transform: translateY(-1px);
+}
+.deck-root .ref-link .ext-icon { font-size: 0.8em; opacity: 0.55; }
+
+/* Quote slide — editorial pull-quote accent (colour bar + dot,
+   no reliance on a font's quotation-mark glyph) */
+.deck-root blockquote {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 3.6vw, 2.6rem);
+  line-height: 1.35;
+  color: var(--text-primary);
+  max-width: 900px;
+  position: relative;
+  padding-left: clamp(1rem, 2.4vw, 1.6rem);
+  border-left: 4px solid var(--tab-warn);
+}
+.deck-root blockquote::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: -6px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--tab-warn);
+}
+.deck-root .closing blockquote { text-align: left; margin: 0 auto; }
+
+/* Title slide specific */
+.deck-root .title-slide .page {
+  justify-content: center;
+  text-align: left;
+  flex-direction: row;
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+.deck-root .title-slide h1 { max-width: 100%; }
+.deck-root .title-text { flex: 1.05; display: flex; flex-direction: column; min-width: 0; }
+.deck-root .title-cover {
+  flex: 0.95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-width: 0;
+}
+.deck-root .title-cover .tape {
+  position: absolute;
+  top: clamp(-14px, -1.8vh, -8px);
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: clamp(60px, 8vw, 92px);
+  height: clamp(20px, 2.6vh, 28px);
+  background: color-mix(in srgb, var(--tab-5) 55%, transparent);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+  z-index: 2;
+}
+.deck-root .title-cover img {
+  max-width: 100%;
+  max-height: min(48vh, 400px);
+  object-fit: contain;
+  border-radius: 10px;
+  border: 5px solid #ffffff;
+  box-shadow: 0 20px 44px -12px rgba(0,0,0,0.35);
+  transform: rotate(2.2deg);
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 780px) {
+  .deck-root .title-slide .page { flex-direction: column; text-align: center; }
+  .deck-root .title-text { align-items: center; }
+  .deck-root .title-cover img { max-height: min(30vh, 260px); }
+}
+
+.deck-root .closing .page { text-align: center; align-items: center; }
+.deck-root .closing h1 { max-width: 100%; }
+
+/* ===========================================
+     PROGRESS BAR + NAV DOTS
+     =========================================== */
+.deck-root .progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: var(--tab-warn);
+  z-index: 100;
+  width: 0%;
+  transition: width 0.15s ease-out;
+}
+
+.deck-root .nav-dots {
+  position: fixed;
+  left: clamp(14px, 2vw, 26px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 100;
+}
+.deck-root .nav-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+  border: none;
+  padding: 0;
+}
+.deck-root .nav-dot.active { background: var(--tab-warn); transform: scale(1.4); }
+
+.deck-root .keyboard-hint {
+  position: fixed;
+  bottom: clamp(10px, 2vh, 20px);
+  right: clamp(14px, 2vw, 26px);
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: rgba(255,255,255,0.35);
+  z-index: 100;
+}
+
+/* Back-to-site link — bottom-left, plain muted text that brightens on
+   hover. Same corner + interaction convention as ScenesDeck's .hud-back,
+   so every talk's slides route shares one "return" idiom regardless of
+   which template rendered it. */
+.deck-root .deck-back-link {
+  position: fixed;
+  bottom: clamp(10px, 2vh, 20px);
+  left: clamp(14px, 2vw, 26px);
+  z-index: 100;
+  max-width: 46vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: rgba(255, 255, 255, 0.45);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.deck-root .deck-back-link:hover { color: #fff; }
+
+@media (max-width: 600px) {
+  .deck-root .split { grid-template-columns: 1fr; }
+  .deck-root .card-grid { grid-template-columns: 1fr !important; }
+  .deck-root .nav-dots, .deck-root .keyboard-hint { display: none; }
+  .deck-root .tabs { display: none; }
+}

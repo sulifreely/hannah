@@ -1,0 +1,48 @@
+---
+import { marked } from 'marked';
+
+const { slide } = Astro.props;
+const headingHtml = marked.parseInline(slide.heading) as string;
+const heroHtml = marked.parseInline(slide.hero) as string;
+const leadHtml = slide.lead ? (marked.parseInline(slide.lead) as string) : '';
+---
+
+<div class="head-block">
+  {slide.kicker && <span class="kicker-num reveal">{slide.kicker}</span>}
+  <h2 class="reveal" set:html={headingHtml} />
+</div>
+<div class="diagram-wrap reveal">
+  <div class="chip chip-hero" set:html={heroHtml} />
+  <div class="arrow-v" />
+  <div class="branch-line" />
+  <div class="diagram-row">
+    {slide.branches.map((b: string) => (
+      <div class="diagram-col">
+        <div class="branch-drop" />
+        <div class="chip" set:html={marked.parseInline(b) as string} />
+      </div>
+    ))}
+  </div>
+  {slide.ghost && (
+    <>
+      <div class="arrow-v" />
+      <div class="chip chip-ghost" set:html={marked.parseInline(slide.ghost) as string} />
+    </>
+  )}
+</div>
+{slide.lead && <p class="lead reveal" set:html={leadHtml} />}
+{slide.bullets && (
+  <ul class="bullets reveal">
+    {slide.bullets.map((b: string) => <li set:html={marked.parseInline(b) as string} />)}
+  </ul>
+)}
+{slide.refs && slide.refs.length > 0 && (
+  <div class="ref-links reveal">
+    <span class="ref-label">参考 Skill →</span>
+    {slide.refs.map((ref: { label: string; href: string }) => (
+      <a class="ref-link" href={ref.href} target="_blank" rel="noopener">
+        {ref.label}<span class="ext-icon">↗</span>
+      </a>
+    ))}
+  </div>
+)}

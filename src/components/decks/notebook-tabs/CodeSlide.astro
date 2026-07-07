@@ -1,0 +1,22 @@
+---
+import { marked } from 'marked';
+
+const { slide } = Astro.props;
+const headingHtml = slide.heading ? (marked.parseInline(slide.heading) as string) : '';
+---
+
+{(slide.kicker || slide.heading) && (
+  <div class="head-block">
+    {slide.kicker && <span class="kicker-num reveal">{slide.kicker}</span>}
+    {slide.heading && <h2 class="reveal" set:html={headingHtml} />}
+  </div>
+)}
+<div
+  class="code-block reveal"
+  style={slide.bullets ? 'margin-bottom:clamp(1.2rem,3vh,2rem)' : undefined}
+>{slide.code}</div>
+{slide.bullets && (
+  <ul class="bullets reveal">
+    {slide.bullets.map((b: string) => <li set:html={marked.parseInline(b) as string} />)}
+  </ul>
+)}

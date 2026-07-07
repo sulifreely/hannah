@@ -1,0 +1,244 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Analytics from '@vercel/analytics/astro';
+import '../../styles/decks/notebook-tabs.css';
+import TitleSlide from './notebook-tabs/TitleSlide.astro';
+import QuoteSlide from './notebook-tabs/QuoteSlide.astro';
+import SplitSlide from './notebook-tabs/SplitSlide.astro';
+import CodeSlide from './notebook-tabs/CodeSlide.astro';
+import GridSlide from './notebook-tabs/GridSlide.astro';
+import ChainSlide from './notebook-tabs/ChainSlide.astro';
+import BranchSlide from './notebook-tabs/BranchSlide.astro';
+import BulletsSlide from './notebook-tabs/BulletsSlide.astro';
+
+type Props = { talk: CollectionEntry<'talks'> };
+
+const { talk } = Astro.props;
+const deck = talk.data.deck!;
+const slides = deck.slides;
+const sections = deck.sections ?? [];
+
+function slideClass(slide: (typeof slides)[number]) {
+  return [
+    'slide',
+    slide.type === 'title' ? 'title-slide' : '',
+    slide.type === 'quote' && slide.centered ? 'closing' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{talk.data.title} · Slides</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="robots" content="noindex" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;0,900;1,500&family=Noto+Serif+SC:wght@500;700;900&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+    />
+    <Analytics />
+  </head>
+  <body class="deck-root">
+    <div class="progress-bar" id="progressBar"></div>
+    <nav class="nav-dots" id="navDots"></nav>
+    {sections.length > 0 && (
+      <div class="tabs" id="sectionTabs">
+        {sections.map((sec) => (
+          <div class="tab" data-tab={sec.id}>{sec.label}</div>
+        ))}
+      </div>
+    )}
+    <div class="keyboard-hint">← → · Space · Scroll</div>
+    <a class="deck-back-link" href={`/talks/${talk.slug}/`}>← {talk.data.title}</a>
+
+    {slides.map((slide) => (
+      <section class={slideClass(slide)} data-section={slide.section}>
+        <div class="page">
+          <div class="binder">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          {slide.type === 'title' && <TitleSlide slide={slide} />}
+          {slide.type === 'quote' && <QuoteSlide slide={slide} />}
+          {slide.type === 'split' && <SplitSlide slide={slide} />}
+          {slide.type === 'code' && <CodeSlide slide={slide} />}
+          {slide.type === 'grid' && <GridSlide slide={slide} />}
+          {slide.type === 'chain' && <ChainSlide slide={slide} />}
+          {slide.type === 'branch' && <BranchSlide slide={slide} />}
+          {slide.type === 'bullets' && <BulletsSlide slide={slide} />}
+        </div>
+      </section>
+    ))}
+
+    <script>
+      class SlidePresentation {
+        slides: HTMLElement[];
+        currentSlide: number;
+        progressBar: HTMLElement | null;
+        navDotsContainer: HTMLElement | null;
+        tabs: HTMLElement[];
+
+        constructor() {
+          this.slides = Array.from(document.querySelectorAll('.slide'));
+          this.currentSlide = 0;
+          this.progressBar = document.getElementById('progressBar');
+          this.navDotsContainer = document.getElementById('navDots');
+          this.tabs = Array.from(document.querySelectorAll('.tab'));
+
+          this.setupIntersectionObserver();
+          this.setupKeyboardNav();
+          this.setupTouchNav();
+          this.setupProgressBar();
+          this.setupNavDots();
+        }
+
+        setupIntersectionObserver() {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting && entry.intersectionRatio > 0.55) {
+                  entry.target.classList.add('visible');
+                  const idx = this.slides.indexOf(entry.target as HTMLElement);
+                  if (idx !== -1) this.updateActive(idx);
+                }
+              });
+            },
+            { threshold: [0, 0.55, 1] },
+          );
+          this.slides.forEach((s) => observer.observe(s));
+        }
+
+        // Every talk's slides route is controlled by the same `?scene=N&beat=0`
+        // URL contract (shared with the ScenesDeck template) so links/deep-links
+        // are consistent across both slide templates. This template has no
+        // sub-slide "beat" reveal step, so beat is always pinned to 0.
+        readSceneFromURL() {
+          const p = new URLSearchParams(location.search);
+          const s = parseInt(p.get('scene') || '1', 10);
+          const idx = (isNaN(s) ? 1 : s) - 1;
+          return Math.max(0, Math.min(this.slides.length - 1, idx));
+        }
+
+        syncURL(idx: number) {
+          const p = new URLSearchParams();
+          p.set('scene', String(idx + 1));
+          p.set('beat', '0');
+          history.replaceState(null, '', location.pathname + '?' + p.toString());
+        }
+
+        updateActive(idx: number) {
+          this.currentSlide = idx;
+          this.navDotsContainer?.querySelectorAll('.nav-dot').forEach((d, i) => {
+            d.classList.toggle('active', i === idx);
+          });
+          const section = this.slides[idx].dataset.section;
+          this.tabs.forEach((t) => t.classList.toggle('active', t.dataset.tab === section));
+          this.syncURL(idx);
+        }
+
+        goTo(idx: number, behavior: ScrollBehavior = 'smooth') {
+          idx = Math.max(0, Math.min(this.slides.length - 1, idx));
+          if (behavior === 'auto') {
+            // Force a true instant jump (used for the initial deep-link and
+            // popstate) regardless of the page's CSS scroll-behavior.
+            const prev = document.documentElement.style.scrollBehavior;
+            document.documentElement.style.scrollBehavior = 'auto';
+            this.slides[idx].scrollIntoView();
+            document.documentElement.style.scrollBehavior = prev;
+          } else {
+            this.slides[idx].scrollIntoView({ behavior });
+          }
+        }
+
+        setupKeyboardNav() {
+          document.addEventListener('keydown', (e) => {
+            if (['ArrowDown', 'ArrowRight', 'PageDown', ' '].includes(e.key)) {
+              e.preventDefault();
+              this.goTo(this.currentSlide + 1);
+            } else if (['ArrowUp', 'ArrowLeft', 'PageUp'].includes(e.key)) {
+              e.preventDefault();
+              this.goTo(this.currentSlide - 1);
+            }
+          });
+        }
+
+        setupTouchNav() {
+          let startY: number | null = null;
+          document.addEventListener(
+            'touchstart',
+            (e) => {
+              startY = e.touches[0].clientY;
+            },
+            { passive: true },
+          );
+          document.addEventListener(
+            'touchend',
+            (e) => {
+              if (startY === null) return;
+              const dy = startY - e.changedTouches[0].clientY;
+              if (Math.abs(dy) > 50) this.goTo(this.currentSlide + (dy > 0 ? 1 : -1));
+              startY = null;
+            },
+            { passive: true },
+          );
+
+          let wheelLock = false;
+          window.addEventListener(
+            'wheel',
+            (e) => {
+              if (wheelLock) return;
+              if (Math.abs(e.deltaY) < 10) return;
+              wheelLock = true;
+              this.goTo(this.currentSlide + (e.deltaY > 0 ? 1 : -1));
+              setTimeout(() => {
+                wheelLock = false;
+              }, 700);
+            },
+            { passive: true },
+          );
+        }
+
+        setupProgressBar() {
+          const update = () => {
+            const scrollTop = window.scrollY;
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            const pct = max > 0 ? (scrollTop / max) * 100 : 0;
+            if (this.progressBar) this.progressBar.style.width = pct + '%';
+          };
+          window.addEventListener('scroll', update, { passive: true });
+          update();
+        }
+
+        setupNavDots() {
+          if (!this.navDotsContainer) return;
+          this.navDotsContainer.innerHTML = '';
+          this.slides.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+            dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+            dot.addEventListener('click', () => this.goTo(i));
+            this.navDotsContainer!.appendChild(dot);
+          });
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const presentation = new SlidePresentation();
+        const initialIdx = presentation.readSceneFromURL();
+        presentation.slides[initialIdx]?.classList.add('visible');
+        presentation.goTo(initialIdx, 'auto');
+        presentation.updateActive(initialIdx);
+
+        window.addEventListener('popstate', () => {
+          presentation.goTo(presentation.readSceneFromURL(), 'auto');
+        });
+      });
+    </script>
+  </body>
+</html>

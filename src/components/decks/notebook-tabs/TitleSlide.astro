@@ -1,0 +1,23 @@
+---
+import { marked } from 'marked';
+
+const { slide } = Astro.props;
+const titleHtml = marked.parseInline(slide.title) as string;
+const leadHtml = slide.lead ? (marked.parseInline(slide.lead) as string) : '';
+const eyebrowHtml = slide.eyebrow ? (marked.parseInline(slide.eyebrow) as string) : '';
+---
+
+<div class="title-text">
+  {slide.eyebrow && <p class="eyebrow reveal" set:html={eyebrowHtml} />}
+  <h1 class="reveal" style="margin-top:clamp(.6rem,1.6vh,1rem)" set:html={titleHtml} />
+  {slide.lead && (
+    <p class="lead reveal" style="margin-top:clamp(1rem,2.6vh,1.6rem)" set:html={leadHtml} />
+  )}
+  <div class="rule reveal" style="margin-top:clamp(1.2rem,3vh,2rem)" />
+</div>
+{slide.cover && (
+  <div class="title-cover reveal">
+    <div class="tape" />
+    <img src={slide.cover} alt={slide.coverAlt ?? ''} />
+  </div>
+)}

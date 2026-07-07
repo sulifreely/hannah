@@ -1,0 +1,25 @@
+---
+import { marked } from 'marked';
+
+const { slide } = Astro.props;
+const quoteHtml = marked.parseInline(slide.quote) as string;
+const leadHtml = slide.lead ? (marked.parseInline(slide.lead) as string) : '';
+const eyebrowHtml = slide.eyebrow ? (marked.parseInline(slide.eyebrow) as string) : '';
+const headingHtml = slide.heading ? (marked.parseInline(slide.heading) as string) : '';
+---
+
+{slide.eyebrow && <p class="eyebrow reveal" set:html={eyebrowHtml} />}
+<blockquote
+  class="reveal"
+  style={slide.eyebrow ? 'margin-top:clamp(1rem,2.6vh,1.6rem)' : undefined}
+  set:html={quoteHtml}
+/>
+{slide.lead && (
+  <p class="lead reveal" style="margin-top:clamp(1rem,2.6vh,1.6rem)" set:html={leadHtml} />
+)}
+{slide.heading && (
+  <>
+    <div class="rule reveal" style="margin:clamp(1.4rem,3.5vh,2.2rem) auto 0" />
+    <h2 class="reveal" style="margin-top:clamp(1rem,2.6vh,1.6rem)" set:html={headingHtml} />
+  </>
+)}

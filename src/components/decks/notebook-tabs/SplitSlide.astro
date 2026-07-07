@@ -1,0 +1,24 @@
+---
+import { marked } from 'marked';
+
+const { slide } = Astro.props;
+const headingHtml = marked.parseInline(slide.heading) as string;
+---
+
+<div class="head-block">
+  {slide.kicker && <span class="kicker-num reveal">{slide.kicker}</span>}
+  <h2 class="reveal" set:html={headingHtml} />
+</div>
+<div class="split">
+  {slide.columns.map((col: { label: string; dot?: string; items: string[] }) => (
+    <div class="split-col reveal">
+      <div class="col-label">
+        <span class="dot" style={`background:${col.dot ?? 'var(--text-faint)'}`} />
+        {col.label}
+      </div>
+      <ul class="bullets">
+        {col.items.map((item) => <li set:html={marked.parseInline(item) as string} />)}
+      </ul>
+    </div>
+  ))}
+</div>

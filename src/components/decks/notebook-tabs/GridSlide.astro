@@ -1,0 +1,25 @@
+---
+import { marked } from 'marked';
+
+const { slide } = Astro.props;
+const cols = slide.columns ?? 3;
+const headingHtml = marked.parseInline(slide.heading) as string;
+const leadHtml = slide.lead ? (marked.parseInline(slide.lead) as string) : '';
+---
+
+<div class="head-block">
+  {slide.kicker && <span class="kicker-num reveal">{slide.kicker}</span>}
+  <h2 class="reveal" set:html={headingHtml} />
+</div>
+<div class="card-grid" style={`grid-template-columns:repeat(${cols},1fr)`}>
+  {slide.cards.map((card: { num: string; title: string; desc: string }, i: number) => (
+    <div class="feature-card reveal" style={`border-color:var(--tab-${(i % 6) + 1})`}>
+      <span class="f-num">{card.num}</span>
+      <span class="f-title" set:html={marked.parseInline(card.title) as string} />
+      <span class="f-desc" set:html={marked.parseInline(card.desc) as string} />
+    </div>
+  ))}
+</div>
+{slide.lead && (
+  <p class="lead reveal" style="margin-top:clamp(1rem,2.6vh,1.6rem)" set:html={leadHtml} />
+)}
