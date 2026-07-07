@@ -4,7 +4,7 @@ subtitle: 六种编排模式在 Skill 侧的可靠性与边界
 event: Agent 工程分享 / 2026
 date: 2026-07-07
 description: 聊聊如何把链式、并行、路由、循环、编排和层级这些执行拓扑写进 Skill。六种模式在 Skill 侧的可靠性并不均匀——Chain、Route、Loop 日常够用，Orchestrate 和 Hierarchy 是边界，越过这条线才值得引入 LangGraph 这类重型编排框架。
-cover: /images/blogs/soft-orchestration-in-skills/00-cover-soft-orchestration-in-skills.jpg
+cover: /images/talks/execution-topology-reliability.png
 tags:
   - Agent
   - Skill
@@ -28,8 +28,8 @@ deck:
       eyebrow: Conference Talk · Agent Skill 设计
       title: 'Skill 中的<br/><span class="accent">执行拓扑</span>'
       lead: '六种编排模式在 Skill 侧的可靠性并不均匀——<br/>哪些够用，哪些是边界，边界在哪里。'
-      cover: /images/blogs/soft-orchestration-in-skills/00-cover-soft-orchestration-in-skills.jpg
-      coverAlt: 没编排乱跑，还是软编排：小蛙在混乱箭头里打转，对比沿着轨道从容前进
+      cover: /images/talks/execution-topology-reliability.png
+      coverAlt: 左边角色沿单一箭头稳步前进（日常够用），右边角色被多路 worker 的箭头淹没、抓着电话找 LangGraph 求救（规模变大）
 
     - type: quote
       section: '1'
@@ -122,27 +122,29 @@ deck:
     - type: showcase
       section: '2'
       kicker: Chain · 实例
-      heading: 'executing-plans：四步顺序管道'
+      heading: 'executing-plans：加载、执行、收尾三步走'
       skill: executing-plans
       code: |
-        ## 工作流
-        1. 理解目标
-           读取目标文件，确认当前状态
-        2. 制定计划
-           列出变更步骤，让用户确认再继续
-        3. 逐步执行
-           按顺序完成每步，每步后用工具验证
-        4. 收尾验证
-           对照计划逐项 check，写最终摘要
+        ## 三步流程
+        1. 加载并审查计划
+           读计划文件，critically 检查有无疑虑
+           有疑虑先找人对齐；没有疑虑，建 todo 继续
+        2. 逐任务执行
+           标记 in_progress → 严格按步骤做
+           → 按计划要求验证 → 标记 completed
+        3. 收尾
+           全部完成后转入 finishing-a-development-branch
+
+        ## 中途遇到阻塞就停
+        依赖缺失 / 测试失败 / 指令不清楚 → 停下来问，别猜
       mermaid: |
         flowchart LR
             classDef step fill:#98d4bb,stroke:#70b898,color:#201d18
-            A["理解目标\n读取文件"]:::step
-            B["制定计划\n用户确认"]:::step
-            C["逐步执行\n工具验证"]:::step
-            D["收尾验证\n写摘要"]:::step
-            A --> B --> C --> D
-      lead: 每步产出由 Skill 要求写进对话，下一步自然读取——Chain 靠 context 维持管道，不需要显式传参。
+            A["加载计划\n审查疑虑"]:::step
+            B["逐任务执行\n标记+验证"]:::step
+            C["收尾\n转交后续 Skill"]:::step
+            A --> B --> C
+      lead: 每一步的产出由 Skill 要求写进对话或 todo，下一步自然读取——Chain 靠 context 维持管道，不需要显式传参，但中途遇到阻塞必须停下来问，不能靠猜往下走。
 
     - type: diagram
       section: '2'
@@ -168,29 +170,30 @@ deck:
     - type: showcase
       section: '2'
       kicker: Parallel · 实例
-      heading: 'dispatching-parallel-agents：扇出 + 显式 Merge'
+      heading: 'dispatching-parallel-agents：按问题域拆分派发'
       skill: dispatching-parallel-agents
       code: |
-        ## 何时并行
-        各子任务之间无依赖、可同时运行时
+        ## 真实案例：3 个文件、6 个失败测试
+        - agent-tool-abort.test.ts：3 个失败（时序问题）
+        - batch-completion-behavior.test.ts：2 个失败
+        - tool-approval-race-conditions.test.ts：1 个失败
 
         ## 工作流
-        1. 分析：列出可独立完成的子任务
-        2. 扇出：逐一启动 subagent
-           - 每个携带完整 context + 独立工具
-        3. 收集：等待所有 subagent 完成
-        4. Merge：汇总结果，检查并解决冲突
+        1. 识别独立域：按"坏在哪"分组，互不影响才能分
+        2. 构造任务：每个 agent 给范围、目标、约束、期望输出
+        3. 一条消息内同时派发三个 agent（分开发就是串行）
+        4. 审查整合：读摘要、查冲突、跑一次完整测试
       mermaid: |
         flowchart LR
             classDef io fill:#d4c9b8,stroke:#b8a898,color:#201d18
             classDef worker fill:#c7b8ea,stroke:#a89ed4,color:#201d18
-            M["主 Agent\n分析+扇出"]:::io
-            S1["subagent\n任务 A"]:::worker
-            S2["subagent\n任务 B"]:::worker
-            S3["subagent\n任务 C"]:::worker
-            R["Merge\n汇总+解冲突"]:::io
-            M --> S1 & S2 & S3 --> R
-      lead: Skill 要求显式收集每个 subagent 的输出——结果能否完整回收，是 Parallel 在 Skill 里最脆弱的一环。
+            In["6 个失败测试\n按文件分域"]:::io
+            A1["Agent 1\nabort 测试"]:::worker
+            A2["Agent 2\nbatch 测试"]:::worker
+            A3["Agent 3\nrace 测试"]:::worker
+            Out["审查整合\n跑完整测试"]:::io
+            In --> A1 & A2 & A3 --> Out
+      lead: 三个 agent 必须写进同一条消息里派发才算并行，分成三条就退化成串行；收尾那一次完整测试，是唯一能发现 agent 之间是否互相踩到的机会。
 
     - type: diagram
       section: '2'
@@ -224,27 +227,30 @@ deck:
     - type: showcase
       section: '2'
       kicker: Route · 实例
-      heading: 'prototype：按任务规模三路分流'
+      heading: 'prototype：先分清楚问的是哪种问题'
       skill: prototype
       code: |
-        ## 判断任务类型（执行前先分类）
-        - 小修复（改动 < 30 行）
-          → 直接修改，无需计划
-        - 多文件重构
-          → 先列变更计划，用户确认后执行
-        - 架构 / 接口变更
-          → 先提出两种以上方案，讨论后再动
+        ## 先识别问题类型
+        - "这个逻辑 / 状态模型对不对？"
+          → LOGIC.md：写一个可交互终端小程序，
+            把状态机推过那些纸面上难判断的分支
+        - "这东西该长什么样？"
+          → UI.md：在同一路由上做出几种风格迥异的变体，
+            用 URL 参数 + 悬浮工具条切换
+
+        ## 分岔即定型
+        两个分支产出完全不同的东西——分错了，
+        整个 prototype 就白做
       mermaid: |
         flowchart TD
             classDef io fill:#d4c9b8,stroke:#b8a898,color:#201d18
             classDef route fill:#f4b8c5,stroke:#d89aab,color:#201d18
             classDef step fill:#f4b8c5,stroke:#d89aab,color:#201d18
-            In["收到任务"]:::io --> R{{"判断类型"}}:::route
-            R -- "小修复" --> A["直接修改"]:::step
-            R -- "重构" --> B["先列计划"]:::step
-            R -- "架构" --> C["先提方案"]:::step
-            A & B & C --> Out["执行输出"]:::io
-      lead: 分类条件写得越具体，路由越稳——"< 30 行"比"简单修改"更难误判，Skill 里的 Route 就是一段有量化边界的 if/else。
+            In["要验证的问题"]:::io --> R{{"问的是哪种？"}}:::route
+            R -- "逻辑/状态模型" --> A["LOGIC.md\n可交互终端程序"]:::step
+            R -- "长什么样" --> B["UI.md\n多套 UI 变体"]:::step
+            A & B --> Out["答案\n是唯一该留下的"]:::io
+      lead: 问题真的模糊、又联系不到人时，Skill 给了兜底规则——按代码类型判断：后端模块归 LOGIC，页面或组件归 UI，并在开头写明这是个假设。
 
     - type: diagram
       section: '2'
@@ -275,33 +281,32 @@ deck:
     - type: showcase
       section: '2'
       kicker: Loop · 实例
-      heading: 'tdd：红绿重构循环'
+      heading: 'tdd：Red-Green 循环，重构故意排除在外'
       skill: tdd
       code: |
-        ## 循环工作流
-        1. 写测试 (Red)
-           新测试必须先失败
-        2. 最小化实现 (Green)
-           只写让测试通过的代码
-        3. 运行测试
-           - 失败 → 修改实现，回到 2
-           - 通过 → 继续
-        4. 重构 (Refactor)
-        5. 重运行测试，有回归回到 4
+        ## 循环规则
+        - 先与人确认要测的 seam（公开边界）
+          没确认的 seam 不写测试
+        - Red before Green：先写会失败的测试
+          再写刚好让它通过的最小代码
+        - 一次一个切片：一个 seam、一个测试、一个实现
+        - 重构不属于这个循环
+          它属于 review 阶段，不混进 red → green
 
-        ## 退出条件
-        所有测试通过，或不超过 5 轮
+        ## 单个切片
+        写失败测试 → 写最小实现 → 通过？
+          否，回到写实现；是，切下一个 seam
       mermaid: |
         flowchart LR
             classDef gen fill:#a8d8ea,stroke:#80b8ce,color:#201d18
             classDef critic fill:#f0c88a,stroke:#c8a455,color:#201d18
             classDef done fill:#d4c9b8,stroke:#b8a898,color:#201d18
-            W["写测试\nRed"]:::gen --> I["最小实现\nGreen"]:::gen --> T{"运行测试"}:::critic
-            T -- "失败" --> I
-            T -- "通过" --> R["重构\nRefactor"]:::gen --> V{"再次测试"}:::critic
-            V -- "回归" --> R
-            V -- "全绿" --> D["完成 ✓"]:::done
-      lead: TDD 是教科书级 Loop——Gen 写代码，Critic 运行测试，退出条件精确（全测试通过或 5 轮上限）。三件事都在 Skill 里写清楚了。
+            Red["写失败测试\nRed"]:::gen --> Green["最小实现\nGreen"]:::gen
+            Green --> T{"测试通过？"}:::critic
+            T -- "否" --> Green
+            T -- "是，还有 seam" --> Red
+            T -- "是，seam 用完" --> D["交给 review\n重构在此阶段"]:::done
+      lead: 重构被故意排除在这个循环之外——red→green 只负责让行为正确，一旦把"顺手重构"也塞进循环，测试就分不清自己在验证正确性还是在给重构背书。
 
     - type: diagram
       section: '2'
@@ -325,31 +330,32 @@ deck:
     - type: showcase
       section: '2'
       kicker: Orchestrate · 实例
-      heading: 'subagent-driven-development：Planner-Executor 模型'
+      heading: 'subagent-driven-development：派实现 + 派复核，双重把关'
       skill: subagent-driven-development
       code: |
-        ## 角色分工
-        Planner — 分析需求，输出结构化任务列表
-        Executor — 接收单个子任务并独立执行
+        ## 角色分工（任务列表来自另一个计划环节，不是本 Skill 生成）
+        Controller — 当前会话，逐任务派发，自己不写代码
+        Implementer — 单个任务：实现、测试、提交、自查
+        Task Reviewer — 复核 spec 合规 + 代码质量
 
-        ## 工作流
-        1. Planner 分析需求，输出结构化任务列表
-        2. 对每个子任务：
-           a. 派发 Executor（携带 context + 工具）
-           b. 等待结果，检查输出质量
-        3. 所有完成后，Planner 整合汇总
-        4. 有缺口则补充派发
+        ## 单任务流程
+        1. 派发 Implementer（带 task brief）
+        2. Implementer 实现/测试/提交，报告状态
+        3. 派发 Task Reviewer 复核
+        4. 有 Critical/Important 问题 → 派 fix subagent → 重新复核
+        5. 复核通过才标记完成，进入下一个任务
+        全部任务完成后，再派一次全分支 Reviewer 做终审
       mermaid: |
         flowchart TD
             classDef orch fill:#f0c88a,stroke:#c8a455,color:#201d18
             classDef worker fill:#98d4bb,stroke:#70b898,color:#201d18
-            P(["Planner\n拆解+整合"]):::orch
-            E1["Executor\n子任务 A"]:::worker
-            E2["Executor\n子任务 B"]:::worker
-            E3["Executor\n子任务 C"]:::worker
-            P --> E1 & E2 & E3
-            E1 & E2 & E3 -.-> P
-      lead: Orchestrate 在 Skill 里的失控通常从 Planner 的拆解粒度开始——任务边界不清，Executor 的输出就无法合并，Planner 开始重复派发，context 越用越满。
+            C(["Controller\n逐任务派发"]):::orch
+            I1["Implementer\n任务 1"]:::worker
+            I2["Implementer\n任务 2"]:::worker
+            I3["Implementer\n任务 3"]:::worker
+            C --> I1 & I2 & I3
+            I1 & I2 & I3 -.->|"实现+复核"| C
+      lead: 派发的不是"想法"，是任务列表——列表来自单独的写计划环节。这个 Skill 真正做的是"实现 + 复核"的双重循环，任何任务没通过复核都不能标记完成，协调者的记忆负担全在"追踪谁复核过、谁还没有"。
 
     - type: diagram
       section: '2'
@@ -382,36 +388,36 @@ deck:
     - type: showcase
       section: '2'
       kicker: Hierarchy · 实例
-      heading: 'orchestrate：三层委派结构'
+      heading: 'orchestrate：Planner / Subplanner / Worker / Verifier'
       skill: orchestrate
       code: |
-        ## 层级分工
-        Manager Agent
-          → 理解用户意图，分配给 Specialist
-        Specialist Agent
-          → 负责具体领域，可再分 Worker
-        Worker Agent
-          → 执行单一操作，返回 diff/结果
+        ## 节点类型
+        Planner    — 拥有全局目标，只发布任务、读 handoff，不写代码
+        Subplanner — 递归的 Planner，只拥有父级切给它的一片范围
+        Worker     — 领一个具体任务，做完把 handoff 交回派发者
+        Verifier   — 对某个目标的验收标准给判决，同样走 handoff
 
         ## 规则
-        - 父级只汇总判断，不执行细节
-        - 子级携带明确目标、输入和边界
-        - 关键节点父级重新汇总全局状态
+        - 子节点不知道谁会接自己发布的任务
+        - 同层节点之间不通气，只有父子之间的 handoff
+        - Git 是唯一共享介质：branch 是代码，handoff 是"发生了什么"
       mermaid: |
         flowchart TD
             classDef mgr fill:#d8b8a0,stroke:#b89882,color:#201d18
             classDef mid fill:#e8d0bc,stroke:#c8b09c,color:#201d18
             classDef worker fill:#98d4bb,stroke:#70b898,color:#201d18
-            Mgr(["Manager\n意图+分配"]):::mgr
-            SA(["Specialist A\n领域专家"]):::mid
-            SB(["Specialist B\n领域专家"]):::mid
-            W1["Worker\n操作"]:::worker
-            W2["Worker\n操作"]:::worker
-            W3["Worker\n操作"]:::worker
-            Mgr --> SA & SB
-            SA --> W1 & W2
-            SB --> W3
-      lead: Manager 不直接操控 Worker，而是通过 Specialist 传递目标——每层只负责自己能看到的边界，不越级干涉，这是 Hierarchy 和 Orchestrate 最本质的区别。
+            P(["Planner\n发布任务"]):::mgr
+            SP(["Subplanner\n负责一个切片"]):::mid
+            W1["Worker"]:::worker
+            W2["Worker"]:::worker
+            W3["Worker"]:::worker
+            P --> W1
+            P --> SP
+            SP --> W2 & W3
+            W1 -.->|"handoff"| P
+            W2 & W3 -.->|"handoff"| SP
+            SP -.->|"汇总 handoff"| P
+      lead: Worker 干完活只往上交一次 handoff，看不到、也不关心兄弟节点在干什么——深层级最容易"失忆"的地方就在这里：每一层只看得到自己直接孩子的 handoff，看不到整棵树。
 
     - type: grid
       section: '3'
@@ -471,16 +477,21 @@ deck:
             - 即将执行高影响副作用动作
             - 给 2-4 个选项，推荐项放第一位
 
-    - type: chain
+    - type: diagram
       section: '4'
       kicker: '13'
       heading: 概率模型，也能有确定的落点
-      steps:
-        - label: '语言表达<br/><span style="opacity:.65">允许自由变化</span>'
-        - label: '决策过程<br/><span style="opacity:.65">尽量稳定</span>'
-        - label: '外部动作<br/><span style="opacity:.65">必须可控</span>'
-        - label: '交付结果<br/><span style="opacity:.8">必须可验证</span>'
-          variant: hero
+      mermaid: |
+        flowchart LR
+            classDef loose fill:#d4c9b8,stroke:#b8a898,color:#201d18
+            classDef mid fill:#a8d8ea,stroke:#80b8ce,color:#201d18
+            classDef tight fill:#f0c88a,stroke:#c8a455,color:#201d18
+            classDef hero fill:#c14a3a,stroke:#9c3628,color:#fff
+            A["语言表达\n允许自由变化"]:::loose
+            B["决策过程\n尽量稳定"]:::mid
+            C["外部动作\n必须可控"]:::tight
+            D["交付结果\n必须可验证"]:::hero
+            A --> B --> C --> D
       lead: 越往右，越不能靠模型自己摸索。不是要把随机性消掉，而是在该约束的地方约束到位。
 
     - type: grid

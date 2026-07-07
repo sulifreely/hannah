@@ -245,6 +245,9 @@ function slideClass(slide: (typeof slides)[number]) {
           if (!el.id) el.id = 'deck-mermaid-' + i;
         });
 
+        // fontSize matches --body-size's upper bound (notebook-tabs.css) so
+        // node labels read at the same scale as the slide's own body text,
+        // not as a separately-scaled diagram font.
         const { default: mermaid } = await import('mermaid');
         mermaid.initialize({
           startOnLoad: false,
@@ -253,15 +256,53 @@ function slideClass(slide: (typeof slides)[number]) {
           theme: 'neutral',
           securityLevel: 'strict',
           fontFamily: '"DM Sans", "Noto Sans SC", sans-serif',
+          fontSize: 16,
         });
+
+        // Mermaid renders each svg at its own "natural" size (governed by
+        // fontSize above) and inlines a matching max-width. That natural
+        // size is the target — moderate, consistent with body text — so
+        // only ever shrink it down here, never enlarge it, and only when it
+        // wouldn't otherwise fit the card: a plain CSS max-width can't win
+        // this because mermaid's inline style already outranks it.
+        const MAX_DIAGRAM_HEIGHT = 280;
+        function fitMermaidSvg(container: HTMLElement) {
+          const svg = container.querySelector('svg');
+          const wrap = container.parentElement;
+          if (!svg || !wrap) return;
+          const box = svg.viewBox?.baseVal;
+          const naturalWidth = box?.width || svg.getBBox().width;
+          const naturalHeight = box?.height || svg.getBBox().height;
+          const availWidth = wrap.clientWidth;
+          if (!naturalWidth || !naturalHeight || !availWidth) return;
+          const scale = Math.min(1, availWidth / naturalWidth, MAX_DIAGRAM_HEIGHT / naturalHeight);
+          svg.style.maxWidth = 'none';
+          svg.style.maxHeight = 'none';
+          svg.style.width = `${naturalWidth * scale}px`;
+          svg.style.height = `${naturalHeight * scale}px`;
+        }
+
+        const rendered: HTMLElement[] = [];
         for (const el of blocks) {
           try {
             await mermaid.run({ nodes: [el] });
+            rendered.push(el);
           } catch (e) {
             el.dataset.processed = 'error';
             /* 单个图表语法错误时不阻断其他图表 */
           }
         }
+        rendered.forEach(fitMermaidSvg);
+
+        // Fit is computed in pixels against the wrapper's current width, so
+        // narrow viewports (where the card itself shrinks) need a refit —
+        // webfonts finishing their swap can also nudge that width slightly.
+        document.fonts?.ready.then(() => rendered.forEach(fitMermaidSvg));
+        let resizeTimer: number | undefined;
+        window.addEventListener('resize', () => {
+          window.clearTimeout(resizeTimer);
+          resizeTimer = window.setTimeout(() => rendered.forEach(fitMermaidSvg), 150);
+        });
       })();
     </script>
   </body>
