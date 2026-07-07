@@ -235,12 +235,18 @@ GitHub 仓库：https://github.com/sulifreely/hannah
 - 提交信息使用中文、语义化前缀（feat/fix/chore/content 等）。
 - **响应式（必须遵守）**：UI 开发需保证在主流屏幕尺寸下都有较好体验，至少覆盖移动端、平板、PC 端；开发中请用浏览器自带的设备模拟或调整窗口宽度自查，不要只在一种尺寸下验收。
 - 新增有价值的用户行为（点赞、分享、收藏等互动）时，先询问用户是否需要补充自定义事件上报；如需要，在 `src/lib/analytics.ts` 中按现有约定新增类型化事件，不要在组件里直接裸调用 `track()`。
-- **`src/styles/global.css` 里不要写结构性的 `body`/`html` 规则（`display`/`height`/`flex-direction` 之类）**：
-  `src/pages/talks/[slug]/slides.astro` 同时静态 import 了 `ScenesDeck.astro` 和
-  `NotebookTabsDeck.astro`（运行时只渲染其中一个），Astro 按路由打包 CSS 时会把两者引用到的样式表
-  一起塞进这个路由的 chunk——哪怕 `NotebookTabsDeck` 自己完全没 import `global.css`，只要
-  `ScenesDeck` import 了，`global.css` 里的规则依旧会被这个路由加载，从而"泄漏"进 deck 的独立全屏
-  文档里（曾经真实出问题：给 `body` 加 `display:flex` 把 21 页 `.slide`（各 100vh）挤扁成每页 40px）。
+- **`src/styles/global.css` 里不要写宽泛的元素选择器规则（`body`/`html`/`pre` 这类不带
+  class 限定的规则）**：`src/pages/talks/[slug]/slides.astro` 同时静态 import 了
+  `ScenesDeck.astro` 和 `NotebookTabsDeck.astro`（运行时只渲染其中一个），Astro 按路由打包
+  CSS 时会把两者引用到的样式表一起塞进这个路由的 chunk——哪怕 `NotebookTabsDeck` 自己完全没
+  import `global.css`，只要 `ScenesDeck` import 了，`global.css` 里的规则依旧会被这个路由
+  加载，从而"泄漏"进 deck 的独立全屏文档里，污染任何同名标签。已经踩过两次坑：
+  - 给 `body` 加 `display:flex` 把 21 页 `.slide`（各 100vh）挤扁成每页 40px。
+  - 通用的 `pre { border/padding/border-radius }`（本是给博客代码块用的）套在
+    `DiagramSlide.astro` 的 `pre.mermaid` 上，和 `.diagram-wrap` 自己的点阵卡片边框叠成了
+    两层框（`.deck-root pre.mermaid` 需要显式 `border:none；padding:0；border-radius:0`
+    才能盖掉它）。
   真要给某个 layout 加结构性样式，写进该 layout 自己的 scoped `<style>`（例如 `BaseLayout.astro`
-  里的 sticky footer 写法），Astro 的样式隔离只会作用于该组件自己渲染出的 `<html>`/`<body>`，不会
-  跨组件泄漏。
+  里的 sticky footer 写法），Astro 的样式隔离只会作用于该组件自己渲染出的元素，不会跨组件泄漏；
+  真要在 `global.css` 里写标签选择器，评估一下会不会波及 talks 的 deck 页面，必要时给 deck 侧的
+  对应元素补显式 reset。
