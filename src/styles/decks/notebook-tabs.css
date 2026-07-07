@@ -288,15 +288,35 @@
      dot-grid backdrop.
      =========================================== */
 .deck-root .diagram-wrap {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: clamp(0.35rem, 1.1vh, 0.65rem);
   padding: clamp(0.9rem, 2.4vh, 1.5rem) clamp(0.8rem, 2vw, 1.4rem);
-  background-image: radial-gradient(circle, rgba(32, 29, 24, 0.16) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(32, 29, 24, 0.14) 1px, transparent 1px);
   background-size: 20px 20px;
-  border: 1px solid rgba(32, 29, 24, 0.14);
-  border-radius: 10px;
+  /* 圆角故意四角不等，边框交给下面两层伪元素画——比一条精确的
+     border 更贴近手绘本子的调性，也呼应 mermaid handDrawn 图表
+     本身「两笔叠一笔」的草绘描边方式（见 pre.mermaid 里的节点）。 */
+  border-radius: 12px 15px 11px 16px;
+}
+.deck-root .diagram-wrap::before,
+.deck-root .diagram-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.deck-root .diagram-wrap::before {
+  border: 1.5px solid rgba(32, 29, 24, 0.24);
+  border-radius: 14px 11px 16px 12px;
+  transform: rotate(-0.35deg) translate(1px, 0.6px);
+}
+.deck-root .diagram-wrap::after {
+  border: 1px solid rgba(32, 29, 24, 0.15);
+  border-radius: 11px 16px 12px 14px;
+  transform: rotate(0.3deg) translate(-1px, -0.5px);
 }
 
 .deck-root .chip {
