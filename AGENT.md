@@ -35,22 +35,35 @@ scripts/
 src/
   content/
     blog/            博客文章（Markdown）
-    talks/           演讲（Markdown，正文即幻灯片源）
+    talks/           演讲（Markdown；template: scenes 正文即幻灯片源，deck 见下方 deck.slides）
     config.ts        内容集合的 zod schema
   layouts/
-    BaseLayout.astro 站点骨架（head/SEO/主题/页头页脚）
+    BaseLayout.astro 站点骨架（head/SEO/主题/页头页脚/sticky footer）
     PostLayout.astro 博客文章排版
-  components/         Header / Footer / PostCard / ThemeToggle
+  components/
+    Header / Footer / PostCard / TalkCard / ThemeToggle
+    decks/
+      ScenesDeck.astro       template: scenes 的幻灯片引擎
+      NotebookTabsDeck.astro template: deck 的幻灯片引擎（Notebook Tabs 视觉风格）
+      notebook-tabs/         deck 各 slide type 的渲染组件 + registry.ts + primitives/
+  lib/
+    deck/url-state.ts 两套幻灯片引擎共用的 ?scene=&beat= URL 状态
+    format.ts         formatDate 等共享格式化工具
+    analytics.ts       类型化埋点事件
   pages/
     index.astro              首页（博客列表）
     blog/[...slug].astro     博客详情
     talks/index.astro        演讲列表
     talks/[slug].astro       演讲详情
-    talks/[slug]/slides.astro 全屏幻灯片引擎
+    talks/[slug]/slides.astro 全屏幻灯片引擎（按 template 分发到 decks/ 下两种组件）
     about.astro              关于
     rss.xml.js               RSS
     404.astro
-  styles/global.css  全局样式与明暗主题 CSS 变量
+  styles/
+    global.css       全局样式与明暗主题 CSS 变量
+    decks/
+      chrome.css         两套幻灯片引擎共用的角落元素间距/层级变量
+      notebook-tabs.css   template: deck 的视觉样式
 public/
   favicon.png        头像 + favicon
   images/
@@ -128,15 +141,70 @@ flowchart TD
 
 ### 演讲（Talks）
 
-在 `src/content/talks/` 新建 `.md`。frontmatter 同博客，外加可选 `subtitle`、`event`。
-正文即幻灯片源，遵循两个分隔约定：
+在 `src/content/talks/` 新建 `.md`。frontmatter 同博客，外加可选 `subtitle`、`event`，
+再加一个必选的 `template` 字段（`'scenes' | 'deck'`，缺省即 `'scenes'`），决定用哪种
+幻灯片引擎渲染。两种模板共用同一个 `/talks/<slug>/slides` 路由（`src/pages/talks/[slug]/slides.astro`
+按 `template` 分发）、同一套导航手感（键盘 ←/→/Space/Home/End/F/Esc、点击翻页、进度计数）、
+同一个 `?scene=N&beat=0` URL 深链协议（`src/lib/deck/url-state.ts`），选哪个模板只影响
+"内容怎么写、长什么样"，不影响链接分享、前进后退这些行为。
 
-- `---`（独占一行）分隔**每一页**（scene）
-- `+++`（独占一行）分隔**页内渐进显示步骤**（beat）
+**怎么选模板：**
 
-幻灯片支持 Markdown 的标题、列表、引用、代码块、图片。详情页有 `Open slides →` 进入
-`/talks/<slug>/slides`。幻灯片引擎支持键盘（←/→/Space/Home/End/F/Esc）、点击翻页、
-`?scene=&beat=` URL 同步与进度计数。
+- `scenes`（默认，成本最低）——正文就是普通 Markdown，正文即幻灯片源，遵循两个分隔约定：
+  - `---`（独占一行）分隔**每一页**（scene）
+  - `+++`（独占一行）分隔**页内渐进显示步骤**（beat）
+
+  支持 Markdown 的标题、列表、引用、代码块、图片，复用站点排版。适合"图文并茂的长文"类分享，
+  由 `ScenesDeck.astro` 渲染。
+
+- `deck`（结构更重，适合"真正拿去讲"的场合）——frontmatter 里写 `deck.slides`（每页一个带
+  `type` 的对象，Zod 在 `src/content/config.ts` 里按 discriminated union 做 build-time 校验，
+  写错字段会直接报错而不是浏览器里静默失败），可选 `deck.sections` 给顶部标签栏分组。渲染出
+  "Notebook Tabs" 视觉风格（`NotebookTabsDeck.astro` + `src/styles/decks/notebook-tabs.css`），
+  拿到卡片式翻页、图表、代码块等更丰富的版式。示例见 `src/content/talks/soft-orchestration-in-skills.md`：
+
+  ```yaml
+  template: deck
+  deck:
+    sections:
+      - id: '1'
+        label: 开场
+    slides:
+      - type: title
+        section: '1'
+        eyebrow: Conference Talk · Agent Skill 设计
+        title: '标题，支持内联 <span class="accent">HTML</span>'
+        lead: 副标题说明
+      - type: diagram
+        section: '1'
+        kicker: '02'
+        heading: 小标题
+        mermaid: |
+          flowchart LR
+              A["节点"] --> B["节点"]
+        bullets: [要点一, 要点二]
+  ```
+
+  当前支持的 `type`：`title` / `quote` / `split` / `code` / `grid` / `chain` / `branch` /
+  `bullets` / `diagram`。渲染分发在 `src/components/decks/notebook-tabs/registry.ts` 的
+  `SLIDE_RENDERERS` 里（新增 slide type 要三处联动：`config.ts` 加 schema、`notebook-tabs/`
+  下新增对应的 `.astro` 组件、`registry.ts` 里注册）。各 slide 组件应优先复用
+  `notebook-tabs/primitives/`（`Md` / `SlideHead` / `Bullets` / `RefLinks`）而不是各自手写
+  `marked.parseInline`。
+
+  `diagram` 类型直接内嵌一段 Mermaid 源码，走和博客文章完全一致的渲染管线（同一套
+  `mermaid.initialize` 配置、字体、`handDrawnSeed`），**博客里已经画过的图表可以原样复制过来复用**，
+  不用再用 `chain` / `branch` 之类的图元重新画一遍等价的示意图。
+
+**Deck 相关代码位置：**
+
+- `src/lib/deck/url-state.ts` —— `scene`/`beat` 与 URL query 的读写，两套模板共用。
+- `src/styles/decks/chrome.css` —— 返回按钮、键盘提示这类"角落固定元素"的间距/层级/过渡变量
+  （`--deck-corner-inset-*`、`--deck-corner-z`、`--deck-meta-transition`），两套模板都
+  `@import`/引用它，保证视觉手感一致；具体配色仍由各自模板决定（`ScenesDeck` 明暗主题自适应，
+  `NotebookTabsDeck` 固定纸张配色）。
+- `src/components/decks/notebook-tabs/registry.ts` —— slide type → 渲染组件的映射表。
+- `src/components/decks/notebook-tabs/primitives/` —— 各 slide 组件共享的小组件。
 
 ### 图片
 
@@ -167,3 +235,12 @@ GitHub 仓库：https://github.com/sulifreely/hannah
 - 提交信息使用中文、语义化前缀（feat/fix/chore/content 等）。
 - **响应式（必须遵守）**：UI 开发需保证在主流屏幕尺寸下都有较好体验，至少覆盖移动端、平板、PC 端；开发中请用浏览器自带的设备模拟或调整窗口宽度自查，不要只在一种尺寸下验收。
 - 新增有价值的用户行为（点赞、分享、收藏等互动）时，先询问用户是否需要补充自定义事件上报；如需要，在 `src/lib/analytics.ts` 中按现有约定新增类型化事件，不要在组件里直接裸调用 `track()`。
+- **`src/styles/global.css` 里不要写结构性的 `body`/`html` 规则（`display`/`height`/`flex-direction` 之类）**：
+  `src/pages/talks/[slug]/slides.astro` 同时静态 import 了 `ScenesDeck.astro` 和
+  `NotebookTabsDeck.astro`（运行时只渲染其中一个），Astro 按路由打包 CSS 时会把两者引用到的样式表
+  一起塞进这个路由的 chunk——哪怕 `NotebookTabsDeck` 自己完全没 import `global.css`，只要
+  `ScenesDeck` import 了，`global.css` 里的规则依旧会被这个路由加载，从而"泄漏"进 deck 的独立全屏
+  文档里（曾经真实出问题：给 `body` 加 `display:flex` 把 21 页 `.slide`（各 100vh）挤扁成每页 40px）。
+  真要给某个 layout 加结构性样式，写进该 layout 自己的 scoped `<style>`（例如 `BaseLayout.astro`
+  里的 sticky footer 写法），Astro 的样式隔离只会作用于该组件自己渲染出的 `<html>`/`<body>`，不会
+  跨组件泄漏。
