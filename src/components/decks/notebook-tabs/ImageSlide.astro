@@ -1,0 +1,12 @@
+---
+import Md from './primitives/Md.astro';
+import SlideHead from './primitives/SlideHead.astro';
+
+const { slide } = Astro.props;
+---
+
+<SlideHead kicker={slide.kicker} heading={slide.heading} />
+<div class="image-wrap reveal">
+  <img src={slide.src} alt={slide.alt} />
+</div>
+{slide.lead && <Md as="p" class="lead reveal" text={slide.lead} />}

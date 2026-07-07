@@ -1,19 +1,20 @@
 ---
 import Md from './primitives/Md.astro';
 import SlideHead from './primitives/SlideHead.astro';
-import Bullets from './primitives/Bullets.astro';
 import RefLinks from './primitives/RefLinks.astro';
 
 const { slide } = Astro.props;
 ---
 
 <SlideHead kicker={slide.kicker} heading={slide.heading} />
-<div
-  class="diagram-wrap reveal mermaid-wrap"
-  style={(slide.lead || slide.bullets || slide.refs) ? 'margin-bottom:clamp(1.2rem,3vh,2rem)' : undefined}
->
-  <pre class="mermaid">{slide.mermaid}</pre>
+<div class="showcase-body reveal">
+  <div class="showcase-code">
+    {slide.skill && <span class="skill-tag">{slide.skill}</span>}
+    <div class="code-block">{slide.code}</div>
+  </div>
+  <div class="showcase-diagram mermaid-wrap">
+    <pre class="mermaid">{slide.mermaid}</pre>
+  </div>
 </div>
 {slide.lead && <Md as="p" class="lead reveal" text={slide.lead} />}
-{slide.bullets && <Bullets items={slide.bullets} />}
 {slide.refs && slide.refs.length > 0 && <RefLinks refs={slide.refs} />}

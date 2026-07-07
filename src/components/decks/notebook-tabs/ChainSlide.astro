@@ -8,7 +8,10 @@ const { slide } = Astro.props;
 ---
 
 <SlideHead kicker={slide.kicker} heading={slide.heading} />
-<div class="diagram-wrap reveal">
+<div
+  class="diagram-wrap reveal"
+  style={(slide.lead || slide.bullets || slide.refs) ? 'margin-bottom:clamp(1.2rem,3vh,2rem)' : undefined}
+>
   <div class="diagram-row">
     {slide.steps.map((step: { label: string; variant?: 'ghost' | 'hero' }, i: number) => (
       <>

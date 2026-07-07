@@ -287,6 +287,21 @@
      uppercase labels, right-angle connectors, on a faint
      dot-grid backdrop.
      =========================================== */
+.deck-root .image-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+.deck-root .image-wrap img {
+  max-width: 100%;
+  max-height: clamp(320px, 58vh, 560px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
 .deck-root .diagram-wrap {
   position: relative;
   display: flex;
@@ -645,9 +660,55 @@
 }
 .deck-root .deck-back-link:hover { color: #fff; }
 
+/* ── ShowcaseSlide — left: Skill code excerpt, right: analysis diagram ── */
+.deck-root .showcase-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(0.8rem, 2vw, 1.6rem);
+  flex: 1;
+  min-height: 0;
+}
+.deck-root .showcase-code {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.35rem, 0.8vh, 0.6rem);
+  min-height: 0;
+  overflow: hidden;
+}
+.deck-root .showcase-code .code-block {
+  flex: 1;
+  overflow: auto;
+  font-size: clamp(0.6rem, 1.1vw, 0.76rem);
+  padding: clamp(0.6rem, 1.4vh, 1rem) clamp(0.8rem, 1.8vw, 1.2rem);
+}
+.deck-root .skill-tag {
+  font-family: var(--font-mono);
+  font-size: clamp(0.58rem, 0.95vw, 0.7rem);
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(32, 29, 24, 0.2);
+  border-radius: 4px;
+  padding: 0.15em 0.55em;
+  align-self: flex-start;
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+}
+.deck-root .showcase-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.deck-root .showcase-diagram pre.mermaid {
+  min-height: 60px;
+}
+.deck-root .showcase-diagram pre.mermaid svg {
+  max-height: 22vh;
+}
+
 @media (max-width: 600px) {
   .deck-root .split { grid-template-columns: 1fr; }
   .deck-root .card-grid { grid-template-columns: 1fr !important; }
+  .deck-root .showcase-body { grid-template-columns: 1fr; }
   .deck-root .nav-dots, .deck-root .keyboard-hint { display: none; }
   .deck-root .tabs { display: none; }
 }

@@ -134,6 +134,30 @@ const deckDiagramSlide = z.object({
   refs: z.array(deckRefLink).optional(),
 });
 
+const deckImageSlide = z.object({
+  type: z.literal('image'),
+  ...deckSlideBase,
+  kicker: z.string().optional(),
+  heading: z.string().optional(),
+  src: z.string(),
+  alt: z.string(),
+  lead: z.string().optional(),
+});
+
+// Side-by-side Skill code excerpt (left) + Mermaid analysis diagram (right).
+// Used to ground each abstract pattern in a concrete, real-world Skill example.
+const deckShowcaseSlide = z.object({
+  type: z.literal('showcase'),
+  ...deckSlideBase,
+  kicker: z.string().optional(),
+  heading: z.string().optional(),
+  skill: z.string().optional(),
+  code: z.string(),
+  mermaid: z.string(),
+  lead: z.string().optional(),
+  refs: z.array(deckRefLink).optional(),
+});
+
 const deckSlide = z.discriminatedUnion('type', [
   deckTitleSlide,
   deckQuoteSlide,
@@ -144,6 +168,8 @@ const deckSlide = z.discriminatedUnion('type', [
   deckBranchSlide,
   deckBulletsSlide,
   deckDiagramSlide,
+  deckImageSlide,
+  deckShowcaseSlide,
 ]);
 
 const talkBase = {

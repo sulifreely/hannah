@@ -7,6 +7,8 @@ import ChainSlide from './ChainSlide.astro';
 import BranchSlide from './BranchSlide.astro';
 import BulletsSlide from './BulletsSlide.astro';
 import DiagramSlide from './DiagramSlide.astro';
+import ImageSlide from './ImageSlide.astro';
+import ShowcaseSlide from './ShowcaseSlide.astro';
 
 /**
  * One place to see every slide type this deck template knows how to render.
@@ -24,4 +26,6 @@ export const SLIDE_RENDERERS = {
   branch: BranchSlide,
   bullets: BulletsSlide,
   diagram: DiagramSlide,
+  image: ImageSlide,
+  showcase: ShowcaseSlide,
 } as const;
