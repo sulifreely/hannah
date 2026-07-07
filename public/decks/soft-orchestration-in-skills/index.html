@@ -315,116 +315,111 @@
   .dot { width: 0.6em; height: 0.6em; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 
   /* ===========================================
-       DIAGRAM SYSTEM — enlarged, colour-filled nodes
-       with graphic connector arrows (used on the six
-       pattern-detail slides). Each diagram wrapper sets
-       --chip-color to tint its children.
+       DIAGRAM SYSTEM — Blueprint Outline
+       Outline-only nodes in a single ink colour, monospace
+       uppercase labels, right-angle connectors, on a faint
+       dot-grid backdrop. Used on the six pattern-detail
+       slides plus the determinism-spectrum slide.
        =========================================== */
   .diagram-wrap {
-    --chip-color: var(--tab-1);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(0.6rem, 1.8vh, 1.1rem);
-    padding: clamp(0.4rem, 1.4vh, 0.9rem) 0;
+    gap: clamp(0.35rem, 1.1vh, 0.65rem);
+    padding: clamp(0.9rem, 2.4vh, 1.5rem) clamp(0.8rem, 2vw, 1.4rem);
+    background-image: radial-gradient(circle, rgba(32, 29, 24, 0.16) 1px, transparent 1px);
+    background-size: 20px 20px;
+    border: 1px solid rgba(32, 29, 24, 0.14);
+    border-radius: 10px;
   }
 
   .chip {
-    background: color-mix(in srgb, var(--chip-color) 14%, var(--bg-page-soft));
-    border: 1.5px solid color-mix(in srgb, var(--chip-color) 55%, transparent);
-    border-radius: 14px;
-    padding: clamp(0.75rem, 2vh, 1.2rem) clamp(1rem, 2.2vw, 1.7rem);
-    font-size: clamp(0.85rem, 1.55vw, 1.12rem);
-    font-weight: 600;
+    background: var(--bg-page);
+    border: 1.5px solid var(--text-primary);
+    border-radius: 3px;
+    padding: clamp(0.55rem, 1.5vh, 0.85rem) clamp(0.85rem, 1.9vw, 1.35rem);
+    font-family: var(--font-mono);
+    font-size: clamp(0.72rem, 1.3vw, 0.92rem);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
     color: var(--text-primary);
     text-align: center;
-    box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--chip-color) 60%, transparent);
-    line-height: 1.3;
+    line-height: 1.35;
     white-space: nowrap;
   }
   .chip.chip-hero {
-    background: var(--chip-color);
-    border-color: var(--chip-color);
-    font-size: clamp(0.9rem, 1.7vw, 1.2rem);
+    background: var(--text-primary);
+    border-color: var(--text-primary);
+    border-width: 2.5px;
+    color: var(--bg-page);
     font-weight: 700;
-    padding: clamp(0.85rem, 2.2vh, 1.35rem) clamp(1.2rem, 2.6vw, 2rem);
-    box-shadow: 0 12px 26px -8px color-mix(in srgb, var(--chip-color) 75%, transparent);
+    padding: clamp(0.65rem, 1.8vh, 1rem) clamp(1rem, 2.1vw, 1.7rem);
     white-space: normal;
     max-width: min(90vw, 620px);
   }
   .chip.chip-ghost {
     background: transparent;
-    border: 1.5px dashed color-mix(in srgb, var(--chip-color) 60%, transparent);
-    box-shadow: none;
-    font-weight: 600;
+    border-style: dashed;
+    border-color: color-mix(in srgb, var(--text-primary) 50%, transparent);
     color: var(--text-secondary);
   }
 
-  .diagram-row { display: flex; align-items: center; justify-content: center; gap: clamp(0.5rem, 1.5vw, 1.1rem); flex-wrap: wrap; row-gap: clamp(0.6rem, 1.6vh, 1rem); }
-  .diagram-col { display: flex; flex-direction: column; align-items: center; gap: clamp(0.3rem, 1vh, 0.6rem); }
+  .diagram-row { display: flex; align-items: flex-start; justify-content: center; gap: clamp(0.4rem, 1.3vw, 1rem); flex-wrap: wrap; row-gap: clamp(0.5rem, 1.4vh, 0.9rem); }
+  .diagram-col { display: flex; flex-direction: column; align-items: center; gap: clamp(0.25rem, 0.8vh, 0.5rem); }
 
-  /* Graphic arrow: a coloured bar + triangular arrowhead, sized much bolder than a text glyph */
+  /* Thin rule + right-angle chevron, drawn purely with borders */
   .arrow-h {
     flex-shrink: 0;
-    width: clamp(30px, 3.6vw, 54px);
-    height: clamp(20px, 2.6vh, 30px);
+    width: clamp(22px, 2.8vw, 40px);
+    height: 14px;
     position: relative;
+    align-self: center;
   }
   .arrow-h::before {
     content: "";
-    position: absolute; left: 0; right: 10px; top: 50%;
-    height: 3px; border-radius: 3px;
-    background: color-mix(in srgb, var(--chip-color) 70%, var(--text-faint));
+    position: absolute; left: 0; right: 7px; top: 50%;
+    height: 1.5px; background: var(--text-primary); opacity: 0.65;
     transform: translateY(-50%);
   }
   .arrow-h::after {
     content: "";
     position: absolute; right: 0; top: 50%;
-    width: 0; height: 0;
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-    border-left: 10px solid color-mix(in srgb, var(--chip-color) 70%, var(--text-faint));
-    transform: translateY(-50%);
+    width: 7px; height: 7px;
+    border-top: 1.5px solid var(--text-primary);
+    border-right: 1.5px solid var(--text-primary);
+    opacity: 0.65;
+    transform: translateY(-50%) rotate(45deg);
   }
 
   .arrow-v {
-    width: clamp(20px, 2.2vw, 30px);
-    height: clamp(30px, 4vh, 48px);
-    position: relative;
+    width: 1.5px;
+    height: clamp(20px, 3vh, 30px);
+    background: var(--text-primary);
+    opacity: 0.6;
     margin: 0 auto;
   }
-  .arrow-v::before {
-    content: "";
-    position: absolute; top: 0; bottom: 9px; left: 50%;
-    width: 3px; border-radius: 3px;
-    background: color-mix(in srgb, var(--chip-color) 70%, var(--text-faint));
-    transform: translateX(-50%);
-  }
-  .arrow-v::after {
-    content: "";
-    position: absolute; bottom: 0; left: 50%;
-    width: 0; height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 10px solid color-mix(in srgb, var(--chip-color) 70%, var(--text-faint));
-    transform: translateX(-50%);
-  }
 
-  /* Curled "retry" arrow used on the Loop slide */
+  /* Branch line spanning a row, with a short drop above each node */
+  .branch-line { width: min(90%, 640px); height: 1.5px; background: var(--text-primary); opacity: 0.6; }
+  .branch-drop { width: 1.5px; height: clamp(12px, 1.8vh, 18px); background: var(--text-primary); opacity: 0.6; margin: 0 auto; }
+
+  /* Muted "retry" line used on the Loop slide */
   .arrow-loop {
     display: inline-flex;
     align-items: center;
     gap: 0.4em;
     font-family: var(--font-mono);
-    font-size: clamp(0.72rem, 1.2vw, 0.92rem);
-    color: color-mix(in srgb, var(--chip-color) 75%, var(--text-secondary));
-    font-weight: 600;
+    font-size: clamp(0.68rem, 1.1vw, 0.85rem);
+    color: var(--text-secondary);
+    font-weight: 500;
+    letter-spacing: 0.01em;
   }
-  .arrow-loop .loop-glyph { font-size: 1.3em; }
+  .arrow-loop .loop-glyph { font-size: 1.3em; color: var(--text-primary); }
 
   @media (max-height: 700px) {
-    .chip { padding: clamp(0.5rem, 1.4vh, 0.85rem) clamp(0.8rem, 1.8vw, 1.3rem); }
-    .chip.chip-hero { padding: clamp(0.6rem, 1.6vh, 0.95rem) clamp(0.9rem, 2vw, 1.5rem); }
+    .chip { padding: clamp(0.4rem, 1.2vh, 0.7rem) clamp(0.7rem, 1.6vw, 1.1rem); }
+    .chip.chip-hero { padding: clamp(0.5rem, 1.4vh, 0.8rem) clamp(0.8rem, 1.8vw, 1.3rem); }
   }
 
   /* Feature grid cards */
@@ -496,8 +491,8 @@
   }
   .ref-link .ext-icon { font-size: 0.8em; opacity: 0.55; }
 
-  /* Quote slide */
-  .quote-mark { font-family: var(--font-display); font-size: clamp(2.5rem, 7vw, 5rem); color: var(--tab-3); line-height: 0.5; opacity: 0.8; }
+  /* Quote slide — editorial pull-quote accent (colour bar + dot,
+     no reliance on a font's quotation-mark glyph) */
   blockquote {
     font-family: var(--font-display);
     font-weight: 700;
@@ -505,7 +500,21 @@
     line-height: 1.35;
     color: var(--text-primary);
     max-width: 900px;
+    position: relative;
+    padding-left: clamp(1rem, 2.4vw, 1.6rem);
+    border-left: 4px solid var(--tab-warn);
   }
+  blockquote::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: -6px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--tab-warn);
+  }
+  .closing blockquote { text-align: left; margin: 0 auto; }
 
   /* Title slide specific */
   .title-slide .page {
@@ -696,7 +705,6 @@
 <section class="slide" data-section="1">
   <div class="page">
     <div class="binder"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    <div class="quote-mark reveal">"</div>
     <blockquote class="reveal">一个复杂任务，应该按什么顺序、以什么边界、由谁来完成？</blockquote>
     <p class="lead reveal" style="margin-top:clamp(1rem,2.6vh,1.6rem)">编排要回答的，就是这一句话。任务足够简单时不需要它；任务一复杂，就会长出岔路。</p>
   </div>
@@ -752,7 +760,7 @@
       <span class="kicker-num reveal">04 · Chain</span>
       <h2 class="reveal">链式 — 上一步的输出，是下一步的输入</h2>
     </div>
-    <div class="diagram-wrap reveal" style="--chip-color:var(--tab-1)">
+    <div class="diagram-wrap reveal">
       <div class="diagram-row">
         <div class="chip">理解需求</div>
         <div class="arrow-h"></div>
@@ -783,14 +791,15 @@
       <span class="kicker-num reveal">05 · Parallel</span>
       <h2 class="reveal">并行 — 没有强依赖，就同时做</h2>
     </div>
-    <div class="diagram-wrap reveal" style="--chip-color:var(--tab-2)">
+    <div class="diagram-wrap reveal">
       <div class="chip chip-hero">主任务：理解模块</div>
       <div class="arrow-v"></div>
+      <div class="branch-line"></div>
       <div class="diagram-row">
-        <div class="chip">查入口</div>
-        <div class="chip">查模型</div>
-        <div class="chip">查测试</div>
-        <div class="chip">查改动</div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">查入口</div></div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">查模型</div></div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">查测试</div></div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">查改动</div></div>
       </div>
       <div class="arrow-v"></div>
       <div class="chip chip-ghost">统一格式，汇总上下文</div>
@@ -814,14 +823,15 @@
       <span class="kicker-num reveal">06 · Route</span>
       <h2 class="reveal">路由 — 不同输入，走不同路径</h2>
     </div>
-    <div class="diagram-wrap reveal" style="--chip-color:var(--tab-3)">
+    <div class="diagram-wrap reveal">
       <div class="chip chip-hero">用户请求</div>
       <div class="arrow-v"></div>
+      <div class="branch-line"></div>
       <div class="diagram-row">
-        <div class="chip">实现</div>
-        <div class="chip">调试</div>
-        <div class="chip">Review</div>
-        <div class="chip">写作</div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">实现</div></div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">调试</div></div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">Review</div></div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">写作</div></div>
       </div>
     </div>
     <ul class="bullets reveal">
@@ -846,7 +856,7 @@
       <span class="kicker-num reveal">07 · Loop</span>
       <h2 class="reveal">循环 — 执行、验证、修正，直到收敛</h2>
     </div>
-    <div class="diagram-wrap reveal" style="--chip-color:var(--tab-4)">
+    <div class="diagram-wrap reveal">
       <div class="diagram-row">
         <div class="chip">执行</div>
         <div class="arrow-h"></div>
@@ -881,14 +891,15 @@
       <span class="kicker-num reveal">08 · Orchestrate</span>
       <h2 class="reveal">编排 — 谁来协调，谁做最终判断</h2>
     </div>
-    <div class="diagram-wrap reveal" style="--chip-color:var(--tab-5)">
+    <div class="diagram-wrap reveal">
       <div class="chip chip-hero">编排者：定义边界 · 保留最终判断</div>
       <div class="arrow-v"></div>
+      <div class="branch-line"></div>
       <div class="diagram-row">
-        <div class="chip">读代码</div>
-        <div class="chip">调搜索</div>
-        <div class="chip">子 Agent</div>
-        <div class="chip">跑测试</div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">读代码</div></div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">调搜索</div></div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">子 Agent</div></div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">跑测试</div></div>
       </div>
     </div>
     <p class="lead reveal">和并行的区别：Parallel 关注"能不能同时做"，Orchestrate 关注"谁来决定下一步"。工具和子 Agent 能搬砖，但房子歪没歪，得有人抬头看一眼。</p>
@@ -909,14 +920,15 @@
       <span class="kicker-num reveal">09 · Hierarchy</span>
       <h2 class="reveal">层级 — 父任务拆子任务，子任务还能再拆</h2>
     </div>
-    <div class="diagram-wrap reveal" style="--chip-color:var(--tab-6)">
+    <div class="diagram-wrap reveal">
       <div class="chip chip-hero">父任务：迁移组件体系</div>
       <div class="arrow-v"></div>
+      <div class="branch-line"></div>
       <div class="diagram-row">
-        <div class="chip">梳理现状</div>
-        <div class="chip">设计目标 API</div>
-        <div class="chip">实现脚本</div>
-        <div class="chip">补测试文档</div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">梳理现状</div></div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">设计目标 API</div></div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">实现脚本</div></div>
+        <div class="diagram-col"><div class="branch-drop"></div><div class="chip">补测试文档</div></div>
       </div>
     </div>
     <ul class="bullets reveal">
@@ -1019,13 +1031,13 @@
     </div>
     <div class="diagram-wrap reveal">
       <div class="diagram-row">
-        <div class="chip" style="--chip-color:var(--tab-1)">语言表达<br/><span style="opacity:.65">允许自由变化</span></div>
-        <div class="arrow-h" style="--chip-color:var(--tab-2)"></div>
-        <div class="chip" style="--chip-color:var(--tab-2)">决策过程<br/><span style="opacity:.65">尽量稳定</span></div>
-        <div class="arrow-h" style="--chip-color:var(--tab-4)"></div>
-        <div class="chip" style="--chip-color:var(--tab-4)">外部动作<br/><span style="opacity:.65">必须可控</span></div>
-        <div class="arrow-h" style="--chip-color:var(--tab-warn)"></div>
-        <div class="chip chip-hero" style="--chip-color:var(--tab-warn)">交付结果<br/><span style="opacity:.8">必须可验证</span></div>
+        <div class="chip">语言表达<br/><span style="opacity:.65">允许自由变化</span></div>
+        <div class="arrow-h"></div>
+        <div class="chip">决策过程<br/><span style="opacity:.65">尽量稳定</span></div>
+        <div class="arrow-h"></div>
+        <div class="chip">外部动作<br/><span style="opacity:.65">必须可控</span></div>
+        <div class="arrow-h"></div>
+        <div class="chip chip-hero">交付结果<br/><span style="opacity:.8">必须可验证</span></div>
       </div>
     </div>
     <p class="lead reveal">越往右，越不能靠模型"自由发挥"。我们不是把风变成石头，而是给帆、舵和锚各自安排好位置。</p>
@@ -1108,7 +1120,6 @@
 <section class="slide closing" data-section="5">
   <div class="page">
     <div class="binder"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    <div class="quote-mark reveal">"</div>
     <blockquote class="reveal">Skill 不是魔法咒语，而是一份认真写过的团队协作规范 —— 只不过团队里多了一个很会写、很会猜，偶尔也会一本正经胡说八道的 Agent。</blockquote>
     <div class="rule reveal" style="margin:clamp(1.4rem,3.5vh,2.2rem) auto 0"></div>
     <h2 class="reveal" style="margin-top:clamp(1rem,2.6vh,1.6rem)">谢谢 Thank You</h2>
