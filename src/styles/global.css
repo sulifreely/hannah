@@ -61,6 +61,38 @@ body {
   background: var(--selection);
 }
 
+/* 滚动条：跟随主题色，浅色/深色下都保持低调，悬停时呼应强调色 */
+/* Firefox 的 scrollbar-width / scrollbar-color 不会继承给内部滚动容器（如目录、代码块），
+   这里用通配符确保页面内所有可滚动区域都套用同一套样式 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--fg-subtle) 60%, transparent) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--fg-subtle) 60%, transparent);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 .wrap {
   width: 100%;
   max-width: var(--max-width);

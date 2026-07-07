@@ -459,6 +459,40 @@ const dateStr = new Intl.DateTimeFormat('zh-CN', {
   })();
 </script>
 
+<script is:inline>
+  // 目录是 fixed 定位，不随文档流滚出屏幕；文章较短时滚动到底部会与页脚重叠，
+  // 这里根据目录与页脚的实时距离动态收缩目录高度，避免遮挡页脚内容。
+  (function () {
+    var toc = document.querySelector('.toc');
+    var footer = document.querySelector('.site-footer');
+    if (!toc || !footer) return;
+
+    var GAP = 24;
+    var ticking = false;
+
+    function clampToc() {
+      ticking = false;
+      toc.style.maxHeight = '';
+      var natural = parseFloat(getComputedStyle(toc).maxHeight) || toc.getBoundingClientRect().height;
+      var tocTop = toc.getBoundingClientRect().top;
+      var footerTop = footer.getBoundingClientRect().top;
+      var available = footerTop - tocTop - GAP;
+      var maxHeight = Math.max(0, Math.min(natural, available));
+      toc.style.maxHeight = maxHeight + 'px';
+    }
+
+    function requestClamp() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(clampToc);
+    }
+
+    window.addEventListener('scroll', requestClamp, { passive: true });
+    window.addEventListener('resize', requestClamp);
+    clampToc();
+  })();
+</script>
+
 <script>
   (function () {
     type ImagePreviewItem = {
