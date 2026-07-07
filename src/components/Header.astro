@@ -4,7 +4,7 @@ import ThemeToggle from './ThemeToggle.astro';
 const links = [
   { href: '/', label: '博客' },
   { href: '/talks', label: '分享' },
-  { href: '/about', label: '关于' },
+  // { href: '/about', label: '关于' }, // 暂时隐藏
 ];
 
 const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
