@@ -65,29 +65,18 @@ const scenes = talk.body
     </div>
 
     <script>
+      import { clamp, readPositionFromSearch, syncPositionToURL } from '../../lib/deck/url-state';
+
       const deck = document.getElementById('deck')!;
       const slides = Array.from(deck.querySelectorAll('.slide'));
       const sceneCount = slides.length;
       const beatsOf = (i: number) => slides[i].querySelectorAll('.beat').length;
-      const clamp = (n: number, lo: number, hi: number) =>
-        Math.max(lo, Math.min(hi, n));
 
       let scene = 0;
       let beat = 0;
 
       function readURL() {
-        const p = new URLSearchParams(location.search);
-        const s = parseInt(p.get('scene') || '1', 10);
-        const b = parseInt(p.get('beat') || '0', 10);
-        scene = clamp((isNaN(s) ? 1 : s) - 1, 0, sceneCount - 1);
-        beat = clamp(isNaN(b) ? 0 : b, 0, Math.max(0, beatsOf(scene) - 1));
-      }
-
-      function syncURL() {
-        const p = new URLSearchParams();
-        p.set('scene', String(scene + 1));
-        p.set('beat', String(beat));
-        history.replaceState(null, '', location.pathname + '?' + p.toString());
+        ({ scene, beat } = readPositionFromSearch(location.search, sceneCount, beatsOf));
       }
 
       function render() {
@@ -100,7 +89,7 @@ const scenes = talk.body
         });
         const cur = document.getElementById('cur');
         if (cur) cur.textContent = String(scene + 1);
-        syncURL();
+        syncPositionToURL({ scene, beat });
       }
 
       function next() {

@@ -328,7 +328,7 @@ deck:
 
     - type: quote
       section: '5'
-      quote: Skill 不是魔法咒语，而是一份认真写过的团队协作规范 —— 只不过团队里多了一个很会写、很会猜，偶尔也会一本正经胡说八道的 Agent。
+      quote: Skill 不是魔法咒语，而是一份工程操作手册 —— 把路径写清楚，该自由发挥时自由发挥，该踩刹车时就踩刹车。
       heading: 谢谢 Thank You
       centered: true
 draft: false

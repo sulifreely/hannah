@@ -77,6 +77,8 @@ function slideClass(slide: (typeof slides)[number]) {
     ))}
 
     <script>
+      import { readPositionFromSearch, syncPositionToURL } from '../../lib/deck/url-state';
+
       class SlidePresentation {
         slides: HTMLElement[];
         currentSlide: number;
@@ -115,21 +117,12 @@ function slideClass(slide: (typeof slides)[number]) {
         }
 
         // Every talk's slides route is controlled by the same `?scene=N&beat=0`
-        // URL contract (shared with the ScenesDeck template) so links/deep-links
-        // are consistent across both slide templates. This template has no
-        // sub-slide "beat" reveal step, so beat is always pinned to 0.
+        // URL contract (shared with the ScenesDeck template via
+        // src/lib/deck/url-state.ts) so links/deep-links are consistent
+        // across both slide templates. This template has no sub-slide
+        // "beat" reveal step, so beat always resolves to 0.
         readSceneFromURL() {
-          const p = new URLSearchParams(location.search);
-          const s = parseInt(p.get('scene') || '1', 10);
-          const idx = (isNaN(s) ? 1 : s) - 1;
-          return Math.max(0, Math.min(this.slides.length - 1, idx));
-        }
-
-        syncURL(idx: number) {
-          const p = new URLSearchParams();
-          p.set('scene', String(idx + 1));
-          p.set('beat', '0');
-          history.replaceState(null, '', location.pathname + '?' + p.toString());
+          return readPositionFromSearch(location.search, this.slides.length).scene;
         }
 
         updateActive(idx: number) {
@@ -139,7 +132,7 @@ function slideClass(slide: (typeof slides)[number]) {
           });
           const section = this.slides[idx].dataset.section;
           this.tabs.forEach((t) => t.classList.toggle('active', t.dataset.tab === section));
-          this.syncURL(idx);
+          syncPositionToURL({ scene: idx, beat: 0 });
         }
 
         goTo(idx: number, behavior: ScrollBehavior = 'smooth') {
