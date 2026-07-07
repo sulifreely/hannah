@@ -8,6 +8,7 @@ import '@fontsource/jetbrains-mono/700.css';
 import 'lxgw-wenkai-lite-webfont/lxgwwenkailite-regular.css';
 import 'lxgw-wenkai-lite-webfont/lxgwwenkailite-bold.css';
 import '../../styles/global.css';
+import '../../styles/decks/chrome.css';
 
 type Props = { talk: CollectionEntry<'talks'> };
 
@@ -275,10 +276,10 @@ const scenes = talk.body
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1.25rem;
+    padding: var(--deck-corner-inset-y) var(--deck-corner-inset-x);
     font-size: 0.85rem;
     color: var(--fg-subtle);
-    z-index: 10;
+    z-index: var(--deck-corner-z);
     pointer-events: none;
   }
   .hud a,
@@ -286,12 +287,16 @@ const scenes = talk.body
   .hud .hud-progress {
     pointer-events: auto;
   }
+  /* Same corner-spacing + interaction convention (src/styles/decks/
+     chrome.css) as NotebookTabsDeck's .deck-back-link — colors stay
+     theme-adaptive here since ScenesDeck supports light/dark toggling. */
   .hud-back {
     color: var(--fg-subtle);
     max-width: 50vw;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    transition: var(--deck-meta-transition);
   }
   .hud-back:hover {
     color: var(--fg);

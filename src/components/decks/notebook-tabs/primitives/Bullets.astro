@@ -1,0 +1,14 @@
+---
+/** The reveal-animated bullet list shared by code/chain/branch/bullets slides. */
+import Md from './Md.astro';
+
+interface Props {
+  items: string[];
+  style?: string;
+}
+
+const { items, style } = Astro.props;
+---
+<ul class="bullets reveal" style={style}>
+  {items.map((item) => <li><Md text={item} /></li>)}
+</ul>

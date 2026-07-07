@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate } from '../../lib/format';
 
 export async function getStaticPaths() {
   const talks = await getCollection('talks', ({ data }) => !data.draft);
@@ -16,11 +17,7 @@ type Props = { talk: CollectionEntry<'talks'> };
 const { talk } = Astro.props;
 const { data } = talk;
 
-const dateStr = new Intl.DateTimeFormat('zh-CN', {
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-}).format(data.date);
+const dateStr = formatDate(data.date);
 ---
 
 <BaseLayout title={data.title} description={data.description} image={data.cover}>

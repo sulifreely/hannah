@@ -1,0 +1,21 @@
+---
+/**
+ * Renders one field of markdown-flavored slide text as inline HTML. Every
+ * slide type needs this same `marked.parseInline` + `set:html` step for
+ * eyebrows, headings, leads, bullets, and diagram labels — this is the one
+ * place that knows how "slide text" becomes markup.
+ */
+import { marked } from 'marked';
+
+interface Props {
+  text: string;
+  as?: string;
+  class?: string;
+  style?: string;
+}
+
+const { text, as = 'span', class: className, style } = Astro.props;
+const html = marked.parseInline(text) as string;
+const Tag = as;
+---
+<Tag class={className} style={style} set:html={html} />

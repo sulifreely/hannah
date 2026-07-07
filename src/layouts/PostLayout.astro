@@ -2,6 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import LikeButton from '../components/LikeButton.astro';
 import ViewCount from '../components/ViewCount.astro';
+import { formatDate } from '../lib/format';
 
 interface Heading {
   depth: number;
@@ -23,11 +24,7 @@ const { slug, title, date, description, tags = [], cover, headings = [] } = Astr
 
 const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
-const dateStr = new Intl.DateTimeFormat('zh-CN', {
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-}).format(date);
+const dateStr = formatDate(date);
 ---
 
 <BaseLayout title={title} description={description} image={cover}>

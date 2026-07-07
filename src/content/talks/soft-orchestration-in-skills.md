@@ -60,11 +60,16 @@ deck:
       quote: 一个复杂任务，应该按什么顺序、以什么边界、由谁来完成？
       lead: 编排要回答的，就是这一句话。任务足够简单时不需要它；任务一复杂，就会长出岔路。
 
-    - type: code
+    - type: diagram
       section: '1'
       kicker: '02'
       heading: 今天想聊三件事
-      code: Skill = 指令 + 编排模式 + 工具协议 + 验证门禁
+      mermaid: |
+        flowchart LR
+            A["指令"] --> S(["Skill"])
+            B["编排模式"] --> S
+            C["工具协议"] --> S
+            D["验证门禁"] --> S
       bullets:
         - 常见的六类编排模式：链式、并行、路由、循环、编排、层级
         - 这些模式在 Skill 里怎么落地表达
@@ -95,32 +100,46 @@ deck:
           title: Hierarchy 层级
           desc: 父任务拆子任务，逐层收敛
 
-    - type: chain
+    - type: diagram
       section: '2'
       kicker: '04 · Chain'
       heading: 链式 — 上一步的输出，是下一步的输入
-      steps:
-        - label: 理解需求
-        - label: 读取上下文
-        - label: 制定方案
-        - label: 执行修改
-        - label: 验证结果
+      mermaid: |
+        flowchart LR
+            A["理解需求"]
+            B["读取上下文"]
+            C["制定方案"]
+            D["执行修改"]
+            E["验证结果"]
+            A --> B
+            B --> C
+            C --> D
+            D --> E
       lead: 关键不是编号本身，而是每一步的输入输出要清楚 —— 没看清楚火从哪冒出来，就急着往墙上浇水，只会把屋子弄得更湿。
       refs:
         - label: executing-plans
           href: https://github.com/obra/superpowers/blob/main/skills/executing-plans/SKILL.md
 
-    - type: branch
+    - type: diagram
       section: '2'
       kicker: '05 · Parallel'
       heading: 并行 — 没有强依赖，就同时做
-      hero: '主任务：理解模块'
-      branches:
-        - 查入口
-        - 查模型
-        - 查测试
-        - 查改动
-      ghost: 统一格式，汇总上下文
+      mermaid: |
+        flowchart TD
+            A["主任务：理解模块"]
+            B["子任务 A：查入口"]
+            C["子任务 B：查模型"]
+            D["子任务 C：查测试"]
+            E["子任务 D：查历史改动"]
+            F["统一格式<br/>汇总上下文"]
+            A --> B
+            A --> C
+            A --> D
+            A --> E
+            B --> F
+            C --> F
+            D --> F
+            E --> F
       lead: 并行的收益是快，风险是散。Skill 要把"散"收回来：各查各的边界，但按同一种格式把证据交回来。
       refs:
         - label: dispatching-parallel-agents
@@ -128,16 +147,23 @@ deck:
         - label: code-review
           href: https://github.com/mattpocock/skills/blob/main/skills/engineering/code-review/SKILL.md
 
-    - type: branch
+    - type: diagram
       section: '2'
       kicker: '06 · Route'
       heading: 路由 — 不同输入，走不同路径
-      hero: 用户请求
-      branches:
-        - 实现
-        - 调试
-        - Review
-        - 写作
+      mermaid: |
+        flowchart TD
+            A["用户请求"]
+            B{"任务类型是什么"}
+            C["实现工作流"]
+            D["调试工作流"]
+            E["Review 工作流"]
+            F["写作工作流"]
+            A --> B
+            B -- "代码修改" --> C
+            B -- "Bug 排查" --> D
+            B -- "代码审查" --> E
+            B -- "长文写作" --> F
       bullets:
         - 好的路由规则有三层：何时用、何时不用、进入后怎么细分
         - 条件一模糊，模型就会凭语感选路 —— 路牌不能只写"差不多往那边"
@@ -147,18 +173,22 @@ deck:
         - label: triage
           href: https://github.com/mattpocock/skills/blob/main/skills/engineering/triage/SKILL.md
 
-    - type: chain
+    - type: diagram
       section: '2'
       kicker: '07 · Loop'
       heading: 循环 — 执行、验证、修正，直到收敛
-      steps:
-        - label: 执行
-        - label: 验证
-        - label: 通过？
-          variant: ghost
-        - label: 结束
-          variant: hero
-      retry: '不通过：分析失败原因、更新假设，再回到"执行"'
+      mermaid: |
+        flowchart LR
+            A["执行"]
+            B["验证"]
+            C{"是否通过"}
+            D["结束"]
+            E["分析失败原因<br/>更新假设"]
+            A --> B
+            B --> C
+            C -- "是" --> D
+            C -- "否" --> E
+            E --> A
       bullets:
         - 一定要写清楚退出条件，否则会烧干上下文和耐心
         - 最多重复 N 次，每轮都要留下判断记录，不是瞎撞
@@ -170,31 +200,54 @@ deck:
         - label: diagnosing-bugs
           href: https://github.com/mattpocock/skills/blob/main/skills/engineering/diagnosing-bugs/SKILL.md
 
-    - type: branch
+    - type: diagram
       section: '2'
       kicker: '08 · Orchestrate'
       heading: 编排 — 谁来协调，谁做最终判断
-      hero: '编排者：定义边界 · 保留最终判断'
-      branches:
-        - 读代码
-        - 调搜索
-        - 子 Agent
-        - 跑测试
+      mermaid: |
+        flowchart TD
+            A["编排者<br/>定义边界<br/>保留最终判断"]
+            B["读取代码"]
+            C["调用搜索"]
+            D["启动子 Agent"]
+            E["运行测试"]
+            F["综合证据<br/>给出结果"]
+            A --> B
+            A --> C
+            A --> D
+            A --> E
+            B --> F
+            C --> F
+            D --> F
+            E --> F
       lead: 和并行的区别：Parallel 关注"能不能同时做"，Orchestrate 关注"谁来决定下一步"。工具和子 Agent 能搬砖，但房子歪没歪，得有人抬头看一眼。
       refs:
         - label: subagent-driven-development
           href: https://github.com/obra/superpowers/blob/main/skills/subagent-driven-development/SKILL.md
 
-    - type: branch
+    - type: diagram
       section: '2'
       kicker: '09 · Hierarchy'
       heading: 层级 — 父任务拆子任务，子任务还能再拆
-      hero: '父任务：迁移组件体系'
-      branches:
-        - 梳理现状
-        - 设计目标 API
-        - 实现脚本
-        - 补测试文档
+      mermaid: |
+        flowchart TD
+            A["父任务：迁移组件体系"]
+            B["子任务：梳理现状"]
+            C["子任务：设计目标 API"]
+            D["子任务：实现迁移脚本"]
+            E["子任务：补测试和文档"]
+            B1["检查调用方"]
+            B2["统计组件变体"]
+            C1["兼容性分析"]
+            C2["类型设计"]
+            A --> B
+            A --> C
+            A --> D
+            A --> E
+            B --> B1
+            B --> B2
+            C --> C1
+            C --> C2
       bullets:
         - 子任务必须带明确的输入、输出、边界
         - 父任务必须在关键节点重新汇总，不能一路放飞

@@ -1,0 +1,16 @@
+---
+/** The "参考 Skill →" reference-link row shared by chain/branch slides. */
+interface Props {
+  refs: { label: string; href: string }[];
+}
+
+const { refs } = Astro.props;
+---
+<div class="ref-links reveal">
+  <span class="ref-label">参考 Skill →</span>
+  {refs.map((ref) => (
+    <a class="ref-link" href={ref.href} target="_blank" rel="noopener">
+      {ref.label}<span class="ext-icon">↗</span>
+    </a>
+  ))}
+</div>

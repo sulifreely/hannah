@@ -9,6 +9,8 @@
      to match markup rendered by several child components
      (the per-slide-type partials under decks/notebook-tabs/).
      =========================================== */
+@import './chrome.css';
+
 :root {
   --bg-outer: #262523;
   --bg-outer-2: #1b1a19;
@@ -330,6 +332,34 @@
 }
 
 .deck-root .diagram-row { display: flex; align-items: flex-start; justify-content: center; gap: clamp(0.4rem, 1.3vw, 1rem); flex-wrap: wrap; row-gap: clamp(0.5rem, 1.4vh, 0.9rem); }
+
+/* A .diagram-wrap that holds a real Mermaid chart (DiagramSlide.astro)
+   instead of hand-built chips — same dot-grid card, no fixed width so the
+   rendered SVG can flow to whatever size Mermaid draws it at. */
+.deck-root .mermaid-wrap {
+  width: 100%;
+  max-width: 100%;
+}
+.deck-root pre.mermaid {
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  line-height: normal;
+  /* 渲染完成前隐藏源码文本并预留高度，减少加载时的布局抖动 */
+  color: transparent;
+  font-size: 0;
+  min-height: 160px;
+}
+.deck-root pre.mermaid[data-processed] {
+  color: inherit;
+  min-height: 0;
+}
+.deck-root pre.mermaid svg {
+  max-width: 100%;
+  max-height: 34vh;
+  width: auto;
+  height: auto;
+}
 .deck-root .diagram-col { display: flex; flex-direction: column; align-items: center; gap: clamp(0.25rem, 0.8vh, 0.5rem); }
 
 /* Thin rule + right-angle chevron, drawn purely with borders */
@@ -559,23 +589,23 @@
 
 .deck-root .keyboard-hint {
   position: fixed;
-  bottom: clamp(10px, 2vh, 20px);
-  right: clamp(14px, 2vw, 26px);
+  bottom: var(--deck-corner-inset-y);
+  right: var(--deck-corner-inset-x);
   font-family: var(--font-mono);
   font-size: var(--small-size);
   color: rgba(255,255,255,0.35);
-  z-index: 100;
+  z-index: var(--deck-corner-z);
 }
 
 /* Back-to-site link — bottom-left, plain muted text that brightens on
-   hover. Same corner + interaction convention as ScenesDeck's .hud-back,
-   so every talk's slides route shares one "return" idiom regardless of
-   which template rendered it. */
+   hover. Same corner-spacing + interaction convention (src/styles/decks/
+   chrome.css) as ScenesDeck's .hud-back, so every talk's slides route
+   shares one "return" idiom regardless of which template rendered it. */
 .deck-root .deck-back-link {
   position: fixed;
-  bottom: clamp(10px, 2vh, 20px);
-  left: clamp(14px, 2vw, 26px);
-  z-index: 100;
+  bottom: var(--deck-corner-inset-y);
+  left: var(--deck-corner-inset-x);
+  z-index: var(--deck-corner-z);
   max-width: 46vw;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -584,7 +614,7 @@
   font-size: var(--small-size);
   color: rgba(255, 255, 255, 0.45);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: var(--deck-meta-transition);
 }
 .deck-root .deck-back-link:hover { color: #fff; }
 

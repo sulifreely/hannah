@@ -8,24 +8,8 @@ const { slide } = Astro.props;
 ---
 
 <SlideHead kicker={slide.kicker} heading={slide.heading} />
-<div class="diagram-wrap reveal">
-  <Md as="div" class="chip chip-hero" text={slide.hero} />
-  <div class="arrow-v" />
-  <div class="branch-line" />
-  <div class="diagram-row">
-    {slide.branches.map((b: string) => (
-      <div class="diagram-col">
-        <div class="branch-drop" />
-        <Md as="div" class="chip" text={b} />
-      </div>
-    ))}
-  </div>
-  {slide.ghost && (
-    <>
-      <div class="arrow-v" />
-      <Md as="div" class="chip chip-ghost" text={slide.ghost} />
-    </>
-  )}
+<div class="diagram-wrap reveal mermaid-wrap">
+  <pre class="mermaid">{slide.mermaid}</pre>
 </div>
 {slide.lead && <Md as="p" class="lead reveal" text={slide.lead} />}
 {slide.bullets && <Bullets items={slide.bullets} />}

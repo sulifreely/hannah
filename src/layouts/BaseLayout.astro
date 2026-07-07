@@ -71,8 +71,22 @@ const ogImage = new URL(image, Astro.site).toString();
 </html>
 
 <style>
+  /* Sticky footer：只作用于 BaseLayout 自己渲染出的 html/body（Astro 会给
+     这里的选择器加 scope 属性），不会像全局样式表那样泄漏进 talks 的
+     slides 独立文档里。main 用 flex:1 吃掉除 header/footer 外的所有剩余
+     高度，footer 因此始终贴底，无论内容多短；内容一多就自然把 footer 推下去。 */
+  html {
+    height: 100%;
+  }
+
+  body {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
   .site-main {
     padding-top: 2.5rem;
-    min-height: 60vh;
+    flex: 1;
   }
 </style>

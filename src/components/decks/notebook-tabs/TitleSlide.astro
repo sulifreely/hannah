@@ -1,17 +1,14 @@
 ---
-import { marked } from 'marked';
+import Md from './primitives/Md.astro';
 
 const { slide } = Astro.props;
-const titleHtml = marked.parseInline(slide.title) as string;
-const leadHtml = slide.lead ? (marked.parseInline(slide.lead) as string) : '';
-const eyebrowHtml = slide.eyebrow ? (marked.parseInline(slide.eyebrow) as string) : '';
 ---
 
 <div class="title-text">
-  {slide.eyebrow && <p class="eyebrow reveal" set:html={eyebrowHtml} />}
-  <h1 class="reveal" style="margin-top:clamp(.6rem,1.6vh,1rem)" set:html={titleHtml} />
+  {slide.eyebrow && <Md as="p" class="eyebrow reveal" text={slide.eyebrow} />}
+  <Md as="h1" class="reveal" style="margin-top:clamp(.6rem,1.6vh,1rem)" text={slide.title} />
   {slide.lead && (
-    <p class="lead reveal" style="margin-top:clamp(1rem,2.6vh,1.6rem)" set:html={leadHtml} />
+    <Md as="p" class="lead reveal" style="margin-top:clamp(1rem,2.6vh,1.6rem)" text={slide.lead} />
   )}
   <div class="rule reveal" style="margin-top:clamp(1.2rem,3vh,2rem)" />
 </div>

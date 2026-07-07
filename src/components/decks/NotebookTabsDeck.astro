@@ -1,20 +1,20 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import Analytics from '@vercel/analytics/astro';
+import '@fontsource/comic-neue/400.css';
+import '@fontsource/comic-neue/700.css';
+import 'lxgw-wenkai-lite-webfont/lxgwwenkailite-regular.css';
+import 'lxgw-wenkai-lite-webfont/lxgwwenkailite-bold.css';
 import '../../styles/decks/notebook-tabs.css';
-import TitleSlide from './notebook-tabs/TitleSlide.astro';
-import QuoteSlide from './notebook-tabs/QuoteSlide.astro';
-import SplitSlide from './notebook-tabs/SplitSlide.astro';
-import CodeSlide from './notebook-tabs/CodeSlide.astro';
-import GridSlide from './notebook-tabs/GridSlide.astro';
-import ChainSlide from './notebook-tabs/ChainSlide.astro';
-import BranchSlide from './notebook-tabs/BranchSlide.astro';
-import BulletsSlide from './notebook-tabs/BulletsSlide.astro';
+import { SLIDE_RENDERERS } from './notebook-tabs/registry';
 
 type Props = { talk: CollectionEntry<'talks'> };
 
 const { talk } = Astro.props;
-const deck = talk.data.deck!;
+if (talk.data.template !== 'deck') {
+  throw new Error(`NotebookTabsDeck rendered for a non-deck talk: ${talk.slug}`);
+}
+const deck = talk.data.deck;
 const slides = deck.slides;
 const sections = deck.sections ?? [];
 
@@ -58,23 +58,19 @@ function slideClass(slide: (typeof slides)[number]) {
     <div class="keyboard-hint">← → · Space · Scroll</div>
     <a class="deck-back-link" href={`/talks/${talk.slug}/`}>← {talk.data.title}</a>
 
-    {slides.map((slide) => (
-      <section class={slideClass(slide)} data-section={slide.section}>
-        <div class="page">
-          <div class="binder">
-            <span></span><span></span><span></span><span></span><span></span><span></span>
+    {slides.map((slide) => {
+      const SlideComponent = SLIDE_RENDERERS[slide.type];
+      return (
+        <section class={slideClass(slide)} data-section={slide.section}>
+          <div class="page">
+            <div class="binder">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <SlideComponent slide={slide as any} />
           </div>
-          {slide.type === 'title' && <TitleSlide slide={slide} />}
-          {slide.type === 'quote' && <QuoteSlide slide={slide} />}
-          {slide.type === 'split' && <SplitSlide slide={slide} />}
-          {slide.type === 'code' && <CodeSlide slide={slide} />}
-          {slide.type === 'grid' && <GridSlide slide={slide} />}
-          {slide.type === 'chain' && <ChainSlide slide={slide} />}
-          {slide.type === 'branch' && <BranchSlide slide={slide} />}
-          {slide.type === 'bullets' && <BulletsSlide slide={slide} />}
-        </div>
-      </section>
-    ))}
+        </section>
+      );
+    })}
 
     <script>
       import { readPositionFromSearch, syncPositionToURL } from '../../lib/deck/url-state';
@@ -232,6 +228,41 @@ function slideClass(slide: (typeof slides)[number]) {
           presentation.goTo(presentation.readSceneFromURL(), 'auto');
         });
       });
+    </script>
+
+    <script>
+      // Same Mermaid pipeline as blog posts (see remarkMermaid in
+      // astro.config.mjs + PostLayout.astro) so a diagram slide reused
+      // 1:1 from a blog post renders in the exact same hand-drawn style.
+      // Unlike the blog, this deck has no light/dark toggle — the slide
+      // "page" is always the light paper card — so theme is fixed.
+      (async function () {
+        const blocks = Array.from(document.querySelectorAll<HTMLElement>('pre.mermaid'));
+        if (!blocks.length) return;
+
+        blocks.forEach((el, i) => {
+          el.dataset.src = el.textContent || '';
+          if (!el.id) el.id = 'deck-mermaid-' + i;
+        });
+
+        const { default: mermaid } = await import('mermaid');
+        mermaid.initialize({
+          startOnLoad: false,
+          look: 'handDrawn',
+          handDrawnSeed: 1,
+          theme: 'neutral',
+          securityLevel: 'strict',
+          fontFamily: '"Comic Neue", "LXGW WenKai Lite", cursive',
+        });
+        for (const el of blocks) {
+          try {
+            await mermaid.run({ nodes: [el] });
+          } catch (e) {
+            el.dataset.processed = 'error';
+            /* 单个图表语法错误时不阻断其他图表 */
+          }
+        }
+      })();
     </script>
   </body>
 </html>

@@ -1,32 +1,27 @@
 ---
-import ViewCount from './ViewCount.astro';
 import { formatDate } from '../lib/format';
 
 interface Props {
-  url: string;
   slug: string;
   title: string;
   date: Date;
   description: string;
+  event?: string;
   tags?: string[];
   cover?: string;
 }
 
-const { url, slug, title, date, description, tags = [], cover } = Astro.props;
-
+const { slug, title, date, description, event, tags = [], cover } = Astro.props;
+const url = `/talks/${slug}/`;
 const dateStr = formatDate(date);
 ---
 
-<article class="post-card">
+<article class="talk-card">
   <div class="card-body">
     <div class="meta">
       <time datetime={date.toISOString()}>{dateStr}</time>
-      <ViewCount slug={slug} contentType="blog" mode="readonly" />
-      {tags.length > 0 && (
-        <span class="tags">
-          {tags.map((tag) => <span class="tag">#{tag}</span>)}
-        </span>
-      )}
+      {event && <span class="event">{event}</span>}
+      {tags.map((tag) => <span class="tag">#{tag}</span>)}
     </div>
     <h2 class="title">
       <a href={url}>{title}</a>
@@ -41,7 +36,7 @@ const dateStr = formatDate(date);
 </article>
 
 <style>
-  .post-card {
+  .talk-card {
     display: flex;
     align-items: flex-start;
     gap: clamp(1.25rem, 3vw, 2rem);
@@ -55,25 +50,24 @@ const dateStr = formatDate(date);
   .thumb {
     flex-shrink: 0;
     display: block;
-    width: clamp(180px, 30vw, 260px);
-    border-radius: 4px;
+    width: clamp(132px, 24vw, 200px);
+    border-radius: 10px;
     overflow: hidden;
     border: 1px solid var(--border);
-    box-shadow: 3px 3px 0 var(--border);
   }
   .thumb img {
     display: block;
     width: 100%;
-    height: auto;
-    background: var(--paper);
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
   }
   @media (max-width: 680px) {
     .thumb {
-      width: 136px;
+      width: 112px;
     }
   }
   @media (max-width: 560px) {
-    .post-card {
+    .talk-card {
       flex-direction: column;
       align-items: stretch;
       gap: 0.85rem;
@@ -82,26 +76,24 @@ const dateStr = formatDate(date);
       order: -1;
       width: 100%;
     }
+    .thumb img {
+      aspect-ratio: 16 / 9;
+    }
   }
   .meta {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--fg-subtle);
     margin-bottom: 0.5rem;
   }
-  .tags {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
+  .event {
+    color: var(--fg-muted);
   }
   .tag {
-    color: var(--accent);
-    background: var(--tag-bg);
-    padding: 0.1em 0.55em;
-    border-radius: 3px;
+    color: var(--fg-muted);
   }
   .title {
     margin: 0 0 0.4rem;

@@ -1,14 +1,9 @@
 ---
-import { marked } from 'marked';
+import SlideHead from './primitives/SlideHead.astro';
+import Bullets from './primitives/Bullets.astro';
 
 const { slide } = Astro.props;
-const headingHtml = marked.parseInline(slide.heading) as string;
 ---
 
-<div class="head-block">
-  {slide.kicker && <span class="kicker-num reveal">{slide.kicker}</span>}
-  <h2 class="reveal" set:html={headingHtml} />
-</div>
-<ul class="bullets reveal" style="gap:clamp(.8rem,2vh,1.3rem)">
-  {slide.bullets.map((b: string) => <li set:html={marked.parseInline(b) as string} />)}
-</ul>
+<SlideHead kicker={slide.kicker} heading={slide.heading} />
+<Bullets items={slide.bullets} style="gap:clamp(.8rem,2vh,1.3rem)" />

@@ -1,23 +1,22 @@
 ---
-import { marked } from 'marked';
+import Md from './primitives/Md.astro';
+import SlideHead from './primitives/SlideHead.astro';
+import Bullets from './primitives/Bullets.astro';
+import RefLinks from './primitives/RefLinks.astro';
 
 const { slide } = Astro.props;
-const headingHtml = marked.parseInline(slide.heading) as string;
-const leadHtml = slide.lead ? (marked.parseInline(slide.lead) as string) : '';
 ---
 
-<div class="head-block">
-  {slide.kicker && <span class="kicker-num reveal">{slide.kicker}</span>}
-  <h2 class="reveal" set:html={headingHtml} />
-</div>
+<SlideHead kicker={slide.kicker} heading={slide.heading} />
 <div class="diagram-wrap reveal">
   <div class="diagram-row">
     {slide.steps.map((step: { label: string; variant?: 'ghost' | 'hero' }, i: number) => (
       <>
         {i > 0 && <div class="arrow-h" />}
-        <div
+        <Md
+          as="div"
           class={`chip ${step.variant === 'hero' ? 'chip-hero' : step.variant === 'ghost' ? 'chip-ghost' : ''}`}
-          set:html={marked.parseInline(step.label) as string}
+          text={step.label}
         />
       </>
     ))}
@@ -25,23 +24,10 @@ const leadHtml = slide.lead ? (marked.parseInline(slide.lead) as string) : '';
   {slide.retry && (
     <div class="arrow-loop">
       <span class="loop-glyph">↺</span>
-      <span set:html={marked.parseInline(slide.retry) as string} />
+      <Md as="span" text={slide.retry} />
     </div>
   )}
 </div>
-{slide.lead && <p class="lead reveal" set:html={leadHtml} />}
-{slide.bullets && (
-  <ul class="bullets reveal">
-    {slide.bullets.map((b: string) => <li set:html={marked.parseInline(b) as string} />)}
-  </ul>
-)}
-{slide.refs && slide.refs.length > 0 && (
-  <div class="ref-links reveal">
-    <span class="ref-label">参考 Skill →</span>
-    {slide.refs.map((ref: { label: string; href: string }) => (
-      <a class="ref-link" href={ref.href} target="_blank" rel="noopener">
-        {ref.label}<span class="ext-icon">↗</span>
-      </a>
-    ))}
-  </div>
-)}
+{slide.lead && <Md as="p" class="lead reveal" text={slide.lead} />}
+{slide.bullets && <Bullets items={slide.bullets} />}
+{slide.refs && slide.refs.length > 0 && <RefLinks refs={slide.refs} />}

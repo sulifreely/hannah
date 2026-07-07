@@ -6,3 +6,12 @@ export function formatCount(n: number): string {
   }
   return String(n);
 }
+
+/** 统一的中文日期格式（YYYY/MM/DD），供博客、talks 卡片和详情页复用。 */
+export function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date);
+}

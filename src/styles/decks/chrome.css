@@ -1,0 +1,19 @@
+/**
+ * Shared "deck chrome" contract for the small fixed-corner meta elements
+ * every talk's slides route uses — back-link, progress readout, keyboard
+ * hint — regardless of which deck template renders it.
+ *
+ * Colors are deliberately NOT unified here: ScenesDeck adapts to the
+ * site's light/dark theme toggle (`--fg`/`--fg-subtle` from global.css)
+ * while NotebookTabsDeck is a fixed dark aesthetic with its own palette.
+ * Forcing one color token across both would either break ScenesDeck's
+ * theming or just get overridden right back — not a real seam. What both
+ * templates truly share is corner placement and the "brighten on hover, no
+ * underline" idiom, captured as tokens below.
+ */
+:root {
+  --deck-corner-inset-y: clamp(10px, 2vh, 20px);
+  --deck-corner-inset-x: clamp(14px, 2vw, 26px);
+  --deck-corner-z: 100;
+  --deck-meta-transition: color 0.2s ease;
+}

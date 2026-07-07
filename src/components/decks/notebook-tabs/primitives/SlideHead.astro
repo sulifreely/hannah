@@ -1,0 +1,22 @@
+---
+/**
+ * The "kicker number + heading" block that opens most slide types (split,
+ * code, grid, chain, branch, bullets). Kicker and heading are both
+ * optional so CodeSlide — the one type where the head-block itself is
+ * optional — can reuse this without a special case.
+ */
+import Md from './Md.astro';
+
+interface Props {
+  kicker?: string;
+  heading?: string;
+}
+
+const { kicker, heading } = Astro.props;
+---
+{(kicker || heading) && (
+  <div class="head-block">
+    {kicker && <span class="kicker-num reveal">{kicker}</span>}
+    {heading && <Md as="h2" class="reveal" text={heading} />}
+  </div>
+)}
