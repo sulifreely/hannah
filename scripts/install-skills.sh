@@ -4,7 +4,7 @@
 #
 # Any directory under ./skills that contains a SKILL.md is treated as a skill (discovered at
 # any nesting depth, e.g. skills/personal/<skill>/SKILL.md) and symlinked into the agent skill
-# directories (~/.cursor/skills and ~/.claude/skills by default).
+# directories (~/.cursor/skills, ~/.claude/skills, ~/.trae-cn/skills, and ~/.agents/skills by default).
 # Agents discover skills from those folders, so a symlink makes the skill callable while
 # keeping the source of truth here in the repo.
 #
@@ -23,7 +23,12 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SKILLS_ROOT="$REPO_ROOT/skills"
 
-DEFAULT_TARGETS=("$HOME/.cursor/skills" "$HOME/.claude/skills")
+DEFAULT_TARGETS=(
+  "$HOME/.cursor/skills"
+  "$HOME/.claude/skills"
+  "$HOME/.trae-cn/skills"
+  "$HOME/.agents/skills"
+)
 
 FORCE=0
 UNINSTALL=0
