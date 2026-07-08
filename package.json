@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro check && astro build",
+    "sync-handbook": "./scripts/sync-engineer-handbook.sh",
+    "build": "npm run sync-handbook && astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
     "astro": "astro",
