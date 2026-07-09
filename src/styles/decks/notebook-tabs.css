@@ -604,7 +604,8 @@
 
 @media (max-width: 780px) {
   .deck-root .title-slide .page { flex-direction: column; text-align: center; }
-  .deck-root .title-text { align-items: center; }
+  .deck-root .title-text { flex: none; align-items: center; }
+  .deck-root .title-cover { flex: none; }
   .deck-root .title-cover img { max-height: min(30vh, 260px); }
 }
 
