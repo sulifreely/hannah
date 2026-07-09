@@ -1,5 +1,5 @@
 ---
-title: Skill 中的执行拓扑
+title: 趣谈 Skill 中的执行拓扑
 subtitle: 六种编排模式在 Skill 侧的可靠性与边界
 event: Agent 工程分享 / 2026
 date: 2026-07-07
@@ -76,6 +76,24 @@ deck:
         - Agent 执行拓扑的六类基础模式：链式、并行、路由、循环、编排、层级
         - 这些模式在 Skill 里怎么表达（而不是用重型 workflow 引擎）
         - 执行者是概率模型时，如何尽量保障结果确定
+
+    - type: split
+      section: '2'
+      kicker: 先认识它们
+      heading: 六种模式，你其实每天都在遇到
+      columns:
+        - label: 前三种
+          dot: var(--tab-1)
+          items:
+            - 'Chain — 流水线厨房：洗菜→切菜→炒菜→摆盘，每人只接上家递来的东西'
+            - 'Parallel — 火锅涮菜：几样食材同时下锅，关键是别忘了捞'
+            - 'Route — 医院分诊台：挂错科，后面医生再好也帮不上'
+        - label: 后三种
+          dot: var(--tab-warn)
+          items:
+            - 'Loop — 让朋友帮你改简历："这里改一下""那这里呢""改了之后我觉得还是原来好……"'
+            - 'Orchestrate — PM 拆任务：开会分给工程师，自己不写代码'
+            - 'Hierarchy — 装修转包链：包工头接了整层楼的活，拆给瓦工、电工、水暖工，谁也没见过完整图纸'
 
     - type: grid
       section: '2'
@@ -308,6 +326,21 @@ deck:
             T -- "是，seam 用完" --> D["交给 review\n重构在此阶段"]:::done
       lead: 重构被故意排除在这个循环之外——red→green 只负责让行为正确，一旦把"顺手重构"也塞进循环，测试就分不清自己在验证正确性还是在给重构背书。
 
+    - type: code
+      section: '2'
+      kicker: 'Loop · 踩坑'
+      heading: 没有停止条件的 Loop 长什么样
+      code: |
+        第  1 轮："改了三处，语气更自然了"
+        第  5 轮："调整了语序，读起来更流畅"
+        第 12 轮："改回了第 3 轮的版本，但措辞略有不同"
+        第 19 轮："这里还有一处可以再优化"
+        第 23 轮："……"
+
+        Critic 永远能找到可以改的地方。
+        没有预算，Loop 只会原地打转，越改越乱。
+      lead: 退出条件不是"做好了就停"——Critic 永远能挑出毛病。停止条件必须是可测量的：最大轮数、改动幅度 < 阈值，或外部信号介入。缺了这三件事任意一个，Loop 就会越改越忙、越忙越偏。
+
     - type: diagram
       section: '2'
       kicker: '08 · Orchestrate'
@@ -418,6 +451,17 @@ deck:
             W2 & W3 -.->|"handoff"| SP
             SP -.->|"汇总 handoff"| P
       lead: Worker 干完活只往上交一次 handoff，看不到、也不关心兄弟节点在干什么——深层级最容易"失忆"的地方就在这里：每一层只看得到自己直接孩子的 handoff，看不到整棵树。
+
+    - type: bullets
+      section: '2'
+      kicker: 互动 · 猜猜是哪种拓扑
+      heading: 这几个场景，你认得出来吗？
+      lead: 每个场景对应哪种模式？
+      bullets:
+        - '你让 AI 先搜索竞品、再整理要点、再写对比报告 → <strong>Chain</strong>'
+        - '你让 AI 同时给三个模块各写一组单元测试，互不依赖 → <strong>Parallel</strong>'
+        - '你说「帮我改这段文字」，AI 返回修改版，你说「再润色一点」……第 8 次你不确定是否更好了 → <strong>Loop（退出条件在哪？）</strong>'
+        - 'AI 接到一个完整项目，拆成子任务分给三个 subagent，每个 subagent 发现太大、又各自再拆 → <strong>Hierarchy</strong>'
 
     - type: grid
       section: '3'
