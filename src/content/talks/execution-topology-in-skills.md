@@ -27,7 +27,7 @@ deck:
       section: '1'
       eyebrow: Conference Talk · Agent Skill 设计
       title: 'Skill 中的<br/><span class="accent">执行拓扑</span>'
-      lead: '六种编排模式在 Skill 侧的可靠性并不均匀——<br/>哪些够用，哪些是边界，边界在哪里。'
+      lead: '六种编排模式在 Skill 侧的可靠性并不均匀——<br/>哪些日常够用，哪些一上量就容易出问题。'
       cover: /images/talks/execution-topology-reliability.png
       coverAlt: 左边角色沿单一箭头稳步前进（日常够用），右边角色被多路 worker 的箭头淹没、抓着电话找 LangGraph 求救（规模变大）
 
@@ -35,7 +35,7 @@ deck:
       section: '1'
       eyebrow: 一个自然而然的问题
       quote: Agent 执行拓扑已经有成熟的模式归纳。问题是：不上重型 workflow 框架，靠一份 Skill 能不能把这些模式跑起来？
-      lead: 今天想一起看看这条路能走多远，边界在哪里。
+      lead: 今天想一起验证一下，这条路到底能走多远。
 
     - type: split
       section: '1'
@@ -85,15 +85,15 @@ deck:
         - label: 前三种
           dot: var(--tab-1)
           items:
-            - 'Chain — 流水线厨房：洗菜→切菜→炒菜→摆盘，每人只接上家递来的东西'
-            - 'Parallel — 火锅涮菜：几样食材同时下锅，关键是别忘了捞'
-            - 'Route — 医院分诊台：挂错科，后面医生再好也帮不上'
+            - 'Chain — 渲染流水线：请求数据→更新 state→触发渲染→浏览器绘制，每一步只认上一步吐出来的东西'
+            - 'Parallel — Promise.all 请求：用户信息、商品列表、推荐位三个接口一起发，最后要等最慢的那个'
+            - 'Route — 前端路由：URL 一变，该渲染哪个组件、走哪套逻辑，全看路由表怎么写'
         - label: 后三种
           dot: var(--tab-warn)
           items:
-            - 'Loop — 让朋友帮你改简历："这里改一下""那这里呢""改了之后我觉得还是原来好……"'
-            - 'Orchestrate — PM 拆任务：开会分给工程师，自己不写代码'
-            - 'Hierarchy — 装修转包链：包工头接了整层楼的活，拆给瓦工、电工、水暖工，谁也没见过完整图纸'
+            - 'Loop — HMR 调试循环：改一行代码→保存→热更新→看效果→不对再改，改着改着已经忘了最初想解决什么问题'
+            - 'Orchestrate — CI 里的 release job：并发跑 lint / test / build，自己不写业务代码，只等结果汇总再决定能不能发布'
+            - 'Hierarchy — Monorepo 多层 workspace：根 workspace 管几个 package，每个 package 内部子模块怎么拆、谁维护，根本看不到'
 
     - type: grid
       section: '2'
@@ -127,12 +127,12 @@ deck:
       mermaid: |
         flowchart LR
             classDef step fill:#98d4bb,stroke:#70b898,color:#201d18
-            A["检索"]:::step
-            B["rerank"]:::step
-            C["生成"]:::step
-            D["引用"]:::step
+            A["请求数据"]:::step
+            B["更新 state"]:::step
+            C["触发渲染"]:::step
+            D["浏览器绘制"]:::step
             A --> B --> C --> D
-      lead: 链越长，中间格式越重要。一个节点输出走偏了，下游节点通常不会纠错，反而把错包装得更漂亮。
+      lead: 链越长，上一环的问题越难被发现。接口数据错了，state 层只会照单全收，渲染层只会想着怎么把它渲染得像模像样，没人会想起回头查一下请求那一步是不是出了什么问题。
       refs:
         - label: executing-plans
           href: https://github.com/obra/superpowers/blob/main/skills/executing-plans/SKILL.md
@@ -162,7 +162,7 @@ deck:
             B["逐任务执行\n标记+验证"]:::step
             C["收尾\n转交后续 Skill"]:::step
             A --> B --> C
-      lead: 每一步的产出由 Skill 要求写进对话或 todo，下一步自然读取——Chain 靠 context 维持管道，不需要显式传参，但中途遇到阻塞必须停下来问，不能靠猜往下走。
+      lead: 每一步的产出由 Skill 要求写进对话或 todo，下一步自然读取。Chain 靠 context 维持管道，不需要显式传参，但中途遇到阻塞必须停下来问，不能靠猜往下走。
 
     - type: diagram
       section: '2'
@@ -172,13 +172,13 @@ deck:
         flowchart LR
             classDef io fill:#d4c9b8,stroke:#b8a898,color:#201d18
             classDef worker fill:#c7b8ea,stroke:#a89ed4,color:#201d18
-            In["输入"]:::io
-            W1["w1"]:::worker
-            W2["w2"]:::worker
-            W3["w3"]:::worker
-            M["Σ merge"]:::io
+            In["发起请求"]:::io
+            W1["用户信息"]:::worker
+            W2["商品列表"]:::worker
+            W3["推荐位"]:::worker
+            M["Promise.all\n合并渲染"]:::io
             In --> W1 & W2 & W3 --> M
-      lead: 并行的关键在 merge，不在 fan-out。没有好的 merge，并行只是把噪声并行化。
+      lead: 并行的关键在"合并"，不在"发起"。三个请求一起发很容易，谁超时、谁失败、要不要兜底，才是真正考验 merge 逻辑的地方。没有好的合并策略，并行只是把出错的机会并行化。
       refs:
         - label: dispatching-parallel-agents
           href: https://github.com/obra/superpowers/blob/main/skills/dispatching-parallel-agents/SKILL.md
@@ -222,20 +222,20 @@ deck:
             classDef io fill:#d4c9b8,stroke:#b8a898,color:#201d18
             classDef route fill:#f4b8c5,stroke:#d89aab,color:#201d18
             classDef step fill:#f4b8c5,stroke:#d89aab,color:#201d18
-            In["请求"]:::io
-            R{{"分类"}}:::route
-            A["小模型"]:::step
-            B["大模型"]:::step
-            C["专家 Agent"]:::step
-            Out["输出"]:::io
+            In["URL 变化"]:::io
+            R{{"路由匹配"}}:::route
+            A["列表页组件"]:::step
+            B["详情页组件"]:::step
+            C["404 页面"]:::step
+            Out["渲染"]:::io
             In --> R
-            R -- "简单" --> A
-            R -- "复杂" --> B
-            R -- "专业" --> C
+            R -- "/list" --> A
+            R -- "/detail/:id" --> B
+            R -- "未匹配" --> C
             A & B & C --> Out
       bullets:
-        - Route 的核心是分类器质量 —— 路由错了，后面再强也很难救
-        - 路由的价值通常在于降低平均成本和平均风险，不在于提高上限
+        - Route 的核心是路由规则写得准不准：匹配错了，页面组件再精致也没用
+        - 路由的价值通常在于让 URL 和视图状态对应清楚，不在于让某个页面本身变强
       refs:
         - label: prototype
           href: https://github.com/mattpocock/skills/blob/main/skills/engineering/prototype/SKILL.md
@@ -268,7 +268,7 @@ deck:
             R -- "逻辑/状态模型" --> A["LOGIC.md\n可交互终端程序"]:::step
             R -- "长什么样" --> B["UI.md\n多套 UI 变体"]:::step
             A & B --> Out["答案\n是唯一该留下的"]:::io
-      lead: 问题真的模糊、又联系不到人时，Skill 给了兜底规则——按代码类型判断：后端模块归 LOGIC，页面或组件归 UI，并在开头写明这是个假设。
+      lead: 问题真的模糊、又联系不到人时，Skill 给了兜底规则：按代码类型判断，后端模块归 LOGIC，页面或组件归 UI，并在开头写明这是个假设。
 
     - type: diagram
       section: '2'
@@ -279,15 +279,15 @@ deck:
             classDef gen fill:#a8d8ea,stroke:#80b8ce,color:#201d18
             classDef critic fill:#f0c88a,stroke:#c8a455,color:#201d18
             classDef done fill:#d4c9b8,stroke:#b8a898,color:#201d18
-            Gen(["Gen"]):::gen
-            Critic(["Critic"]):::critic
-            Done(["完 ✓"]):::done
-            Gen -->|"生成"| Critic
-            Critic -->|"反馈"| Gen
-            Critic -->|"收敛"| Done
+            Gen(["改代码"]):::gen
+            Critic(["保存看效果"]):::critic
+            Done(["符合预期 ✓"]):::done
+            Gen -->|"保存"| Critic
+            Critic -->|"还不对"| Gen
+            Critic -->|"对了"| Done
       bullets:
-        - Loop 是最迷人也最危险的拓扑 —— 让系统能从错误中恢复，也让错误有机会复合
-        - 核心是停止条件、评估信号和每轮改动幅度；没有这些，Loop 会越改越忙，越忙越偏
+        - Loop 是最迷人也最危险的拓扑，能让系统从错误里恢复，也能让错误被不断放大
+        - 核心是停止条件、评估信号、每轮改动幅度这三件事，缺一个都可能让循环转不出来
       refs:
         - label: loop-on-ci
           href: https://github.com/cursor/plugins/blob/0452e08a314c03621ec5ac1324f1ad1dd824f1a4/cursor-team-kit/skills/loop-on-ci/SKILL.md
@@ -324,7 +324,7 @@ deck:
             T -- "否" --> Green
             T -- "是，还有 seam" --> Red
             T -- "是，seam 用完" --> D["交给 review\n重构在此阶段"]:::done
-      lead: 重构被故意排除在这个循环之外——red→green 只负责让行为正确，一旦把"顺手重构"也塞进循环，测试就分不清自己在验证正确性还是在给重构背书。
+      lead: 重构被故意排除在这个循环之外。red→green 只负责让行为正确，一旦把"顺手重构"也塞进循环，测试就分不清自己在验证正确性还是在给重构背书。
 
     - type: code
       section: '2'
@@ -339,7 +339,7 @@ deck:
 
         Critic 永远能找到可以改的地方。
         没有预算，Loop 只会原地打转，越改越乱。
-      lead: 退出条件不是"做好了就停"——Critic 永远能挑出毛病。停止条件必须是可测量的：最大轮数、改动幅度 < 阈值，或外部信号介入。缺了这三件事任意一个，Loop 就会越改越忙、越忙越偏。
+      lead: 退出条件不是"做好了就停"，Critic 永远能挑出毛病。停止条件必须是可测量的：最大轮数、改动幅度 < 阈值，或外部信号介入。缺了这三件事任意一个，Loop 就会越改越忙、越忙越偏。
 
     - type: diagram
       section: '2'
@@ -349,13 +349,13 @@ deck:
         flowchart TD
             classDef orch fill:#f0c88a,stroke:#c8a455,color:#201d18
             classDef worker fill:#98d4bb,stroke:#70b898,color:#201d18
-            Orch(["Orch"]):::orch
-            W1["w1"]:::worker
-            W2["w2"]:::worker
-            W3["w3"]:::worker
+            Orch(["CI 编排\n发布前检查"]):::orch
+            W1["Lint"]:::worker
+            W2["Test"]:::worker
+            W3["Build"]:::worker
             Orch --> W1 & W2 & W3
-            W1 & W2 & W3 -.-> Orch
-      lead: Plan-and-Execute 是典型 Orchestrate：Planner 拆任务，Executor 执行，再汇总。失败模式通常是拆错边界——该用链式的拆成并行，该共享状态的拆成独立，该委派专家的留在中心硬做。
+            W1 & W2 & W3 -.->|"结果回传"| Orch
+      lead: CI 里的 release job 自己不跑业务代码，只负责派发 lint / test / build，等结果汇总再判断能不能发布，这就是 Orchestrate。失败模式通常是拆错边界：该顺序执行的塞进并行（比如 build 其实依赖 lint 先过），该独立跑的又互相等待。
       refs:
         - label: subagent-driven-development
           href: https://github.com/obra/superpowers/blob/main/skills/subagent-driven-development/SKILL.md
@@ -388,7 +388,7 @@ deck:
             I3["Implementer\n任务 3"]:::worker
             C --> I1 & I2 & I3
             I1 & I2 & I3 -.->|"实现+复核"| C
-      lead: 派发的不是"想法"，是任务列表——列表来自单独的写计划环节。这个 Skill 真正做的是"实现 + 复核"的双重循环，任何任务没通过复核都不能标记完成，协调者的记忆负担全在"追踪谁复核过、谁还没有"。
+      lead: 派发的不是"想法"，而是任务列表，列表来自单独的写计划环节。这个 Skill 真正做的是"实现 + 复核"的双重循环，任何任务没通过复核都不能标记完成，协调者的记忆负担全在"追踪谁复核过、谁还没有"。
 
     - type: diagram
       section: '2'
@@ -399,19 +399,19 @@ deck:
             classDef mgr fill:#d8b8a0,stroke:#b89882,color:#201d18
             classDef mid fill:#e8d0bc,stroke:#c8b09c,color:#201d18
             classDef worker fill:#98d4bb,stroke:#70b898,color:#201d18
-            Mgr(["Mgr"]):::mgr
-            L1(["L1"]):::mid
-            L2(["L2"]):::mid
-            W1["w"]:::worker
-            W2["w"]:::worker
-            W3["w"]:::worker
-            W4["w"]:::worker
+            Mgr(["Root workspace\n定整体版本"]):::mgr
+            L1(["packages/ui"]):::mid
+            L2(["packages/utils"]):::mid
+            W1["Button"]:::worker
+            W2["Input"]:::worker
+            W3["formatDate"]:::worker
+            W4["debounce"]:::worker
             Mgr --> L1 & L2
             L1 --> W1 & W2
             L2 --> W3 & W4
       bullets:
-        - Orchestrate 是一层中心编排多个 worker；Hierarchy 是多层责任分解，不是一回事
-        - 父任务必须在关键节点重新汇总；子任务必须带明确的输入、输出、边界
+        - Orchestrate 是 CI 直接调度几个 job；Hierarchy 是 root workspace 只管到 package 这一层，package 内部子模块怎么拆、谁维护，root 完全看不到，不是一回事
+        - 每层 package.json 必须在关键节点声明清楚依赖版本；子模块必须有明确的导出边界，不能绕过 package 直接 import 内部文件
       refs:
         - label: orchestrate
           href: https://github.com/cursor/plugins/blob/e46364b8be46000b7df0f260550cd712afbb8d36/orchestrate/skills/orchestrate/SKILL.md
@@ -450,7 +450,7 @@ deck:
             W1 -.->|"handoff"| P
             W2 & W3 -.->|"handoff"| SP
             SP -.->|"汇总 handoff"| P
-      lead: Worker 干完活只往上交一次 handoff，看不到、也不关心兄弟节点在干什么——深层级最容易"失忆"的地方就在这里：每一层只看得到自己直接孩子的 handoff，看不到整棵树。
+      lead: Worker 干完活只往上交一次 handoff，看不到、也不关心兄弟节点在干什么。深层级最容易"失忆"的地方就在这里：每一层只看得到自己直接孩子的 handoff，看不到整棵树。
 
     - type: bullets
       section: '2'
@@ -460,7 +460,9 @@ deck:
       bullets:
         - '你让 AI 先搜索竞品、再整理要点、再写对比报告 → <strong>Chain</strong>'
         - '你让 AI 同时给三个模块各写一组单元测试，互不依赖 → <strong>Parallel</strong>'
+        - '你问 AI 一个 bug，AI 先判断这是逻辑问题还是样式问题，再决定用哪套排查方法 → <strong>Route</strong>'
         - '你说「帮我改这段文字」，AI 返回修改版，你说「再润色一点」……第 8 次你不确定是否更好了 → <strong>Loop（退出条件在哪？）</strong>'
+        - '你让 AI 先并发跑 lint / test / build 三项检查，自己不写代码，等结果汇总再决定能不能合并 → <strong>Orchestrate</strong>'
         - 'AI 接到一个完整项目，拆成子任务分给三个 subagent，每个 subagent 发现太大、又各自再拆 → <strong>Hierarchy</strong>'
 
     - type: grid
@@ -605,8 +607,8 @@ deck:
       kicker: '17'
       heading: 如果只记住三件事
       bullets:
-        - '<strong>编排的本质</strong>是给复杂任务建立结构 —— Chain 处理顺序，Parallel 处理并发，Route 处理分支，Loop 处理迭代，Orchestrate 处理协调，Hierarchy 处理拆解'
-        - 在 Skill 中实现编排，不一定要写成 DAG —— 把触发条件、阶段、分支、循环退出、工具协议、交付格式写清楚就够了
+        - '<strong>编排</strong>就是给复杂任务建立结构：Chain 处理顺序，Parallel 处理并发，Route 处理分支，Loop 处理迭代，Orchestrate 处理协调，Hierarchy 处理拆解'
+        - 在 Skill 中实现编排，不一定要写成 DAG，把触发条件、阶段、分支、循环退出、工具协议、交付格式写清楚就够了
         - '概率模型不可能天然确定，但可以让<strong>关键过程</strong>尽量确定：显式状态、受限选择、工具校验、循环预算、副作用门禁、检查清单'
 
     - type: quote
