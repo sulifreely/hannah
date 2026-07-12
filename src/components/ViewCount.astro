@@ -1,4 +1,5 @@
 ---
+import Eye from '@lucide/astro/icons/eye';
 import type { ContentType } from '../lib/analytics';
 
 interface Props {
@@ -21,20 +22,7 @@ const { slug, contentType = 'blog', mode = 'readonly' } = Astro.props;
   data-content-type={contentType}
   data-mode={mode}
 >
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    width="14"
-    height="14"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
-    <circle cx="12" cy="12" r="3"></circle>
-  </svg>
+  <Eye size={16} stroke-width={2} />
   <span class="view-count-value">···</span>
 </span>
 
