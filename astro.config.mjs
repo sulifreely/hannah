@@ -199,7 +199,7 @@ export default defineConfig({
   integrations: [
     mdx(),
     sitemap({
-      // /zen/ 是隐藏的私人路由（不在导航中出现），不应出现在 sitemap 里被搜索引擎发现。
+      // /zen/ 没有公开入口（不在导航中出现，本质是彩蛋页面），不应出现在 sitemap 里被搜索引擎发现。
       filter: (page) => !new URL(page).pathname.startsWith('/zen/'),
     }),
   ],
