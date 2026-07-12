@@ -196,7 +196,13 @@ export default defineConfig({
   // 站点整体仍是 output: 'static'（默认值），仅 src/pages/api/ 下的接口通过
   // `export const prerender = false` 按需渲染，因此需要 adapter 才能部署这部分函数。
   adapter: vercel(),
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    sitemap({
+      // /zen/ 是隐藏的私人路由（不在导航中出现），不应出现在 sitemap 里被搜索引擎发现。
+      filter: (page) => !new URL(page).pathname.startsWith('/zen/'),
+    }),
+  ],
   markdown: {
     remarkPlugins: [remarkMermaid, remarkDot],
     rehypePlugins: [rehypeArticleLinks],
