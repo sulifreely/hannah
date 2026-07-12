@@ -66,6 +66,7 @@ const layers: Layer[] = [
       { label: 'Anthropic · Effective context engineering', href: 'https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents', kind: '文章', gain: '学会记忆、检索、压缩的上下文管理策略' },
       { label: 'Model Context Protocol · 官方规范', href: 'https://modelcontextprotocol.io', kind: '规范', gain: '吃透 Agent-to-Tool 协议如何设计 schema 与鉴权' },
       { label: 'Simon Willison · The lethal trifecta', href: 'https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/', kind: '文章', gain: '识别致命三件套，建立最小权限的安全直觉' },
+      { label: 'OWASP · LLM06:2025 Excessive Agency', href: 'https://owasp.org/www-project-top-10-for-large-language-model-applications/2_0_vulns/LLM06_ExcessiveAgency.html', kind: '规范', gain: '识别过度授权风险，划清 Agent 该有多大权限' },
     ],
   },
   {
@@ -112,6 +113,7 @@ interface Capability {
   durability: Durability | 'mixed';
   note: string;
   link?: { href: string; label: string };
+  refs: LayerRef[];
 }
 
 const capabilities: Capability[] = [
@@ -120,7 +122,11 @@ const capabilities: Capability[] = [
     summary: '怎么打造一个好产品——需求判断、价值排序、功能与噪声的取舍',
     layerTags: ['L1 地基层'],
     durability: 'durable',
-    note: '这层完全不因为"AI"这个前缀改变。AI 只是让"做出来"的成本变低了，"该不该做、做成什么样"的判断反而更值钱——技术能解决"怎么做"，解决不了"值不值得做"。',
+    note: '这层完全不因为"AI"这个前缀改变。AI 只是让"做出来"的成本变低了，"该不该做、做成什么样"的判断反而更值钱——这也是本文开头那张坐标图里，横轴之外真正稀缺的东西。',
+    refs: [
+      { label: 'Marty Cagan · INSPIRED', href: 'https://www.svpg.com/books/inspired-how-to-create-tech-products-customers-love-2nd-edition/', kind: '书', gain: '建立"价值 · 可用性 · 商业可行性"三位一体的产品判断框架' },
+      { label: 'Shreyas Doshi · Why Product Sense Is the Only Product Skill That Will Matter in the AI Age', href: 'https://shreyasdoshi.substack.com/p/why-product-sense-is-the-only-product', kind: '文章', gain: '理解 AI 拉平执行力之后，判断力为何变得更稀缺' },
+    ],
   },
   {
     title: 'AI Agent 产品体验',
@@ -129,6 +135,10 @@ const capabilities: Capability[] = [
     durability: 'durable',
     note: '用户不会写提示词，也不该被要求写提示词。好的 Agent 产品要把提示词工程、工具选择、编排逻辑这些工程细节，翻译成看得懂、配得动、能验证的界面——表单、卡片、可解释的中间结果。',
     link: { href: '/talks/agent-hitl-vs-yolo/', label: 'Agent 的 HITL 与 YOLO' },
+    refs: [
+      { label: 'Google PAIR · People + AI Guidebook', href: 'https://pair.withgoogle.com/guidebook/', kind: '指南', gain: '覆盖数据、可解释性、信任校准的人机协作设计模式全集' },
+      { label: 'Microsoft Research · Guidelines for Human-AI Interaction', href: 'https://www.microsoft.com/en-us/research/project/guidelines-for-human-ai-interaction/', kind: '规范', gain: '18 条基于 20 年研究的循证准则，覆盖初次使用、出错、长期使用等场景' },
+    ],
   },
   {
     title: '端到端全栈交付',
@@ -137,6 +147,10 @@ const capabilities: Capability[] = [
     durability: 'durable',
     note: '不需要每一层都是专家，但要有能力在出问题时知道"锅在哪一层"，能自己动手把链路跑通，而不是永远等别人。',
     link: { href: '/blog/state-management-kernel-and-forks/', label: '一个内核，三种分歧：重新理解前端状态管理' },
+    refs: [
+      { label: 'Ryan Singer · Shape Up', href: 'https://basecamp.com/shapeup', kind: '书', gain: '学会拆解、下注、限定周期，把一个想法端到端交付成产品' },
+      { label: 'The Twelve-Factor App', href: 'https://12factor.net/', kind: '方法论', gain: '一套从本地开发到生产部署都适用的云原生应用准则' },
+    ],
   },
   {
     title: 'Agent 运行时与生态',
@@ -145,6 +159,10 @@ const capabilities: Capability[] = [
     durability: 'mixed',
     note: '这部分内容基本就是前面 L2 通用技艺层拆过的东西，放在产品视角下再看一遍要多问一句：这套编排，用户能感知到、能信任吗？纯技术视角只关心"能不能跑通"，产品视角还要关心"跑通之后，人愿不愿意把决定权交出去"。',
     link: { href: '/talks/execution-topology-in-skills/', label: '浅谈 Skill 中的执行拓扑' },
+    refs: [
+      { label: 'Chip Huyen · Agents（摘自 AI Engineering）', href: 'https://huyenchip.com/2025/01/07/agents.html', kind: '文章', gain: '系统梳理规划、工具调用、记忆与失败模式，产品视角审视这套编排是否可信' },
+      { label: 'Anthropic · How we built our multi-agent research system', href: 'https://www.anthropic.com/engineering/multi-agent-research-system', kind: '文章', gain: 'orchestrator-worker 生产级多智能体架构的一线工程复盘' },
+    ],
   },
   {
     title: 'AI 原生研发流程',
@@ -153,22 +171,27 @@ const capabilities: Capability[] = [
     durability: 'durable',
     note: '不是"会用 Cursor / Claude Code"这么简单，是知道什么该交给 AI、什么必须自己判断，怎么给 agent 立护栏、怎么让验证自动化、怎么在它出错时快速定位是哪一层错了。这件事本身就是这张地图想传达的态度的具体实践。',
     link: { href: '/blog/cognitive-surrender/', label: '解读《Cognitive Surrender》：AI 时代中的认知投降' },
+    refs: [
+      { label: 'Addy Osmani · Beyond Vibe Coding: From Coder to AI-Era Developer', href: 'https://www.oreilly.com/library/view/beyond-vibe-coding/9798341634749/', kind: '书', gain: '系统学习如何审查、验证、整合 AI 生成代码，而不只是"感觉良好"地生成' },
+      { label: 'Simon Willison · Designing agentic loops', href: 'https://simonwillison.net/2025/Sep/30/designing-agentic-loops/', kind: '文章', gain: '学会为 agent 设计工具与循环边界，判断什么任务值得交给 agentic loop' },
+    ],
   },
 ];
 
-interface Reference {
-  label: string;
-  href: string;
+// 两条轴的二维坐标：技术能力 × 产品能力，四个象限各自的定位
+interface Quadrant {
+  tag: string;
+  name: string;
+  desc: string;
+  star?: boolean;
 }
 
-const references: Reference[] = [
-  { label: 'Anthropic · Building Effective Agents', href: 'https://www.anthropic.com/engineering/building-effective-agents' },
-  { label: 'Anthropic · Effective context engineering for AI agents', href: 'https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents' },
-  { label: 'Anthropic · Claude Code: Best practices for agentic coding', href: 'https://www.anthropic.com/engineering/claude-code-best-practices' },
-  { label: 'Model Context Protocol · 官方规范', href: 'https://modelcontextprotocol.io' },
-  { label: 'LangGraph · 官方文档', href: 'https://langchain-ai.github.io/langgraph/' },
-  { label: 'OWASP · LLM06:2025 Excessive Agency', href: 'https://owasp.org/www-project-top-10-for-large-language-model-applications/2_0_vulns/LLM06_ExcessiveAgency.html' },
-  { label: 'Simon Willison · The lethal trifecta for AI agents', href: 'https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/' },
+// 顺序对应 2x2 网格的阅读顺序：左上、右上、左下、右下
+const quadrants: Quadrant[] = [
+  { tag: '产品强 · 技术弱', name: '有想法，落不了地', desc: '看得懂用户要什么，但受限于工程能力，做不出可用的东西，或做出来扛不住真实流量。' },
+  { tag: '产品强 · 技术强', name: '务实的浪漫', desc: '技术是护城河，产品判断是方向感。既能把系统做扎实，又清楚这套能力该为谁、解决什么问题——真正稀缺的位置。', star: true },
+  { tag: '产品弱 · 技术弱', name: '工具的搬运工', desc: '停留在"会调 API、会拼框架"，既没沉下去建护城河，也没抬头看做的东西有没有人用。' },
+  { tag: '产品弱 · 技术强', name: '精密的自嗨', desc: '架构漂亮、协议吃透，却没人愿意用——技术能解决"怎么做"，解决不了"值不值得做"。' },
 ];
 
 // 学习目标 1：Agent 设计模式 —— 认知功能（行）× 执行拓扑（列）的正交矩阵
@@ -208,6 +231,7 @@ const harnessRefs: LayerRef[] = [
   { label: 'Thorsten Ball · How to Build an Agent', href: 'https://ampcode.com/how-to-build-an-agent', kind: '文章', gain: '几百行代码从 0 跑通一个能用的 coding agent' },
   { label: 'Anthropic · Building Effective Agents', href: 'https://www.anthropic.com/engineering/building-effective-agents', kind: '文章', gain: 'harness 里编排与工具设计的官方建议' },
   { label: 'Model Context Protocol · 官方规范', href: 'https://modelcontextprotocol.io', kind: '规范', gain: '把工具层做成标准协议，而非硬编码' },
+  { label: 'Anthropic · Claude Code: Best practices for agentic coding', href: 'https://www.anthropic.com/engineering/claude-code-best-practices', kind: '文章', gain: '官方一线的 agentic coding harness 实践经验' },
 ];
 
 function durabilityClass(d: Durability | 'mixed'): string {
@@ -222,7 +246,7 @@ function durabilityLabel(d: Durability | 'mixed'): string {
 ---
 
 <BaseLayout
-  title="Engineer - AI Agent 工程师"
+  title="AI Agent 工程师"
   description="AI Agent 工程师的能力地图：按长期价值分层，覆盖技术栈与产品化能力两条轴。"
   noindex={true}
 >
@@ -240,33 +264,16 @@ function durabilityLabel(d: Durability | 'mixed'): string {
       <section class="section">
         <h2>两条轴，一张坐标</h2>
         <p class="section-intro">
-          技术轴解决"怎么做得对"，产品轴解决"值不值得做、做成什么样"。两条轴各自都能拉开差距，但真正稀缺的是<strong>右上角</strong>——技术扎实，又清楚自己在为谁解决什么问题。这也是《禅与摩托车维修的艺术》里"务实的浪漫"落到工程上的样子。
+          技术轴解决"怎么做得对"，产品轴解决"值不值得做、做成什么样"。两条轴各自都能拉开差距，但真正稀缺的是<strong>右上角</strong>——技术扎实，又清楚自己在为谁解决什么问题。
         </p>
-        <div class="quadrant" role="img" aria-label="技术能力与产品能力的二维坐标：横轴为技术能力，纵轴为产品能力，右上象限为务实的浪漫。">
-          <span class="axis-label axis-y">产品能力 →</span>
-          <span class="axis-label axis-x">技术能力 →</span>
-          <div class="quadrant-grid">
-            <div class="quad quad-tl">
-              <span class="quad-tag">产品强 · 技术弱</span>
-              <p class="quad-name">有想法，落不了地</p>
-              <p class="quad-desc">看得懂用户要什么，但受限于工程能力，做不出可用的东西，或做出来扛不住真实流量。</p>
+        <div class="quad-legend">
+          {quadrants.map((q) => (
+            <div class="quad-legend-item">
+              <span class={q.star ? 'quad-tag quad-tag-star' : 'quad-tag'}>{q.tag}</span>
+              <p class="quad-name">{q.name}</p>
+              <p class="quad-desc">{q.desc}</p>
             </div>
-            <div class="quad quad-tr">
-              <span class="quad-tag quad-tag-star">产品强 · 技术强</span>
-              <p class="quad-name">务实的浪漫</p>
-              <p class="quad-desc">技术是护城河，产品判断是方向感。既能把系统做扎实，又清楚这套能力该为谁、解决什么问题——真正稀缺的位置。</p>
-            </div>
-            <div class="quad quad-bl">
-              <span class="quad-tag">产品弱 · 技术弱</span>
-              <p class="quad-name">工具的搬运工</p>
-              <p class="quad-desc">停留在"会调 API、会拼框架"，既没沉下去建护城河，也没抬头看做的东西有没有人用。</p>
-            </div>
-            <div class="quad quad-br">
-              <span class="quad-tag">产品弱 · 技术强</span>
-              <p class="quad-name">精密的自嗨</p>
-              <p class="quad-desc">架构漂亮、协议吃透，却没人愿意用——技术能解决"怎么做"，解决不了"值不值得做"。</p>
-            </div>
-          </div>
+          ))}
         </div>
         <div class="axis-cards">
           <div class="axis-card">
@@ -287,6 +294,8 @@ function durabilityLabel(d: Durability | 'mixed'): string {
         <div class="mermaid-wrap">
           <pre class="mermaid">
 flowchart TB
+    accTitle: 技术栈能力分层图
+    accDescr: 由上至下四层：L4 框架与平台层，半衰期 0.5 到 2 年；L3 语言与运行时层，半衰期 5 到 10 年；L2 通用技艺层，半衰期 3 到 5 年以上；L1 地基层，半衰期 10 年以上。箭头由上层指向下层，表示上层构建在下层之上，越往下越持久、越是护城河。
     subgraph L4["L4 框架与平台层 · 0.5–2 年 · 易变 / 练手感"]
         direction LR
         L4a["LangChain / LangGraph"] ~~~ L4b["LlamaIndex"] ~~~ L4c["AutoGen / CrewAI"] ~~~ L4d["Dify / LangFlow"]
@@ -309,13 +318,12 @@ flowchart TB
           </pre>
         </div>
         <p class="section-intro">
-          按<strong>半衰期</strong>分层，不按学习顺序排：越往下越不易过时、越难速成，是护城河；越往上越快出效果、越需常刷新，是练手感。每层下方附官方文档与权威文章，可直接照着学。
+          按<strong>半衰期</strong>分层，不按学习顺序排：越往下越不易过时、越难速成，是护城河；越往上越快出效果、越需常刷新，是练手感。每层下方附官方文档与权威文章，可直接参考进行学习。
         </p>
         <div class="legend">
           <span class="tag tag-durable">持久</span>
           <span class="tag tag-medium">中期</span>
           <span class="tag tag-volatile">易变</span>
-          <span class="tag tag-mixed">分层混合</span>
         </div>
 
         <div class="stack">
@@ -332,7 +340,7 @@ flowchart TB
               </ul>
               <p class="layer-note">{layer.note}</p>
               <div class="layer-refs">
-                <p class="layer-refs-title">照着学 · 权威资料</p>
+                <p class="layer-refs-title">权威学习资料👇</p>
                 <ul>
                   {layer.refs.map((ref) => (
                     <li class="ref-item">
@@ -393,7 +401,7 @@ flowchart TB
           不必背下每一格。真正的用法是：遇到一个 Agent 需求，先问"它卡在哪个认知功能上"，再问"该用哪种拓扑组织"，两轴一交叉，模式自己就浮出来了。
         </p>
         <div class="layer-refs standalone-refs">
-          <p class="layer-refs-title">照着学 · 权威资料</p>
+          <p class="layer-refs-title">权威学习资料👇</p>
           <ul>
             {patternRefs.map((ref) => (
               <li class="ref-item">
@@ -411,35 +419,39 @@ flowchart TB
       <section class="section">
         <h2>进阶目标二 · 从 0 到 1 实现一个 Agent Harness</h2>
         <p class="section-intro">
-          真正拉开差距的认知是：<strong>模型只占约 10%，剩下 90% 是包在它外面的 harness</strong>——模型是引擎，harness 才是车、是路、是交通规则。下图按"由内到外"画一个基本 harness 的解剖：最内是 LLM，往外一层层是让它变得可用、可控、可运维的工程结构。能把这张图从 0 到 1 亲手实现一遍，L2 这层才算真正落地。
+          真正拉开差距的认知是：<strong>模型只占约 10%，剩下 90% 是包在它外面的 harness</strong>——模型是引擎，harness 才是车、是路、是交通规则。下图把一个基本 harness 拆成四层，由下到上层层加固：最底层是核心原语，最顶层是让它跑在生产上的运维外壳。能把这张图从 0 到 1 亲手实现一遍，L2 这层才算真正落地。
         </p>
         <div class="mermaid-wrap">
           <pre class="mermaid">
 flowchart TB
-    subgraph RING4["④ 运行与运维 · 让它跑在生产上"]
+    accTitle: Agent Harness 结构解剖图
+    accDescr: 由下到上四层结构：最底层是核心原语，Message 会话记录、LLM、Model Provider 抽象；往上一层是 Agent 循环，think-act-observe 循环、工具定义与并行派发、中间件与生命周期钩子、权限审批与结果裁剪；再往上是开发者接口，CLI TUI 交互、库 API 入口、分层配置与 Settings；最上层是运行与运维，会话记忆存储、部署与伸缩配置、评估与测试、可观测与 Tracing。箭头由上层指向下层，表示上层构建在下层之上。
+    subgraph H4["④ 运行与运维 · 让它跑在生产上"]
         direction LR
-        R4a["会话 / 记忆存储"] ~~~ R4b["部署与伸缩配置"] ~~~ R4c["评估与测试"] ~~~ R4d["可观测 / Tracing"]
+        H4a["会话 / 记忆存储"] ~~~ H4b["部署与伸缩配置"] ~~~ H4c["评估与测试"] ~~~ H4d["可观测 / Tracing"]
     end
-    subgraph RING3["③ 开发者接口 · 让人用得上"]
+    subgraph H3["③ 开发者接口 · 让人用得上"]
         direction LR
-        R3a["CLI / TUI 交互"] ~~~ R3b["库 API 入口"] ~~~ R3c["分层配置与 Settings"]
+        H3a["CLI / TUI 交互"] ~~~ H3b["库 API 入口"] ~~~ H3c["分层配置与 Settings"]
     end
-    subgraph RING2["② Agent 循环 · 让它动起来"]
+    subgraph H2["② Agent 循环 · 让它动起来"]
         direction LR
-        R2a["think → act → observe 循环"] ~~~ R2b["工具定义与并行派发"] ~~~ R2c["中间件 / 生命周期钩子"] ~~~ R2d["权限审批 · 结果裁剪"]
+        H2a["think → act → observe 循环"] ~~~ H2b["工具定义与并行派发"] ~~~ H2c["中间件 / 生命周期钩子"] ~~~ H2d["权限审批 · 结果裁剪"]
     end
-    subgraph RING1["① 核心原语 · 稳定基座"]
+    subgraph H1["① 核心原语 · 稳定基座"]
         direction LR
-        C1["Message 会话记录"] ~~~ C0(("LLM")) ~~~ C2["Model / Provider 抽象"]
+        H1a["Message 会话记录"] ~~~ H1b(("LLM")) ~~~ H1c["Model / Provider 抽象"]
     end
-    RING4 ==> RING3 ==> RING2 ==> RING1
+    H4 ==>|"上层构建在下层之上"| H3
+    H3 ==> H2
+    H2 ==> H1
           </pre>
         </div>
         <p class="matrix-note">
-          越靠内越稳定、越该先写：先有 Message + Model 抽象（换 provider 不改上层），再套 think-act-observe 循环，然后才是审批、CLI、可观测这些外圈。参考实现证明这套结构几百行就能跑通——难的不是写出来，是想清楚每一圈的边界。
+          越靠下越稳定、越该先写：先有 Message + Model 抽象（换 provider 不改上层），再套 think-act-observe 循环，然后才是审批、CLI、可观测这些上层。参考实现证明这套结构几百行就能跑通——难的不是写出来，是想清楚每一层的边界。
         </p>
         <div class="layer-refs standalone-refs">
-          <p class="layer-refs-title">照着学 · 权威资料</p>
+          <p class="layer-refs-title">权威学习资料👇</p>
           <ul>
             {harnessRefs.map((ref) => (
               <li class="ref-item">
@@ -473,6 +485,20 @@ flowchart TB
                   <span class="layer-tag">{tag}</span>
                 ))}
               </div>
+              <div class="layer-refs">
+                <p class="layer-refs-title">权威学习资料👇</p>
+                <ul>
+                  {cap.refs.map((ref) => (
+                    <li class="ref-item">
+                      <div class="ref-line">
+                        <span class="ref-kind">{ref.kind}</span>
+                        <a href={ref.href} target="_blank" rel="noopener noreferrer">{ref.label}</a>
+                      </div>
+                      <p class="ref-gain">{ref.gain}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
               {cap.link && (
                 <a class="ext-link" href={cap.link.href}>延伸阅读：{cap.link.label}</a>
               )}
@@ -482,12 +508,6 @@ flowchart TB
       </section>
 
       <footer class="refs">
-        <p class="refs-title">权威学习资料</p>
-        <ul>
-          {references.map((ref) => (
-            <li><a href={ref.href} target="_blank" rel="noopener noreferrer">{ref.label}</a></li>
-          ))}
-        </ul>
         <p class="back-link"><a href="/zen/">← 回到 zen</a></p>
       </footer>
     </div>
@@ -589,11 +609,6 @@ flowchart TB
     color: var(--fg-muted);
     border-color: var(--border);
   }
-  .tag-neutral {
-    background: var(--tag-bg);
-    color: var(--fg-muted);
-    border-color: var(--border);
-  }
 
   .legend {
     display: flex;
@@ -602,53 +617,25 @@ flowchart TB
     margin-bottom: 1.75rem;
   }
 
-  /* 二维坐标：技术能力 × 产品能力 */
-  .quadrant {
-    position: relative;
-    padding: 0 0 1.75rem 1.75rem;
-    margin-bottom: 1.75rem;
-  }
-  .axis-label {
-    position: absolute;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.05em;
-    color: var(--fg-subtle);
-  }
-  .axis-y {
-    top: 0;
-    left: 0;
-    transform: rotate(-90deg);
-    transform-origin: left top;
-    translate: 0 100%;
-    white-space: nowrap;
-  }
-  .axis-x {
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-  }
-  .quadrant-grid {
+  /* 二维坐标图例：技术能力 × 产品能力，四象限文字说明 */
+  .quad-legend {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 2px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
   }
-  .quad {
+  .quad-legend-item {
     padding: 1.1rem 1.25rem;
     background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
-    min-height: 140px;
   }
-  .quad-tr {
+  .quad-legend-item:has(.quad-tag-star) {
     background: color-mix(in srgb, var(--accent) 12%, var(--paper));
+    border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
   }
   .quad-tag {
     font-family: var(--font-mono);
@@ -665,7 +652,7 @@ flowchart TB
     font-weight: 700;
     color: var(--fg);
   }
-  .quad-tr .quad-name {
+  .quad-legend-item:has(.quad-tag-star) .quad-name {
     color: var(--accent);
   }
   .quad-desc {
@@ -708,8 +695,8 @@ flowchart TB
     .axis-cards {
       grid-template-columns: 1fr;
     }
-    .quad {
-      min-height: 0;
+    .quad-legend {
+      grid-template-columns: 1fr;
     }
   }
 
@@ -999,31 +986,8 @@ flowchart TB
     padding-top: 1.5rem;
     border-top: 1px solid var(--border);
   }
-  .refs-title {
-    margin: 0 0 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--fg-subtle);
-  }
-  .refs ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  .refs a {
-    color: var(--fg-muted);
-    font-size: 0.88rem;
-  }
-  .refs a:hover {
-    color: var(--accent);
-  }
   .back-link {
-    margin: 1.5rem 0 0;
+    margin: 0;
   }
   .back-link a {
     color: var(--fg-muted);
@@ -1046,23 +1010,47 @@ flowchart TB
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 1.25rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--code-bg);
     text-align: center;
+    line-height: normal;
     color: transparent;
     font-size: 0;
-    min-height: 280px;
-    border: none;
-    padding: 0;
-    border-radius: 0;
-    overflow: visible;
-    background: transparent;
+    min-height: 200px;
   }
   .mermaid-wrap pre.mermaid[data-processed] {
     color: inherit;
     min-height: 0;
   }
-  .mermaid-wrap pre.mermaid svg {
+  /* svg 是 mermaid.js 运行时注入的，不在 Astro 模板里，
+     scoped 选择器加的 data-astro-cid 属性永远匹配不到它，必须用 :global()。 */
+  .mermaid-wrap pre.mermaid :global(svg) {
     max-width: 100%;
     height: auto;
+  }
+  /* 密集的图（技术栈分层、Harness 同心结构）缩到手机宽度时文字会小到读不清，
+     改成固定高度＋横向滚动，保持字号，而不是无脑等比缩小。 */
+  @media (max-width: 640px) {
+    .mermaid-wrap {
+      justify-content: flex-start;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-left: calc(-1 * 24px);
+      margin-right: calc(-1 * 24px);
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+    .mermaid-wrap pre.mermaid {
+      width: max-content;
+      max-width: none;
+    }
+    .mermaid-wrap pre.mermaid :global(svg) {
+      max-width: none;
+      width: auto;
+      height: 220px;
+    }
   }
 </style>
 
