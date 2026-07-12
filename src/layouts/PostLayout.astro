@@ -1,4 +1,5 @@
 ---
+import ArrowUp from '@lucide/astro/icons/arrow-up';
 import BaseLayout from './BaseLayout.astro';
 import LikeButton from '../components/LikeButton.astro';
 import ViewCount from '../components/ViewCount.astro';
@@ -65,10 +66,7 @@ const dateStr = formatDate(date);
     </footer>
   </article>
   <button id="back-to-top" class="back-to-top" type="button" aria-label="返回顶部" title="返回顶部">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 19V5"></path>
-      <path d="M5 12l7-7 7 7"></path>
-    </svg>
+    <ArrowUp size={18} stroke-width={2} />
   </button>
 </BaseLayout>
 
@@ -294,6 +292,19 @@ const dateStr = formatDate(date);
   .prose pre.mermaid[data-processed] svg {
     cursor: zoom-in;
   }
+  /* img/svg 被加了 tabindex 用来支持键盘触发放大预览，浏览器默认会给它套一个
+     突兀的蓝色 focus 框；鼠标点击时不需要这个提示，只在键盘 Tab 聚焦时才显示，
+     并换成贴合站点风格的强调色描边。 */
+  .prose img,
+  .prose pre.mermaid svg {
+    outline: none;
+    border-radius: 4px;
+  }
+  .prose img:focus-visible,
+  .prose pre.mermaid svg:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
   .prose pre.mermaid {
     margin: 1.75rem 0;
     padding: 1.25rem 1rem;
@@ -338,19 +349,25 @@ const dateStr = formatDate(date);
     background: color-mix(in srgb, var(--tag-bg) 45%, transparent);
   }
   .pswp {
-    --pswp-bg: color-mix(in srgb, #000 86%, transparent);
-    z-index: 1000;
+    /* 用 rgba 而不是 color-mix(…, transparent)：后者在部分 Chromium 版本里透明度插值有 bug，
+       实测会导致遮罩形同虚设、完全透出底下的页面 */
+    --pswp-bg: rgba(23, 19, 14, 0.9) !important;
+    --pswp-icon-color: var(--fg) !important;
+    --pswp-icon-color-secondary: var(--fg-muted) !important;
+    --pswp-icon-stroke-color: var(--border) !important;
+    --pswp-icon-stroke-width: 1.5px !important;
+    z-index: 1000 !important;
   }
   .pswp__img {
-    background: var(--code-bg);
+    background: var(--code-bg) !important;
   }
   .pswp__svg-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border-radius: 12px;
-    background: var(--code-bg);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+    background: var(--code-bg) !important;
   }
   .pswp__svg-content svg {
     width: 100% !important;
@@ -363,6 +380,112 @@ const dateStr = formatDate(date);
   .pswp__svg-content tspan,
   .pswp__svg-content foreignObject {
     font-family: inherit !important;
+  }
+
+  /* PhotoSwipe 控件对齐站点的手绘纸感风格：纸色底 + 边框 + 扁平色块阴影，呼应 back-to-top 按钮。
+     photoswipe/style.css 是运行时才动态 import 进来的，和这份样式谁先谁后不确定，
+     这里统一用 !important 保证不被默认皮肤翻盘。 */
+  .pswp__top-bar {
+    padding: 0.85rem 0.85rem 0 0 !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+  }
+  .pswp__counter {
+    height: auto !important;
+    margin: 0 0 0 0.85rem !important;
+    padding: 0.3rem 0.65rem !important;
+    border-radius: 999px !important;
+    background: var(--paper) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 2px 2px 0 var(--border) !important;
+    font-family: var(--font-mono) !important;
+    font-size: 0.78rem !important;
+    line-height: 1.3 !important;
+    color: var(--fg-muted) !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+  }
+  .pswp__preloader {
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+  .pswp__preloader--active {
+    width: 42px !important;
+    height: 42px !important;
+  }
+  .pswp__preloader .pswp__icn {
+    top: 5px !important;
+    left: 5px !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .pswp__button {
+    width: 42px !important;
+    height: 42px !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    background: var(--paper) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 2px 2px 0 var(--border) !important;
+    opacity: 1 !important;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+  }
+  .pswp__button .pswp__icn {
+    top: 5px !important;
+    left: 5px !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .pswp__icn--line {
+    fill: none !important;
+    color: var(--fg) !important;
+  }
+  .pswp__button:hover {
+    border-color: var(--accent) !important;
+    transform: translate(-1px, -1px) !important;
+    box-shadow: 3px 3px 0 var(--border) !important;
+  }
+  .pswp__button:active {
+    transform: translate(0, 0) !important;
+    box-shadow: 1px 1px 0 var(--border) !important;
+  }
+  .pswp__button--arrow {
+    width: 46px !important;
+    height: 46px !important;
+    margin-top: -23px !important;
+  }
+  .pswp__button--arrow--prev {
+    left: 18px !important;
+  }
+  .pswp__button--arrow--next {
+    right: 18px !important;
+  }
+  .pswp__button--arrow .pswp__icn {
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    margin: -16px 0 0 -16px !important;
+    width: 32px !important;
+    height: 32px !important;
+    transform: none !important;
+  }
+  .pswp__button--arrow--next .pswp__icn {
+    left: 50% !important;
+    right: auto !important;
+    margin: -16px 0 0 -16px !important;
+    /* arrowNextSVG 换成了单独绘制、朝向已经正确的 chevron-right，
+       不再需要靠水平翻转 arrowPrev 的图标来拼凑 */
+    transform: none !important;
+  }
+  @media (max-width: 640px) {
+    .pswp__button--arrow--prev {
+      left: 8px !important;
+    }
+    .pswp__button--arrow--next {
+      right: 8px !important;
+    }
   }
 </style>
 
@@ -511,6 +634,23 @@ const dateStr = formatDate(date);
 
     let items: PreviewItem[] = [];
 
+    // PhotoSwipe 自带的图标是纯色填充、各自留白不一，跟站点其它按钮统一用的
+    // Lucide 线条图标（stroke=2、圆角）放在一起会显得粗细/大小不协调。
+    // 这里用官方支持的 xxxSVG 选项整套换成同款线条图标，保持全站图标语言一致。
+    function pswpLineIcon(inner: string) {
+      // photoswipe 自带样式给 .pswp__icn 强制设了 fill，line 图标的空心路径被填成实心，
+      // 需要单独一个 class 把 fill 关掉、把 stroke 颜色改回正常的前景色（不是 icon-color-secondary 那个偏灰的辅助色）
+      return `<svg aria-hidden="true" class="pswp__icn pswp__icn--line" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+    }
+    const CLOSE_SVG = pswpLineIcon('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>');
+    const ZOOM_SVG = pswpLineIcon(
+      '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>' +
+        '<line class="pswp__zoom-icn-bar-v" x1="11" y1="8" x2="11" y2="14"/>' +
+        '<line class="pswp__zoom-icn-bar-h" x1="8" y1="11" x2="14" y2="11"/>',
+    );
+    const ARROW_PREV_SVG = pswpLineIcon('<path d="m15 18-6-6 6-6"/>');
+    const ARROW_NEXT_SVG = pswpLineIcon('<path d="m9 18 6-6-6-6"/>');
+
     function dimensionsFromSvg(svg: SVGSVGElement) {
       const viewBox = svg.viewBox.baseVal;
       if (viewBox && viewBox.width > 0 && viewBox.height > 0) {
@@ -568,11 +708,25 @@ const dateStr = formatDate(date);
         }) as import('photoswipe').SlideData[],
         index,
         showHideAnimationType: 'zoom',
+        // 铺满可视区域为目标：'fit' 已经是「不裁切前提下的最大尺寸」，
+        // 这里只留出刚好够容纳顶部按钮、且随视口自适应收缩的安全边距，
+        // 而不是给一个固定像素的空白，尽量把屏幕让给图表本身。
         initialZoomLevel: 'fit',
-        secondaryZoomLevel: 1.6,
-        maxZoomLevel: 4,
+        paddingFn: (viewportSize) => {
+          const top = Math.round(Math.min(72, Math.max(48, viewportSize.y * 0.08)));
+          const side = Math.round(Math.min(48, Math.max(16, viewportSize.x * 0.035)));
+          const bottom = Math.round(Math.min(40, Math.max(16, viewportSize.y * 0.04)));
+          return { top, bottom, left: side, right: side };
+        },
+        // Mermaid 图里常有小字号文本，二次点击/滚轮缩放要能放得更大才看得清
+        secondaryZoomLevel: 2,
+        maxZoomLevel: 5,
         wheelToZoom: true,
-        bgOpacity: 0.9,
+        bgOpacity: 0.92,
+        closeSVG: CLOSE_SVG,
+        zoomSVG: ZOOM_SVG,
+        arrowPrevSVG: ARROW_PREV_SVG,
+        arrowNextSVG: ARROW_NEXT_SVG,
       });
       pswp.on('contentLoad', (event) => {
         const { content } = event;
