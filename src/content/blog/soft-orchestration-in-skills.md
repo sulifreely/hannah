@@ -508,10 +508,10 @@ flowchart TD
 简单来说，层级模式不是“把活都甩出去”。更像带一个小团队：可以分工，但要对结果负责。
 
 
-[`orchestrate`](https://github.com/cursor/plugins/blob/e46364b8be46000b7df0f260550cd712afbb8d36/orchestrate/skills/orchestrate/SKILL.md) 很适合解释层级模式。它把一个大目标拆成 root planner、subplanner、worker、verifier 等不同角色，再通过结构化 handoff 把结果向上汇总。这里的层级不是“一个 Agent 多想几层”，而是明确区分父任务、子任务和回传格式。
+[`orchestrate`](https://github.com/cursor/plugins/blob/e46364b8be46000b7df0f260550cd712afbb8d36/orchestrate/skills/orchestrate/SKILL.md) 很适合解释层级模式。它把一个大目标拆成 root planner、subplanner、worker、verifier 等不同角色，再通过结构化的交接记录（handoff）把结果向上汇总。这里的层级不是“一个 Agent 多想几层”，而是明确区分父任务、子任务和回传格式。
 
 
-这个结构天然是层级的：目标在最上层，planner 负责拆解和调度，worker 负责局部执行，handoff 负责把局部结果带回上层决策。
+这个结构天然是层级的：目标在最上层，planner 负责拆解和调度，worker 负责局部执行，交接记录负责把局部结果带回上层决策。
 
 
 [`to-issues`](https://github.com/mattpocock/skills/blob/main/skills/engineering/to-issues/SKILL.md) 也有类似味道。它把一个 plan、spec 或 PRD 拆成多个可以独立领取的 issue，每个 issue 是一条 tracer-bullet 式的垂直切片，并记录依赖关系。它不是无限层级，但很好地展示了父任务如何拆成更小、更容易交付和验证的子工作单元。

@@ -303,17 +303,17 @@ deck:
       skill: tdd
       code: |
         ## 循环规则
-        - 先与人确认要测的 seam（公开边界）
-          没确认的 seam 不写测试
+        - 先与人确认要测的边界（seam）
+          没确认的边界不写测试
         - Red before Green：先写会失败的测试
           再写刚好让它通过的最小代码
-        - 一次一个切片：一个 seam、一个测试、一个实现
+        - 一次一个切片：一个边界、一个测试、一个实现
         - 重构不属于这个循环
           它属于 review 阶段，不混进 red → green
 
         ## 单个切片
         写失败测试 → 写最小实现 → 通过？
-          否，回到写实现；是，切下一个 seam
+          否，回到写实现；是，切下一个边界
       mermaid: |
         flowchart LR
             classDef gen fill:#a8d8ea,stroke:#80b8ce,color:#201d18
@@ -322,8 +322,8 @@ deck:
             Red["写失败测试\nRed"]:::gen --> Green["最小实现\nGreen"]:::gen
             Green --> T{"测试通过？"}:::critic
             T -- "否" --> Green
-            T -- "是，还有 seam" --> Red
-            T -- "是，seam 用完" --> D["交给 review\n重构在此阶段"]:::done
+            T -- "是，还有边界" --> Red
+            T -- "是，边界用完" --> D["交给 review\n重构在此阶段"]:::done
       lead: 重构被故意排除在这个循环之外。red→green 只负责让行为正确，一旦把"顺手重构"也塞进循环，测试就分不清自己在验证正确性还是在给重构背书。
 
     - type: code
@@ -337,9 +337,9 @@ deck:
         第 19 轮："这里还有一处可以再优化"
         第 23 轮："……"
 
-        Critic 永远能找到可以改的地方。
+        评判者（Critic）永远能找到可以改的地方。
         没有预算，Loop 只会原地打转，越改越乱。
-      lead: 退出条件不是"做好了就停"，Critic 永远能挑出毛病。停止条件必须是可测量的：最大轮数、改动幅度 < 阈值，或外部信号介入。缺了这三件事任意一个，Loop 就会越改越忙、越忙越偏。
+      lead: 退出条件不是"做好了就停"，评判者永远能挑出毛病。停止条件必须是可测量的：最大轮数、改动幅度 < 阈值，或外部信号介入。缺了这三件事任意一个，Loop 就会越改越忙、越忙越偏。
 
     - type: diagram
       section: '2'
@@ -355,7 +355,7 @@ deck:
             W3["Build"]:::worker
             Orch --> W1 & W2 & W3
             W1 & W2 & W3 -.->|"结果回传"| Orch
-      lead: CI 里的 release job 自己不跑业务代码，只负责派发 lint / test / build，等结果汇总再判断能不能发布，这就是 Orchestrate。失败模式通常是拆错边界：该顺序执行的塞进并行（比如 build 其实依赖 lint 先过），该独立跑的又互相等待。
+      lead: GitLab CI 的 release job 通过 yaml 定义 lint / test / build 的触发顺序和失败策略，中心节点只管派发任务、汇总结果，业务代码由各个 job 自己跑，这就是 Orchestrate。失败模式通常是拆错边界：该顺序执行的塞进并行（比如 build 其实依赖 lint 先过），该独立跑的又互相等待。
       refs:
         - label: subagent-driven-development
           href: https://github.com/obra/superpowers/blob/main/skills/subagent-driven-development/SKILL.md
@@ -375,7 +375,7 @@ deck:
         1. 派发 Implementer（带 task brief）
         2. Implementer 实现/测试/提交，报告状态
         3. 派发 Task Reviewer 复核
-        4. 有 Critical/Important 问题 → 派 fix subagent → 重新复核
+        4. 有严重（Critical）/重要（Important）问题 → 派 fix subagent → 重新复核
         5. 复核通过才标记完成，进入下一个任务
         全部任务完成后，再派一次全分支 Reviewer 做终审
       mermaid: |
@@ -388,7 +388,7 @@ deck:
             I3["Implementer\n任务 3"]:::worker
             C --> I1 & I2 & I3
             I1 & I2 & I3 -.->|"实现+复核"| C
-      lead: 派发的不是"想法"，而是任务列表，列表来自单独的写计划环节。这个 Skill 真正做的是"实现 + 复核"的双重循环，任何任务没通过复核都不能标记完成，协调者的记忆负担全在"追踪谁复核过、谁还没有"。
+      lead: 派发的是任务列表，来自单独的写计划环节。这个 Skill 真正做的是"实现 + 复核"的双重循环，任何任务没通过复核都不能标记完成，协调者的记忆负担全在"追踪谁复核过、谁还没有"。
 
     - type: diagram
       section: '2'
@@ -410,7 +410,7 @@ deck:
             L1 --> W1 & W2
             L2 --> W3 & W4
       bullets:
-        - Orchestrate 是 CI 直接调度几个 job；Hierarchy 是 root workspace 只管到 package 这一层，package 内部子模块怎么拆、谁维护，root 完全看不到，不是一回事
+        - Orchestrate 与 Hierarchy 不是一回事：Orchestrate 是 CI 直接调度几个 job，一层就完事；Hierarchy 是「root workspace → package → 内部子模块」多层委派，root 只管到 package 这一层，子模块怎么拆、谁维护交给 package 自己决定
         - 每层 package.json 必须在关键节点声明清楚依赖版本；子模块必须有明确的导出边界，不能绕过 package 直接 import 内部文件
       refs:
         - label: orchestrate
@@ -425,15 +425,15 @@ deck:
       skill: orchestrate
       code: |
         ## 节点类型
-        Planner    — 拥有全局目标，只发布任务、读 handoff，不写代码
+        Planner    — 拥有全局目标，只发布任务、读交接记录（handoff），不写代码
         Subplanner — 递归的 Planner，只拥有父级切给它的一片范围
-        Worker     — 领一个具体任务，做完把 handoff 交回派发者
-        Verifier   — 对某个目标的验收标准给判决，同样走 handoff
+        Worker     — 领一个具体任务，做完把交接记录交回派发者
+        Verifier   — 对某个目标的验收标准给判决，同样通过交接记录传递结果
 
         ## 规则
         - 子节点不知道谁会接自己发布的任务
-        - 同层节点之间不通气，只有父子之间的 handoff
-        - Git 是唯一共享介质：branch 是代码，handoff 是"发生了什么"
+        - 同层节点之间不通气，只有父子之间会传交接记录
+        - Git 是唯一共享介质：branch 是代码，交接记录是"发生了什么"
       mermaid: |
         flowchart TD
             classDef mgr fill:#d8b8a0,stroke:#b89882,color:#201d18
@@ -447,10 +447,10 @@ deck:
             P --> W1
             P --> SP
             SP --> W2 & W3
-            W1 -.->|"handoff"| P
-            W2 & W3 -.->|"handoff"| SP
-            SP -.->|"汇总 handoff"| P
-      lead: Worker 干完活只往上交一次 handoff，看不到、也不关心兄弟节点在干什么。深层级最容易"失忆"的地方就在这里：每一层只看得到自己直接孩子的 handoff，看不到整棵树。
+            W1 -.->|"交接记录"| P
+            W2 & W3 -.->|"交接记录"| SP
+            SP -.->|"汇总交接记录"| P
+      lead: Worker 干完活只往上交一次交接记录（handoff），看不到、也不关心兄弟节点在干什么。深层级最容易"失忆"的地方就在这里：每一层只看得到自己直接孩子的交接记录，看不到整棵树。
 
     - type: bullets
       section: '2'
@@ -491,7 +491,7 @@ deck:
     - type: code
       section: '3'
       kicker: '11'
-      heading: 一个软编排 Skill 的最小模型
+      heading: 一个轻型编排 Skill 的最小模型
       code: |
         ## 什么时候使用
         当……时使用；当……时不要使用
@@ -568,9 +568,9 @@ deck:
     - type: split
       section: '4'
       kicker: '15'
-      heading: 软编排不是万能药
+      heading: 轻型编排不是万能药
       columns:
-        - label: 适合软编排
+        - label: 适合轻型编排
           dot: var(--tab-1)
           items:
             - 日常 AI Coding 操作规范
