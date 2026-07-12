@@ -27,43 +27,43 @@ deck:
       section: '1'
       eyebrow: Conference Talk · Agent Skill 设计
       title: 'Skill 中的<br/><span class="accent">执行拓扑</span>'
-      lead: '六种编排模式在 Skill 侧的可靠性并不均匀——<br/>哪些日常够用，哪些一上量就容易出问题。'
+      lead: '六种 Agent 编排模式在 Skill 中的使用理解，和可靠性分析，以及在 Skill 中如何表示&实现'
       cover: /images/talks/execution-topology-reliability.png
       coverAlt: 左边角色沿单一箭头稳步前进（日常够用），右边角色被多路 worker 的箭头淹没、抓着电话找 LangGraph 求救（规模变大）
 
     - type: quote
       section: '1'
       eyebrow: 一个自然而然的问题
-      quote: Agent 执行拓扑已经有成熟的模式归纳。问题是：不上重型 workflow 框架，靠一份 Skill 能不能把这些模式跑起来？
-      lead: 今天想一起验证一下，这条路到底能走多远。
+      quote: Agent 执行拓扑已经有成熟的设计模式归纳。那我们想想，如果不上类似 LangGraph 这类重型 workflow 框架，靠 Skill 自己能不能把这些模式跑起来？
+      lead: 今天想带大家一起探索、验证一下，在 Skill 中六种模式分别该怎么实现以及可靠性如何。
 
     - type: split
       section: '1'
       kicker: '01'
       heading: 两种编排，两种重量
       columns:
-        - label: 硬编排
+        - label: 重型编排
           dot: var(--text-faint)
           items:
             - 状态机 / DAG / workflow engine
             - 可视化节点，拖拽调度
             - 把每一步写死成代码节点
-        - label: 软编排
+        - label: 轻型编排 —— “软”编排
           dot: var(--tab-warn)
           items:
-            - 写进 Skill 的操作手册
+            - 写进 Skill 的操作流程
             - 顺序、分叉、检查点、退出条件
-            - 把行动边界写清楚，而非写死
+            - 用自然语言把行动边界写清楚
 
     - type: quote
       section: '1'
       quote: 一个复杂任务，应该按什么顺序、以什么边界、由谁来完成？
-      lead: 编排回答的就是这一个问题。任务简单时用不着；任务一复杂，岔路自然就有了。
+      lead: 编排回答的就是这一个问题。任务简单的时候自然用不着；任务一旦复杂起来，自然而然就有了编排的需求。
 
     - type: diagram
       section: '1'
       kicker: '02'
-      heading: 今天想聊三件事
+      heading: 今天想分享三个内容
       mermaid: |
         flowchart LR
             classDef input fill:#d4c9b8,stroke:#b8a898,color:#201d18
@@ -73,27 +73,27 @@ deck:
             C["工具协议"]:::input --> S
             D["验证门禁"]:::input --> S
       bullets:
-        - Agent 执行拓扑的六类基础模式：链式、并行、路由、循环、编排、层级
-        - 这些模式在 Skill 里怎么表达（而不是用重型 workflow 引擎）
-        - 执行者是概率模型时，如何尽量保障结果确定
+        - 1. Agent 执行拓扑的六类基础设计模式：链式、并行、路由、循环、编排、层级
+        - 2. 这些模式分别在 Skill 里怎么表示和具体示例
+        - 3. 当执行者是 LLM 这种概率模型时，如何尽量保障结果确定
 
     - type: split
       section: '2'
-      kicker: 先认识它们
+      kicker: 先认识它们 —— 用前端开发中的例子来类比
       heading: 六种模式，你其实每天都在遇到
       columns:
         - label: 前三种
           dot: var(--tab-1)
           items:
-            - 'Chain — 渲染流水线：请求数据→更新 state→触发渲染→浏览器绘制，每一步只认上一步吐出来的东西'
-            - 'Parallel — Promise.all 请求：用户信息、商品列表、推荐位三个接口一起发，最后要等最慢的那个'
-            - 'Route — 前端路由：URL 一变，该渲染哪个组件、走哪套逻辑，全看路由表怎么写'
+            - 'Chain — 渲染流水线：请求数据→更新 state→触发渲染→浏览器绘制，每一步只接收上一步输出出来的东西'
+            - 'Parallel — Promise.all 请求：A\B\C 三个接口一起并发，而业务最后要等最慢的那个接口返回，再聚合处理逻辑'
+            - 'Route — 前端路由：URL 一变，该渲染哪个组件、走哪套逻辑，全看路由表匹配规则怎么写'
         - label: 后三种
           dot: var(--tab-warn)
           items:
-            - 'Loop — HMR 调试循环：改一行代码→保存→热更新→看效果→不对再改，改着改着已经忘了最初想解决什么问题'
-            - 'Orchestrate — CI 里的 release job：并发跑 lint / test / build，自己不写业务代码，只等结果汇总再决定能不能发布'
-            - 'Hierarchy — Monorepo 多层 workspace：根 workspace 管几个 package，每个 package 内部子模块怎么拆、谁维护，根本看不到'
+            - 'Loop — HMR 调试循环：改一行代码→保存→热更新→看效果→不对再改，直到最终问题解决，即可终止调试循环'
+            - 'Orchestrate — GitLab CI 工作流编排：通过 yaml 编排定义任务、依赖、条件分支、失败策略，并发跑 lint / test / build 等任务，最后等结果汇总再决定能不能发布'
+            - 'Hierarchy — Monorepo 的包层级是严格树形从属分层（Hierarchy Tree），有明确的「底层基础包 → 中层工具 / UI 包 → 顶层业务应用」单向依赖规则'
 
     - type: grid
       section: '2'
