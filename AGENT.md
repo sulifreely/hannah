@@ -206,6 +206,14 @@ flowchart TD
 - `src/components/decks/notebook-tabs/registry.ts` —— slide type → 渲染组件的映射表。
 - `src/components/decks/notebook-tabs/primitives/` —— 各 slide 组件共享的小组件。
 
+**导出离线单文件：**
+
+```bash
+npm run build:talk -- <slug>
+```
+
+会先跑站点构建，再把 `/talks/<slug>/slides/` 内联成 `dist-talk/<slug>.html`（可直接用浏览器打开，含 favicon 与署名「蘇里」，无返回站点链接）。`dist-talk/` 已 gitignore。
+
 ### 图片
 
 - 统一放在 `public/images/` 下，按 `blogs/` 与 `talks/` 分类。
