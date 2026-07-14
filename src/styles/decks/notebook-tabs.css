@@ -395,9 +395,8 @@
   color: transparent;
   font-size: 0;
   min-height: 160px;
-  /* 覆盖 global.css 里通用的 `pre { border/padding/border-radius }`——那份样式表会被
-     这条路由一起打包进来（slides.astro 同时 import 了 ScenesDeck），本来是给博客代码块
-     用的边框，套在这里会和 .diagram-wrap 自己的点阵卡片边框叠成两层框。 */
+  /* 覆盖可能泄漏的通用 `pre { border/padding/border-radius }`——套在这里会和
+     .diagram-wrap 自己的点阵卡片边框叠成两层框。 */
   border: none;
   padding: 0;
   border-radius: 0;

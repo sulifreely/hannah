@@ -47,13 +47,9 @@ html {
 body {
   margin: 0;
   /* 注意：不要在这里加 display:flex / height 等结构性规则。
-     这个文件是全站共享的普通 <link> 样式表，talks 的 slides 页面
-     (NotebookTabsDeck / ScenesDeck) 会和 BaseLayout 页面打包进同一个
-     路由 CSS chunk（因为 slides.astro 里静态 import 了两者），
-     结构性的 body/html 规则会「泄漏」进独立的全屏 deck 文档里，
-     把它自己的 scroll-snap 布局挤爆。sticky footer 相关的 flex 布局
-     放在 BaseLayout.astro 的 scoped <style> 里，靠 Astro 的样式隔离
-     只作用于 BaseLayout 渲染出的 body。 */
+     历史上 slides 路由曾把两套 deck 打进同一 CSS chunk，宽泛 body/html 规则会泄漏进
+     全屏 deck。现已拆路由，但 sticky footer 相关 flex 仍放在 BaseLayout 的 scoped
+     <style> 里更稳。 */
   background: var(--bg);
   color: var(--fg-body);
   font-family: var(--font-sans);
