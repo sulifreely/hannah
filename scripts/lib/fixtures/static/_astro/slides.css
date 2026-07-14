@@ -1,0 +1,5 @@
+@font-face {
+  font-family: Fake;
+  src: url(/_astro/font.woff2) format('woff2');
+}
+body { color: #111; }

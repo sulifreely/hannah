@@ -1,3 +1,7 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 /**
  * @param {string} html
  * @param {{
@@ -5,9 +9,11 @@
  *   credit: string,
  *   staticRoot?: URL | string,
  *   skipAssetInline?: boolean,
+ *   skipScriptBundle?: boolean,
+ *   fetchImpl?: typeof fetch,
  * }} options
  */
-export function transformTalkHtml(html, options) {
+export async function transformTalkHtml(html, options) {
   let out = html;
 
   out = out.replace(/<vercel-analytics\b[^>]*>\s*<\/vercel-analytics>/gi, '');
@@ -18,6 +24,10 @@ export function transformTalkHtml(html, options) {
   );
   out = out.replace(/<a\b[^>]*class="[^"]*\bhud-back\b[^"]*"[^>]*>[\s\S]*?<\/a>/gi, '');
   out = out.replace(/<a\b[^>]*class="[^"]*\bdeck-back-link\b[^"]*"[^>]*>[\s\S]*?<\/a>/gi, '');
+
+  if (!options.skipAssetInline) {
+    out = await inlineAssets(out, options);
+  }
 
   out = out.replace(
     /<link\b[^>]*rel="icon"[^>]*>/i,
@@ -45,10 +55,156 @@ export function transformTalkHtml(html, options) {
 </style>`;
   out = out.replace(/<\/body>/i, `${creditHtml}</body>`);
 
-  if (!options.skipAssetInline) {
-    throw new Error('asset inlining not implemented');
-  }
   return out;
+}
+
+/**
+ * @param {string} html
+ * @param {{ staticRoot?: URL | string, fetchImpl?: typeof fetch }} options
+ */
+async function inlineAssets(html, options) {
+  const staticRoot = options.staticRoot;
+  if (!staticRoot) {
+    throw new Error('staticRoot is required to inline local assets');
+  }
+  const fetchImpl = options.fetchImpl || globalThis.fetch;
+  let out = html.replace(
+    /<link\b(?=[^>]*\brel=(["'])preconnect\1)(?=[^>]*\bhref=(["'])https:\/\/fonts\.(?:googleapis|gstatic)\.com[^"']*\2)[^>]*>/gi,
+    '',
+  );
+
+  out = await replaceAsync(
+    out,
+    /<link\b(?=[^>]*\brel=(["'])stylesheet\1)[^>]*>/gi,
+    async (tag) => {
+      const href = attributeValue(tag, 'href');
+      if (!href) return tag;
+
+      let css;
+      if (/^https?:\/\//i.test(href)) {
+        const response = await fetchOrThrow(fetchImpl, href);
+        css = await response.text();
+      } else {
+        css = (await readStatic(staticRoot, href)).toString('utf8');
+      }
+      const rewrittenCss = await inlineCssUrls(css, href, staticRoot, fetchImpl);
+      return `<style>${rewrittenCss}</style>`;
+    },
+  );
+
+  return replaceAsync(out, /<img\b[^>]*>/gi, async (tag) => {
+    const src = attributeValue(tag, 'src');
+    if (!src?.startsWith('/')) return tag;
+
+    const dataUrl = toDataUrl(await readStatic(staticRoot, src), mimeFor(src));
+    return replaceAttribute(tag, 'src', dataUrl);
+  });
+}
+
+/**
+ * @param {string} css
+ * @param {string} cssHref
+ * @param {URL | string} staticRoot
+ * @param {typeof fetch} fetchImpl
+ */
+async function inlineCssUrls(css, cssHref, staticRoot, fetchImpl) {
+  return replaceAsync(css, /url\(\s*(?:(["'])(.*?)\1|([^)"']+))\s*\)/gi, async (match, _quote, quoted, bare) => {
+    const assetRef = (quoted ?? bare).trim();
+    if (/^(?:data:|#)/i.test(assetRef)) return match;
+
+    const resolved = resolveCssAsset(assetRef, cssHref);
+    let bytes;
+    if (/^https?:\/\//i.test(resolved)) {
+      const response = await fetchOrThrow(fetchImpl, resolved);
+      bytes = Buffer.from(await response.arrayBuffer());
+    } else {
+      bytes = await readStatic(staticRoot, resolved);
+    }
+    return `url(${toDataUrl(bytes, mimeFor(resolved))})`;
+  });
+}
+
+/** @param {string} assetRef @param {string} cssHref */
+function resolveCssAsset(assetRef, cssHref) {
+  if (/^https?:\/\//i.test(assetRef)) return assetRef;
+  if (/^https?:\/\//i.test(cssHref)) return new URL(assetRef, cssHref).href;
+  if (assetRef.startsWith('/')) return assetRef;
+
+  const basePath = cssHref.split(/[?#]/)[0];
+  return path.posix.resolve(path.posix.dirname(basePath), assetRef);
+}
+
+/** @param {typeof fetch} fetchImpl @param {string} url */
+async function fetchOrThrow(fetchImpl, url) {
+  const response = await fetchImpl(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch asset: ${url}`);
+  }
+  return response;
+}
+
+/** @param {string} tag @param {string} name */
+function attributeValue(tag, name) {
+  const match = tag.match(new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`, 'i'));
+  return match?.[2];
+}
+
+/** @param {string} tag @param {string} name @param {string} value */
+function replaceAttribute(tag, name, value) {
+  return tag.replace(new RegExp(`(\\b${name}\\s*=\\s*)(["']).*?\\2`, 'i'), `$1"${value}"`);
+}
+
+/**
+ * @param {string} input
+ * @param {RegExp} pattern
+ * @param {(...args: string[]) => Promise<string>} replacer
+ */
+async function replaceAsync(input, pattern, replacer) {
+  const matches = [...input.matchAll(pattern)];
+  const replacements = await Promise.all(matches.map((match) => replacer(...match)));
+  let index = 0;
+  return input.replace(pattern, () => replacements[index++]);
+}
+
+/** @param {string} p */
+function mimeFor(p) {
+  const pathname = /^https?:\/\//i.test(p) ? new URL(p).pathname : p.split(/[?#]/)[0];
+  const ext = path.extname(pathname).toLowerCase();
+  return (
+    {
+      '.css': 'text/css',
+      '.js': 'text/javascript',
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.gif': 'image/gif',
+      '.webp': 'image/webp',
+      '.svg': 'image/svg+xml',
+      '.woff': 'font/woff',
+      '.woff2': 'font/woff2',
+      '.ttf': 'font/ttf',
+    }[ext] || 'application/octet-stream'
+  );
+}
+
+/**
+ * @param {URL | string} staticRoot
+ * @param {string} urlPath pathname like /_astro/x.css or /images/a.png
+ */
+async function readStatic(staticRoot, urlPath) {
+  const clean = urlPath.split('?')[0];
+  const root = staticRoot instanceof URL ? fileURLToPath(staticRoot) : staticRoot;
+  const abs = path.join(root, clean.replace(/^\//, ''));
+  try {
+    return await fs.readFile(abs);
+  } catch {
+    throw new Error(`Missing static asset: ${clean} (resolved ${abs})`);
+  }
+}
+
+/** @param {Buffer} buf @param {string} mime */
+function toDataUrl(buf, mime) {
+  return `data:${mime};base64,${buf.toString('base64')}`;
 }
 
 /** @param {string} s */
