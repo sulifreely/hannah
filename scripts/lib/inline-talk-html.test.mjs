@@ -186,6 +186,23 @@ describe('transformTalkHtml scripts', () => {
     assert.equal(out.includes('from "./dep.js"'), false);
   });
 
+  it('throws when module script src attempts traversal outside staticRoot', async () => {
+    const html = `<!DOCTYPE html><html><head></head><body>
+<script type="module" src="/../../../etc/passwd"></script>
+</body></html>`;
+
+    await assert.rejects(
+      () =>
+        transformTalkHtml(html, {
+          faviconDataUrl: FAVICON,
+          credit: '蘇里',
+          staticRoot: fixturesStatic,
+          skipAssetInline: true,
+        }),
+      /Static path traversal blocked/,
+    );
+  });
+
   it('leaves inline module scripts without src unchanged', async () => {
     const inlineScript = '<script type="module">document.body.dataset.inline = "ok";</script>';
     const html = `<!DOCTYPE html><html><head></head><body>${inlineScript}</body></html>`;

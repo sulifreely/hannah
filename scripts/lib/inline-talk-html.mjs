@@ -80,8 +80,7 @@ async function inlineModuleScripts(html, staticRoot) {
 
 /** @param {URL | string} staticRoot @param {string} srcPath */
 async function bundleScript(staticRoot, srcPath) {
-  const root = staticRoot instanceof URL ? fileURLToPath(staticRoot) : staticRoot;
-  const abs = path.join(root, srcPath.replace(/^\//, '').split('?')[0]);
+  const abs = resolveStaticPath(staticRoot, srcPath);
   const result = await esbuild.build({
     entryPoints: [abs],
     bundle: true,
@@ -228,14 +227,25 @@ function mimeFor(p) {
 /**
  * @param {URL | string} staticRoot
  * @param {string} urlPath pathname like /_astro/x.css or /images/a.png
+ * @returns {string} absolute path within staticRoot
  */
-async function readStatic(staticRoot, urlPath) {
+function resolveStaticPath(staticRoot, urlPath) {
   const clean = urlPath.split('?')[0];
   const root = path.resolve(staticRoot instanceof URL ? fileURLToPath(staticRoot) : staticRoot);
   const abs = path.resolve(root, clean.replace(/^\//, ''));
   if (abs !== root && !abs.startsWith(root + path.sep)) {
     throw new Error(`Static path traversal blocked: ${clean} (resolved ${abs})`);
   }
+  return abs;
+}
+
+/**
+ * @param {URL | string} staticRoot
+ * @param {string} urlPath pathname like /_astro/x.css or /images/a.png
+ */
+async function readStatic(staticRoot, urlPath) {
+  const clean = urlPath.split('?')[0];
+  const abs = resolveStaticPath(staticRoot, urlPath);
   try {
     return await fs.readFile(abs);
   } catch {
