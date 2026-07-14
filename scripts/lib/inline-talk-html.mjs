@@ -2,6 +2,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
+import {
+  ANALYTICS_SCRIPT_MARKER,
+  ASSET_ORIGIN,
+  EXPORT_CREDIT,
+  EXPORT_STRIP_ATTR,
+} from './export-policy.mjs';
 
 // Astro currently emits type before src on module scripts; this regex depends on that order.
 const SCRIPT_SRC_RE =
@@ -11,7 +17,7 @@ const SCRIPT_SRC_RE =
  * @param {string} html
  * @param {{
  *   faviconDataUrl: string,
- *   credit: string,
+ *   credit?: string,
  *   staticRoot?: URL | string,
  *   assetOrigin?: string,
  *   skipAssetInline?: boolean,
@@ -21,19 +27,22 @@ const SCRIPT_SRC_RE =
  * `assetOrigin` is the site origin used for local webfont URLs (fonts are not inlined).
  */
 export async function transformTalkHtml(html, options) {
+  const credit = options.credit ?? EXPORT_CREDIT;
+  const assetOrigin = options.assetOrigin ?? ASSET_ORIGIN;
   let out = html;
 
+  out = stripExportMarked(out, EXPORT_STRIP_ATTR);
   out = out.replace(/<vercel-analytics\b[^>]*>\s*<\/vercel-analytics>/gi, '');
-  // Analytics loader is the only head module script whose src contains this marker
   out = out.replace(
-    /<script\b[^>]*src="[^"]*index\.astro_astro_type_script_index_0_lang[^"]*"[^>]*>\s*<\/script>/gi,
+    new RegExp(
+      `<script\\b[^>]*src="[^"]*${escapeRegExp(ANALYTICS_SCRIPT_MARKER)}[^"]*"[^>]*>\\s*<\\/script>`,
+      'gi',
+    ),
     '',
   );
-  out = out.replace(/<a\b[^>]*class="[^"]*\bhud-back\b[^"]*"[^>]*>[\s\S]*?<\/a>/gi, '');
-  out = out.replace(/<a\b[^>]*class="[^"]*\bdeck-back-link\b[^"]*"[^>]*>[\s\S]*?<\/a>/gi, '');
 
   if (!options.skipAssetInline) {
-    out = await inlineAssets(out, options);
+    out = await inlineAssets(out, { ...options, assetOrigin });
   }
   if (!options.skipScriptBundle) {
     out = await inlineModuleScripts(out, options.staticRoot);
@@ -50,7 +59,7 @@ export async function transformTalkHtml(html, options) {
     );
   }
 
-  const creditHtml = `<div class="talk-credit" aria-label="作者">${escapeHtml(options.credit)}</div>
+  const creditHtml = `<div class="talk-credit" aria-label="作者">${escapeHtml(credit)}</div>
 <style>
 .talk-credit{
   position:fixed;
@@ -72,6 +81,26 @@ export async function transformTalkHtml(html, options) {
   out = `${out.slice(0, bodyClose)}${creditHtml}${out.slice(bodyClose)}`;
 
   return out;
+}
+
+/** Remove elements bearing the export-strip attribute (shallow wraps used by decks). */
+function stripExportMarked(html, attr) {
+  const paired = new RegExp(
+    `<([a-zA-Z][\\w-]*)\\b[^>]*\\b${escapeRegExp(attr)}\\b[^>]*>[\\s\\S]*?<\\/\\1>`,
+    'gi',
+  );
+  const voidish = new RegExp(`<[a-zA-Z][\\w-]*\\b[^>]*\\b${escapeRegExp(attr)}\\b[^>]*\\/?>`, 'gi');
+  let prev;
+  do {
+    prev = html;
+    html = html.replace(paired, '').replace(voidish, '');
+  } while (html !== prev);
+  return html;
+}
+
+/** @param {string} s */
+function escapeRegExp(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**
@@ -140,7 +169,7 @@ async function inlineAssets(html, options) {
   if (!staticRoot) {
     throw new Error('staticRoot is required to inline local assets');
   }
-  const assetOrigin = normalizeOrigin(options.assetOrigin || 'https://yanguangjie.com');
+  const assetOrigin = normalizeOrigin(options.assetOrigin || ASSET_ORIGIN);
   const fetchImpl = options.fetchImpl || globalThis.fetch;
 
   // Keep Google Fonts <link> / preconnect as CDN references (do not inline — they dominate file size).

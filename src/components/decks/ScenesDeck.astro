@@ -42,9 +42,11 @@ const scenes = talk.body
         } catch (e) {}
       })();
     </script>
-    <Analytics />
   </head>
   <body class="deck-body">
+    <div data-export-strip>
+      <Analytics />
+    </div>
     <main id="deck" class="deck">
       {scenes.map((beats, si) => (
         <section class="slide" data-scene={si}>
@@ -58,10 +60,12 @@ const scenes = talk.body
     </main>
 
     <div class="hud">
-      <a class="hud-back" href={`/talks/${talk.slug}/`}>← {talk.data.title}</a>
+      <a class="hud-back" data-export-strip href={`/talks/${talk.slug}/`}>← {talk.data.title}</a>
       <div class="hud-right">
         <span class="hud-progress"><span id="cur">1</span> / {scenes.length}</span>
-        <ThemeToggle />
+        <span data-export-strip>
+          <ThemeToggle />
+        </span>
       </div>
     </div>
 

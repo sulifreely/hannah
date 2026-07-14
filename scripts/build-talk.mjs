@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { transformTalkHtml } from './lib/inline-talk-html.mjs';
+import { ASSET_ORIGIN, EXPORT_CREDIT } from './lib/export-policy.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const slug = process.argv[2];
@@ -20,7 +21,6 @@ if (!/^[a-z0-9._-]+$/i.test(slug)) {
 }
 
 const staticRoot = path.join(root, '.vercel/output/static');
-const slidesHtmlPath = path.join(staticRoot, 'talks', slug, 'slides', 'index.html');
 const outDir = path.join(root, 'dist-talk');
 const outFile = path.join(outDir, `${slug}.html`);
 
@@ -35,11 +35,10 @@ if (build.status !== 0) {
   process.exit(build.status ?? 1);
 }
 
-try {
-  await fs.access(slidesHtmlPath);
-} catch {
-  console.error(`Slides not found for slug "${slug}": ${slidesHtmlPath}`);
-  console.error('Check that the talk exists, is not draft, and template built slides.');
+const slidesHtmlPath = await resolveBuiltSlidesHtml(staticRoot, slug);
+if (!slidesHtmlPath) {
+  console.error(`Slides not found for slug "${slug}" under ${path.join(staticRoot, 'talks', slug)}`);
+  console.error('Expected slides-scenes/ or slides-deck/ after build.');
   process.exit(1);
 }
 
@@ -51,9 +50,9 @@ let standalone;
 try {
   standalone = await transformTalkHtml(html, {
     faviconDataUrl,
-    credit: '蘇里',
+    credit: EXPORT_CREDIT,
     staticRoot,
-    assetOrigin: 'https://yanguangjie.com',
+    assetOrigin: ASSET_ORIGIN,
   });
 } catch (err) {
   console.error(err instanceof Error ? err.message : err);
@@ -63,3 +62,17 @@ try {
 await fs.mkdir(outDir, { recursive: true });
 await fs.writeFile(outFile, standalone, 'utf8');
 console.log(`Wrote ${path.relative(root, outFile)}`);
+
+/** @param {string} staticRoot @param {string} slug */
+async function resolveBuiltSlidesHtml(staticRoot, slug) {
+  for (const suffix of ['deck', 'scenes']) {
+    const candidate = path.join(staticRoot, 'talks', slug, `slides-${suffix}`, 'index.html');
+    try {
+      await fs.access(candidate);
+      return candidate;
+    } catch {
+      /* try next */
+    }
+  }
+  return null;
+}

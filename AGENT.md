@@ -143,10 +143,9 @@ flowchart TD
 
 在 `src/content/talks/` 新建 `.md`。frontmatter 同博客，外加可选 `subtitle`、`event`，
 再加一个必选的 `template` 字段（`'scenes' | 'deck'`，缺省即 `'scenes'`），决定用哪种
-幻灯片引擎渲染。两种模板共用同一个 `/talks/<slug>/slides` 路由（`src/pages/talks/[slug]/slides.astro`
-按 `template` 分发）、同一套导航手感（键盘 ←/→/Space/Home/End/F/Esc、点击翻页、进度计数）、
-同一个 `?scene=N&beat=0` URL 深链协议（`src/lib/deck/url-state.ts`），选哪个模板只影响
-"内容怎么写、长什么样"，不影响链接分享、前进后退这些行为。
+幻灯片引擎渲染。两种模板分属路由 `slides-scenes` / `slides-deck`（各自只 import 一种引擎）；
+公开入口仍是 `/talks/<slug>/slides`（308 到对应内部路径）。选哪个模板只影响
+"内容怎么写、长什么样"，不影响链接分享入口、前进后退这些行为。
 
 **怎么选模板：**
 
@@ -212,7 +211,7 @@ flowchart TD
 npm run build:talk -- <slug>
 ```
 
-会先跑站点构建，再把 `/talks/<slug>/slides/` 打成 `dist-talk/<slug>.html`（可直接用浏览器打开；含 favicon 与署名「蘇里」，无返回站点链接）。**字体走网络**：Google Fonts 保留 CDN；站点自托管 webfont（霞鹜等）改写为 `https://yanguangjie.com/_astro/...`，需站点已部署对应构建产物。图片与脚本仍内联。`dist-talk/` 已 gitignore。
+会先跑站点构建，再把 `/talks/<slug>/slides-{scenes|deck}/` 打成 `dist-talk/<slug>.html`（可直接用浏览器打开；含 favicon 与署名「蘇里」）。站点专用 chrome 打 `data-export-strip`（返回链接、Analytics、主题切换），由导出接缝剥离。**字体走网络**：Google Fonts 保留 CDN；站点自托管 webfont 改写为 `https://yanguangjie.com/_astro/...`（需已部署对应构建）。图片与脚本仍内联。策略见 `scripts/lib/export-policy.mjs`。`dist-talk/` 已 gitignore。
 
 ### 图片
 
@@ -244,11 +243,10 @@ GitHub 仓库：https://github.com/sulifreely/hannah
 - **响应式（必须遵守）**：UI 开发需保证在主流屏幕尺寸下都有较好体验，至少覆盖移动端、平板、PC 端；开发中请用浏览器自带的设备模拟或调整窗口宽度自查，不要只在一种尺寸下验收。
 - 新增有价值的用户行为（点赞、分享、收藏等互动）时，先询问用户是否需要补充自定义事件上报；如需要，在 `src/lib/analytics.ts` 中按现有约定新增类型化事件，不要在组件里直接裸调用 `track()`。
 - **`src/styles/global.css` 里不要写宽泛的元素选择器规则（`body`/`html`/`pre` 这类不带
-  class 限定的规则）**：`src/pages/talks/[slug]/slides.astro` 同时静态 import 了
-  `ScenesDeck.astro` 和 `NotebookTabsDeck.astro`（运行时只渲染其中一个），Astro 按路由打包
-  CSS 时会把两者引用到的样式表一起塞进这个路由的 chunk——哪怕 `NotebookTabsDeck` 自己完全没
-  import `global.css`，只要 `ScenesDeck` import 了，`global.css` 里的规则依旧会被这个路由
-  加载，从而"泄漏"进 deck 的独立全屏文档里，污染任何同名标签。已经踩过两次坑：
+  class 限定的规则）**：历史上 `slides.astro` 曾同时静态 import 两套 deck，CSS 会串味。
+  现已拆成 `slides-scenes.astro` / `slides-deck.astro`（公开 `/slides/` 仅 308 跳转），
+  串味风险大减，但 deck 全屏文档仍不要依赖「站点 global 标签选择器不会碰到我」——给 deck
+  侧需要的元素写显式 reset 更稳。已经踩过的坑：
   - 给 `body` 加 `display:flex` 把 21 页 `.slide`（各 100vh）挤扁成每页 40px。
   - 通用的 `pre { border/padding/border-radius }`（本是给博客代码块用的）套在
     `DiagramSlide.astro` 的 `pre.mermaid` 上，和 `.diagram-wrap` 自己的点阵卡片边框叠成了

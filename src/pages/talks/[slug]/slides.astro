@@ -1,8 +1,11 @@
 ---
+/**
+ * Public entry `/talks/<slug>/slides/` — redirect only.
+ * Must NOT import either deck: a static import of both would merge CSS/JS
+ * into this route's asset graph (see AGENT.md dual-import note).
+ */
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
-import ScenesDeck from '../../../components/decks/ScenesDeck.astro';
-import NotebookTabsDeck from '../../../components/decks/NotebookTabsDeck.astro';
 
 export async function getStaticPaths() {
   const talks = await getCollection('talks', ({ data }) => !data.draft);
@@ -15,6 +18,6 @@ export async function getStaticPaths() {
 type Props = { talk: CollectionEntry<'talks'> };
 
 const { talk } = Astro.props;
+const suffix = talk.data.template === 'deck' ? 'slides-deck' : 'slides-scenes';
+return Astro.redirect(`/talks/${talk.slug}/${suffix}/`, 308);
 ---
-
-{talk.data.template === 'deck' ? <NotebookTabsDeck talk={talk} /> : <ScenesDeck talk={talk} />}
