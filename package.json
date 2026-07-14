@@ -11,7 +11,9 @@
     "check": "astro check",
     "astro": "astro",
     "install-skills": "./scripts/install-skills.sh",
-    "install-skills:force": "./scripts/install-skills.sh --force"
+    "install-skills:force": "./scripts/install-skills.sh --force",
+    "build:talk": "node scripts/build-talk.mjs",
+    "test:talk-inline": "node --test scripts/lib/inline-talk-html.test.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.2.0",
@@ -32,6 +34,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "esbuild": "^0.28.1",
     "typescript": "^5.9.3"
   }
 }

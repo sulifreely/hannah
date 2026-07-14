@@ -33,3 +33,6 @@ pnpm-debug.log*
 .projects
 .vercel
 .env*
+
+# standalone talk exports
+dist-talk/
