@@ -14,6 +14,11 @@ if (!slug || slug.startsWith('-')) {
   process.exit(1);
 }
 
+if (!/^[a-z0-9._-]+$/i.test(slug)) {
+  console.error(`Invalid slug: ${slug}`);
+  process.exit(1);
+}
+
 const staticRoot = path.join(root, '.vercel/output/static');
 const slidesHtmlPath = path.join(staticRoot, 'talks', slug, 'slides', 'index.html');
 const outDir = path.join(root, 'dist-talk');
