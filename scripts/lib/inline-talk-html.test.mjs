@@ -166,3 +166,36 @@ describe('transformTalkHtml assets', () => {
     );
   });
 });
+
+describe('transformTalkHtml scripts', () => {
+  it('esbuild-bundles external module scripts into inline IIFE', async () => {
+    const html = `<!DOCTYPE html><html><head>
+<link rel="icon" href="/favicon.png">
+</head><body>
+<script type="module" src="/_astro/entry.js"></script>
+</body></html>`;
+
+    const out = await transformTalkHtml(html, {
+      faviconDataUrl: FAVICON,
+      credit: '蘇里',
+      staticRoot: fixturesStatic,
+    });
+
+    assert.equal(out.includes('src="/_astro/entry.js"'), false);
+    assert.match(out, /bundled-ok/);
+    assert.equal(out.includes('from "./dep.js"'), false);
+  });
+
+  it('leaves inline module scripts without src unchanged', async () => {
+    const inlineScript = '<script type="module">document.body.dataset.inline = "ok";</script>';
+    const html = `<!DOCTYPE html><html><head></head><body>${inlineScript}</body></html>`;
+
+    const out = await transformTalkHtml(html, {
+      faviconDataUrl: FAVICON,
+      credit: '蘇里',
+      skipAssetInline: true,
+    });
+
+    assert.match(out, new RegExp(inlineScript.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  });
+});

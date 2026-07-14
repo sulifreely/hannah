@@ -1,6 +1,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import * as esbuild from 'esbuild';
+
+const SCRIPT_SRC_RE =
+  /<script\b([^>]*\btype=["']module["'][^>]*)\bsrc=["']([^"']+)["']([^>]*)>\s*<\/script>/gi;
 
 /**
  * @param {string} html
@@ -27,6 +31,9 @@ export async function transformTalkHtml(html, options) {
 
   if (!options.skipAssetInline) {
     out = await inlineAssets(out, options);
+  }
+  if (!options.skipScriptBundle) {
+    out = await inlineModuleScripts(out, options.staticRoot);
   }
 
   out = out.replace(
@@ -56,6 +63,37 @@ export async function transformTalkHtml(html, options) {
   out = out.replace(/<\/body>/i, `${creditHtml}</body>`);
 
   return out;
+}
+
+/**
+ * @param {string} html
+ * @param {URL | string | undefined} staticRoot
+ */
+async function inlineModuleScripts(html, staticRoot) {
+  return replaceAsync(html, SCRIPT_SRC_RE, async (_tag, _beforeSrc, srcPath) => {
+    if (!staticRoot) {
+      throw new Error('staticRoot is required to bundle module scripts');
+    }
+    return `<script>${await bundleScript(staticRoot, srcPath)}</script>`;
+  });
+}
+
+/** @param {URL | string} staticRoot @param {string} srcPath */
+async function bundleScript(staticRoot, srcPath) {
+  const root = staticRoot instanceof URL ? fileURLToPath(staticRoot) : staticRoot;
+  const abs = path.join(root, srcPath.replace(/^\//, '').split('?')[0]);
+  const result = await esbuild.build({
+    entryPoints: [abs],
+    bundle: true,
+    write: false,
+    format: 'iife',
+    platform: 'browser',
+    logLevel: 'silent',
+  });
+  if (!result.outputFiles?.[0]) {
+    throw new Error(`esbuild produced no output for ${srcPath}`);
+  }
+  return result.outputFiles[0].text;
 }
 
 /**
