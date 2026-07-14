@@ -53,6 +53,7 @@ try {
     faviconDataUrl,
     credit: '蘇里',
     staticRoot,
+    assetOrigin: 'https://yanguangjie.com',
   });
 } catch (err) {
   console.error(err instanceof Error ? err.message : err);

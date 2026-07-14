@@ -212,7 +212,7 @@ flowchart TD
 npm run build:talk -- <slug>
 ```
 
-会先跑站点构建，再把 `/talks/<slug>/slides/` 内联成 `dist-talk/<slug>.html`（可直接用浏览器打开，含 favicon 与署名「蘇里」，无返回站点链接）。`dist-talk/` 已 gitignore。
+会先跑站点构建，再把 `/talks/<slug>/slides/` 打成 `dist-talk/<slug>.html`（可直接用浏览器打开；含 favicon 与署名「蘇里」，无返回站点链接）。**字体走网络**：Google Fonts 保留 CDN；站点自托管 webfont（霞鹜等）改写为 `https://yanguangjie.com/_astro/...`，需站点已部署对应构建产物。图片与脚本仍内联。`dist-talk/` 已 gitignore。
 
 ### 图片
 

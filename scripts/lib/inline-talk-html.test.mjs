@@ -42,7 +42,7 @@ describe('transformTalkHtml chrome', () => {
 });
 
 describe('transformTalkHtml assets', () => {
-  it('inlines local stylesheet, css url(), and img src as data URLs', async () => {
+  it('inlines local stylesheet and images; rewrites font urls to assetOrigin', async () => {
     const html = fs.readFileSync(
       path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures/sample-slides.html'),
       'utf8',
@@ -54,35 +54,26 @@ describe('transformTalkHtml assets', () => {
       faviconDataUrl,
       credit: '蘇里',
       staticRoot: fixturesStatic,
+      assetOrigin: 'https://yanguangjie.com',
       skipScriptBundle: true,
     });
 
     assert.equal(out.includes('href="/_astro/slides.css"'), false);
     assert.equal(out.includes('src="/images/talks/cover.png"'), false);
-    assert.match(out, /<style>[\s\S]*data:font\/woff2;base64,/);
+    assert.match(out, /url\(https:\/\/yanguangjie\.com\/_astro\/font\.woff2\)/);
+    assert.equal(out.includes('data:font/woff2;base64,'), false);
     assert.match(out, /<img[^>]+src="data:image\/png;base64,/);
   });
 
-  it('inlines Google Fonts CSS via fetchImpl and embedded font files', async () => {
+  it('keeps Google Fonts CDN stylesheet and preconnect links', async () => {
     const html = `<!DOCTYPE html><html><head>
 <link rel="icon" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans">
 </head><body><p>x</p></body></html>`;
 
-    const fakeCss = `@font-face{font-family:'DM Sans';src:url(https://fonts.gstatic.com/s/fake.woff2)}`;
-    const fetchImpl = async (url) => {
-      if (String(url).includes('fonts.googleapis.com')) {
-        return { ok: true, text: async () => fakeCss, arrayBuffer: async () => new ArrayBuffer(0) };
-      }
-      if (String(url).includes('fonts.gstatic.com')) {
-        return {
-          ok: true,
-          text: async () => '',
-          arrayBuffer: async () => Uint8Array.from([1, 2, 3]).buffer,
-        };
-      }
-      throw new Error(`unexpected fetch ${url}`);
+    const fetchImpl = async () => {
+      throw new Error('fetch should not run for Google Fonts CDN links');
     };
 
     const out = await transformTalkHtml(html, {
@@ -93,10 +84,9 @@ describe('transformTalkHtml assets', () => {
       fetchImpl,
     });
 
-    assert.equal(out.includes('fonts.googleapis.com'), false);
-    assert.equal(out.includes('fonts.gstatic.com'), false);
-    assert.match(out, /data:font\/woff2;base64,/);
-    assert.equal(out.includes('rel="preconnect"'), false);
+    assert.match(out, /rel="preconnect"[^>]*href="https:\/\/fonts\.googleapis\.com"/);
+    assert.match(out, /rel="stylesheet"[^>]*href="https:\/\/fonts\.googleapis\.com\/css2\?family=DM\+Sans"/);
+    assert.equal(out.includes('data:font/woff2;base64,'), false);
   });
 
   it('throws when local stylesheet path is missing under staticRoot', async () => {
@@ -128,25 +118,6 @@ describe('transformTalkHtml assets', () => {
           staticRoot: fixturesStatic,
         }),
       /Missing static asset: \/images\/missing\.png/,
-    );
-  });
-
-  it('throws when fetchImpl returns ok:false for Google Fonts stylesheet', async () => {
-    const html = `<!DOCTYPE html><html><head>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans">
-</head><body></body></html>`;
-
-    const fetchImpl = async () => ({ ok: false });
-
-    await assert.rejects(
-      () =>
-        transformTalkHtml(html, {
-          faviconDataUrl: FAVICON,
-          credit: '蘇里',
-          staticRoot: fixturesStatic,
-          fetchImpl,
-        }),
-      /Failed to fetch asset: https:\/\/fonts\.googleapis\.com/,
     );
   });
 
@@ -186,6 +157,24 @@ describe('transformTalkHtml scripts', () => {
     assert.equal(out.includes('from "./dep.js"'), false);
   });
 
+  it('shims Vite preload-helper so dynamic-import factories still run', async () => {
+    const html = `<!DOCTYPE html><html><head>
+<link rel="icon" href="/favicon.png">
+</head><body>
+<script type="module" src="/_astro/with-vite-preload.js"></script>
+</body></html>`;
+
+    const out = await transformTalkHtml(html, {
+      faviconDataUrl: FAVICON,
+      credit: '蘇里',
+      staticRoot: fixturesStatic,
+    });
+
+    assert.match(out, /preload-shimmed/);
+    assert.equal(out.includes('raw preload helper should be shimmed away'), false);
+    assert.equal(out.includes('modulepreload'), false);
+  });
+
   it('throws when module script src attempts traversal outside staticRoot', async () => {
     const html = `<!DOCTYPE html><html><head></head><body>
 <script type="module" src="/../../../etc/passwd"></script>
@@ -214,5 +203,24 @@ describe('transformTalkHtml scripts', () => {
     });
 
     assert.match(out, new RegExp(inlineScript.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  });
+
+  it('injects credit at the last </body>, not one inside a script string', async () => {
+    const html = `<!DOCTYPE html><html><head>
+<link rel="icon" href="/favicon.png">
+</head><body>
+<script>const s = '<body></body>';</script>
+</body></html>`;
+
+    const out = await transformTalkHtml(html, {
+      faviconDataUrl: FAVICON,
+      credit: '蘇里',
+      skipAssetInline: true,
+      skipScriptBundle: true,
+    });
+
+    assert.match(out, /const s = '<body><\/body>';/);
+    assert.match(out, /<\/script>\s*<div class="talk-credit"/);
+    assert.equal(out.includes("'<body><div class=\"talk-credit\""), false);
   });
 });

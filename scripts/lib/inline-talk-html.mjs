@@ -13,10 +13,12 @@ const SCRIPT_SRC_RE =
  *   faviconDataUrl: string,
  *   credit: string,
  *   staticRoot?: URL | string,
+ *   assetOrigin?: string,
  *   skipAssetInline?: boolean,
  *   skipScriptBundle?: boolean,
  *   fetchImpl?: typeof fetch,
  * }} options
+ * `assetOrigin` is the site origin used for local webfont URLs (fonts are not inlined).
  */
 export async function transformTalkHtml(html, options) {
   let out = html;
@@ -61,7 +63,13 @@ export async function transformTalkHtml(html, options) {
   letter-spacing:0.04em;
 }
 </style>`;
-  out = out.replace(/<\/body>/i, `${creditHtml}</body>`);
+  // Use the last </body> — bundled Mermaid/DOMPurify JS contains the literal
+  // string "</body>" which would otherwise truncate the script mid-file.
+  const bodyClose = out.lastIndexOf('</body>');
+  if (bodyClose === -1) {
+    throw new Error('Standalone HTML is missing a </body> tag');
+  }
+  out = `${out.slice(0, bodyClose)}${creditHtml}${out.slice(bodyClose)}`;
 
   return out;
 }
@@ -89,6 +97,10 @@ async function bundleScript(staticRoot, srcPath) {
     format: 'iife',
     platform: 'browser',
     logLevel: 'silent',
+    // Astro/Vite client chunks wrap dynamic imports with preload-helper, which
+    // injects <link rel="modulepreload" href="/_astro/...">. Those URLs 404 in a
+    // standalone file and abort before the already-bundled factory runs (breaks Mermaid).
+    plugins: [vitePreloadShimPlugin],
   });
   if (!result.outputFiles?.[0]) {
     throw new Error(`esbuild produced no output for ${srcPath}`);
@@ -96,27 +108,49 @@ async function bundleScript(staticRoot, srcPath) {
   return result.outputFiles[0].text;
 }
 
+/** Replace Vite's preload-helper with a no-op that just invokes the factory. */
+const vitePreloadShimPlugin = {
+  name: 'shim-vite-preload',
+  setup(build) {
+    build.onResolve({ filter: /preload-helper/ }, () => ({
+      path: 'vite-preload-shim',
+      namespace: 'talk-inline-shim',
+    }));
+    build.onLoad({ filter: /.*/, namespace: 'talk-inline-shim' }, () => ({
+      contents: `
+        export function _(factory) {
+          return Promise.resolve().then(() => factory());
+        }
+      `,
+      loader: 'js',
+    }));
+  },
+};
+
 /**
  * @param {string} html
- * @param {{ staticRoot?: URL | string, fetchImpl?: typeof fetch }} options
+ * @param {{
+ *   staticRoot?: URL | string,
+ *   assetOrigin?: string,
+ *   fetchImpl?: typeof fetch,
+ * }} options
  */
 async function inlineAssets(html, options) {
   const staticRoot = options.staticRoot;
   if (!staticRoot) {
     throw new Error('staticRoot is required to inline local assets');
   }
+  const assetOrigin = normalizeOrigin(options.assetOrigin || 'https://yanguangjie.com');
   const fetchImpl = options.fetchImpl || globalThis.fetch;
-  let out = html.replace(
-    /<link\b(?=[^>]*\brel=(["'])preconnect\1)(?=[^>]*\bhref=(["'])https:\/\/fonts\.(?:googleapis|gstatic)\.com[^"']*\2)[^>]*>/gi,
-    '',
-  );
 
-  out = await replaceAsync(
-    out,
+  // Keep Google Fonts <link> / preconnect as CDN references (do not inline — they dominate file size).
+  let out = await replaceAsync(
+    html,
     /<link\b(?=[^>]*\brel=(["'])stylesheet\1)[^>]*>/gi,
     async (tag) => {
       const href = attributeValue(tag, 'href');
       if (!href) return tag;
+      if (isFontCdnHref(href)) return tag;
 
       let css;
       if (/^https?:\/\//i.test(href)) {
@@ -125,7 +159,7 @@ async function inlineAssets(html, options) {
       } else {
         css = (await readStatic(staticRoot, href)).toString('utf8');
       }
-      const rewrittenCss = await inlineCssUrls(css, href, staticRoot, fetchImpl);
+      const rewrittenCss = await rewriteCssUrls(css, href, staticRoot, assetOrigin, fetchImpl);
       return `<style>${rewrittenCss}</style>`;
     },
   );
@@ -139,18 +173,48 @@ async function inlineAssets(html, options) {
   });
 }
 
+/** @param {string} href */
+function isFontCdnHref(href) {
+  return /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\b/i.test(href);
+}
+
+/** @param {string} origin */
+function normalizeOrigin(origin) {
+  return origin.replace(/\/$/, '');
+}
+
+/** @param {string} resolvedPath pathname or absolute URL */
+function isFontAsset(resolvedPath) {
+  return /^font\//.test(mimeFor(resolvedPath));
+}
+
 /**
  * @param {string} css
  * @param {string} cssHref
  * @param {URL | string} staticRoot
+ * @param {string} assetOrigin
  * @param {typeof fetch} fetchImpl
  */
-async function inlineCssUrls(css, cssHref, staticRoot, fetchImpl) {
-  return replaceAsync(css, /url\(\s*(?:(["'])(.*?)\1|([^)"']+))\s*\)/gi, async (match, _quote, quoted, bare) => {
+async function rewriteCssUrls(css, cssHref, staticRoot, assetOrigin, fetchImpl) {
+  return replaceAsync(css, /url\(\s*(?:(["'])(.*?)\1|([^)"']+))\s*\)/gi, async (match, quote, quoted, bare) => {
     const assetRef = (quoted ?? bare).trim();
     if (/^(?:data:|#)/i.test(assetRef)) return match;
 
     const resolved = resolveCssAsset(assetRef, cssHref);
+
+    // Remote font files (e.g. fonts.gstatic.com) stay as CDN urls — never fetch/inline.
+    if (/^https?:\/\//i.test(resolved) && isFontAsset(resolved)) {
+      return match;
+    }
+
+    // Local webfonts: point at the live site so the single HTML stays small.
+    // Requires the matching `_astro` font hashes to be deployed at assetOrigin.
+    if (!/^https?:\/\//i.test(resolved) && isFontAsset(resolved)) {
+      const absUrl = `${assetOrigin}${resolved.startsWith('/') ? resolved : `/${resolved}`}`;
+      const q = quote || '';
+      return q ? `url(${q}${absUrl}${q})` : `url(${absUrl})`;
+    }
+
     let bytes;
     if (/^https?:\/\//i.test(resolved)) {
       const response = await fetchOrThrow(fetchImpl, resolved);

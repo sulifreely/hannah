@@ -5,7 +5,7 @@
 
 ## 目标
 
-新增 npm 命令，按 slug 把某一篇 talk 的 slides 打成**单个 HTML 文件**，可在无网络环境下用浏览器直接打开（`file://`），便于分享。
+新增 npm 命令，按 slug 把某一篇 talk 的 slides 打成**单个 HTML 文件**，可在浏览器直接打开；**字体依赖网络**（Google Fonts CDN + 站点上的 webfont）。JS/图片仍内联。便于分享。
 
 ## 非目标
 
@@ -39,8 +39,9 @@ npm run build:talk -- <slug>
 | 资源 | 处理 |
 |------|------|
 | 相对/绝对路径的 CSS、JS（含 `_astro/`） | 读入并内联到 `<style>` / `<script>` |
-| `/images/...`、字体文件等本地静态资源 | 转为 data URL |
-| Google Fonts 等外链 CSS | 下载后内联；失败则报错退出 |
+| `/images/...` 等本地非字体静态资源 | 转为 data URL |
+| Google Fonts `<link>` / preconnect | **保留 CDN**，不下载、不内联（体积优化；打开时需联网） |
+| 本地 webfont（`/_astro/*.woff2` 等） | 改写为 `https://yanguangjie.com/...` 绝对地址，不内联 |
 | `public/favicon.png` | 转为 data URL，写入 `<link rel="icon">`（及可选 `apple-touch-icon`） |
 | Vercel Analytics 等仅线上脚本 | 移除 |
 | 「返回 talks / 返回详情」链接（如 `.hud-back`、`.deck-back-link`） | **删除 DOM**，保证分享界面纯净 |
@@ -57,9 +58,9 @@ npm run build:talk -- <slug>
 ## 验收标准
 
 1. `npm run build:talk -- agent-hitl-vs-yolo` 生成 `dist-talk/agent-hitl-vs-yolo.html`
-2. 浏览器直接打开该文件：翻页与既有交互可用；断网仍可正常使用
+2. 浏览器直接打开该文件：翻页与既有交互可用；字体可走网络加载
 3. 标签页显示 favicon；角落可见署名「蘇里」
-4. 无「返回 talks」类链接
+4. 无「返回 talks」类链接；Google Fonts 仍为 CDN `<link>`，HTML 中无大规模字体 data URL
 5. `dist-talk/` 已被 gitignore
 
 ## 涉及文件（预期）
