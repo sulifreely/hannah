@@ -98,4 +98,71 @@ describe('transformTalkHtml assets', () => {
     assert.match(out, /data:font\/woff2;base64,/);
     assert.equal(out.includes('rel="preconnect"'), false);
   });
+
+  it('throws when local stylesheet path is missing under staticRoot', async () => {
+    const html = `<!DOCTYPE html><html><head>
+<link rel="stylesheet" href="/_astro/missing.css">
+</head><body></body></html>`;
+
+    await assert.rejects(
+      () =>
+        transformTalkHtml(html, {
+          faviconDataUrl: FAVICON,
+          credit: '蘇里',
+          staticRoot: fixturesStatic,
+        }),
+      /Missing static asset: \/_astro\/missing\.css/,
+    );
+  });
+
+  it('throws when local image path is missing under staticRoot', async () => {
+    const html = `<!DOCTYPE html><html><body>
+<img src="/images/missing.png">
+</body></html>`;
+
+    await assert.rejects(
+      () =>
+        transformTalkHtml(html, {
+          faviconDataUrl: FAVICON,
+          credit: '蘇里',
+          staticRoot: fixturesStatic,
+        }),
+      /Missing static asset: \/images\/missing\.png/,
+    );
+  });
+
+  it('throws when fetchImpl returns ok:false for Google Fonts stylesheet', async () => {
+    const html = `<!DOCTYPE html><html><head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans">
+</head><body></body></html>`;
+
+    const fetchImpl = async () => ({ ok: false });
+
+    await assert.rejects(
+      () =>
+        transformTalkHtml(html, {
+          faviconDataUrl: FAVICON,
+          credit: '蘇里',
+          staticRoot: fixturesStatic,
+          fetchImpl,
+        }),
+      /Failed to fetch asset: https:\/\/fonts\.googleapis\.com/,
+    );
+  });
+
+  it('throws when static path attempts traversal outside staticRoot', async () => {
+    const html = `<!DOCTYPE html><html><head>
+<link rel="stylesheet" href="/../../../etc/passwd">
+</head><body></body></html>`;
+
+    await assert.rejects(
+      () =>
+        transformTalkHtml(html, {
+          faviconDataUrl: FAVICON,
+          credit: '蘇里',
+          staticRoot: fixturesStatic,
+        }),
+      /Static path traversal blocked/,
+    );
+  });
 });

@@ -193,8 +193,11 @@ function mimeFor(p) {
  */
 async function readStatic(staticRoot, urlPath) {
   const clean = urlPath.split('?')[0];
-  const root = staticRoot instanceof URL ? fileURLToPath(staticRoot) : staticRoot;
-  const abs = path.join(root, clean.replace(/^\//, ''));
+  const root = path.resolve(staticRoot instanceof URL ? fileURLToPath(staticRoot) : staticRoot);
+  const abs = path.resolve(root, clean.replace(/^\//, ''));
+  if (abs !== root && !abs.startsWith(root + path.sep)) {
+    throw new Error(`Static path traversal blocked: ${clean} (resolved ${abs})`);
+  }
   try {
     return await fs.readFile(abs);
   } catch {
