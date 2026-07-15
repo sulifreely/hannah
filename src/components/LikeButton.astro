@@ -1,6 +1,7 @@
 ---
 import Heart from '@lucide/astro/icons/heart';
 import type { ContentType } from '../lib/analytics';
+import { SHOW_ENGAGEMENT_COUNTS } from '../lib/engagement';
 
 interface Props {
   slug: string;
@@ -22,10 +23,11 @@ const storageKey = `liked:${contentType}:${slug}`;
   data-title={title}
   data-content-type={contentType}
   data-storage-key={storageKey}
+  data-show-count={SHOW_ENGAGEMENT_COUNTS ? '1' : '0'}
 >
   <Heart class="like-icon" size={16} stroke-width={2} />
   <span class="like-label">喜欢这篇文章</span>
-  <span class="like-count" data-like-count>···</span>
+  <span class:list={['like-count', { 'is-hidden': !SHOW_ENGAGEMENT_COUNTS }]} data-like-count>···</span>
 </button>
 
 <style>
@@ -64,6 +66,9 @@ const storageKey = `liked:${contentType}:${slug}`;
   .like-count {
     font-variant-numeric: tabular-nums;
     color: var(--fg-subtle);
+  }
+  .like-count.is-hidden {
+    display: none;
   }
   .like-count::before {
     content: "·";
@@ -117,7 +122,12 @@ const storageKey = `liked:${contentType}:${slug}`;
     if (label) label.textContent = liked ? '感谢喜欢' : '喜欢这篇文章';
   }
 
+  function showsCount(btn: HTMLButtonElement): boolean {
+    return btn.dataset.showCount !== '0';
+  }
+
   function setCount(btn: HTMLButtonElement, count: number) {
+    if (!showsCount(btn)) return;
     const target = btn.querySelector('.like-count');
     if (target) target.textContent = formatCount(Math.max(0, count));
   }
@@ -128,9 +138,12 @@ const storageKey = `liked:${contentType}:${slug}`;
   }
 
   async function fetchInitialCounts(buttons: HTMLButtonElement[]) {
+    const visible = buttons.filter(showsCount);
+    if (!visible.length) return;
+
     // 按 contentType 分组批量查询，避免一个页面多个点赞按钮各发一个请求。
     const groups = new Map<string, HTMLButtonElement[]>();
-    buttons.forEach((btn) => {
+    visible.forEach((btn) => {
       const contentType = btn.dataset.contentType || 'blog';
       const list = groups.get(contentType) || [];
       list.push(btn);
@@ -168,7 +181,7 @@ const storageKey = `liked:${contentType}:${slug}`;
     buttons.forEach((btn) => (btn.dataset.bound = 'true'));
 
     // 计数只是锦上添花，不阻塞按钮的可点击状态；本机点赞状态（localStorage）
-    // 同步读取、立即生效。
+    // 同步读取、立即生效。不展示时跳过初始拉数，仍保留点赞 POST。
     fetchInitialCounts(buttons);
 
     buttons.forEach((btn) => {

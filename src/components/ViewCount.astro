@@ -1,6 +1,7 @@
 ---
 import Eye from '@lucide/astro/icons/eye';
 import type { ContentType } from '../lib/analytics';
+import { SHOW_ENGAGEMENT_COUNTS } from '../lib/engagement';
 
 interface Props {
   slug: string;
@@ -16,11 +17,13 @@ const { slug, contentType = 'blog', mode = 'readonly' } = Astro.props;
 ---
 
 <span
-  class="view-count"
+  class:list={['view-count', { 'is-hidden': !SHOW_ENGAGEMENT_COUNTS }]}
   data-view-count
   data-slug={slug}
   data-content-type={contentType}
   data-mode={mode}
+  data-show-count={SHOW_ENGAGEMENT_COUNTS ? '1' : '0'}
+  aria-hidden={SHOW_ENGAGEMENT_COUNTS ? undefined : 'true'}
 >
   <Eye size={16} stroke-width={2} />
   <span class="view-count-value">···</span>
@@ -31,6 +34,9 @@ const { slug, contentType = 'blog', mode = 'readonly' } = Astro.props;
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
+  }
+  .view-count.is-hidden {
+    display: none;
   }
   .view-count-value {
     font-variant-numeric: tabular-nums;
@@ -49,7 +55,12 @@ const { slug, contentType = 'blog', mode = 'readonly' } = Astro.props;
     views: number;
   }
 
+  function showsCount(el: HTMLElement): boolean {
+    return el.dataset.showCount !== '0';
+  }
+
   function setValue(el: HTMLElement, views: number) {
+    if (!showsCount(el)) return;
     const target = el.querySelector('.view-count-value');
     if (target) target.textContent = formatCount(views);
   }
@@ -57,7 +68,7 @@ const { slug, contentType = 'blog', mode = 'readonly' } = Astro.props;
   async function initReadonly() {
     const els = Array.from(
       document.querySelectorAll<HTMLElement>('.view-count[data-mode="readonly"]:not([data-bound])'),
-    );
+    ).filter(showsCount);
     if (!els.length) return;
 
     // 按 contentType 分组，每组一次批量请求，避免列表页每张卡片各发一个请求。
@@ -113,7 +124,9 @@ const { slug, contentType = 'blog', mode = 'readonly' } = Astro.props;
         } catch {}
 
         try {
+          // 不展示时仍要 POST 计数；已计过则无需再 GET 只为展示。
           if (alreadyCounted) {
+            if (!showsCount(el)) return;
             const res = await fetch(
               `/api/views?contentType=${encodeURIComponent(contentType)}&slugs=${encodeURIComponent(slug)}`,
             );
