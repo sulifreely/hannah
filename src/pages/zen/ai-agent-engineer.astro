@@ -37,10 +37,10 @@ const layers: Layer[] = [
       '分布式系统与并发模型',
       'HTTP / WebSocket / Client-Server 架构设计',
       '软件架构与应用设计能力',
-      '性能与成本的权衡直觉',
+      '性能与成本的权衡判断',
       '需求拆解与工程判断力',
     ],
-    note: '这层几乎不因为"AI"这个前缀而改变——它就是好工程师一直在练的东西。如果这层已经扎实，转型 Agent 工程真正要补的，其实只是 L2、L3、L4 三层，不是从零开始。',
+    note: '该层能力与具体模型或产品形态弱相关，是软件工程长期积累的基础。若已具备扎实基础，转向 Agent 工程时的主要增量集中在 L2、L3、L4，而非从零重建。',
     refs: [
       { label: 'Designing Data-Intensive Applications', href: 'https://dataintensive.net/', kind: '书', gain: '建立分布式存储、一致性与可靠性的判断框架' },
       { label: 'MIT 6.824 · Distributed Systems', href: 'https://pdos.csail.mit.edu/6.824/', kind: '课程', gain: '从复制、共识到分区，动手实现分布式系统核心协议' },
@@ -58,15 +58,15 @@ const layers: Layer[] = [
       'RAG 系统设计原理（chunking、混合检索、rerank、评估驱动迭代）',
       'MCP / A2A 协议原理（Agent-to-Tool 与 Agent-to-Agent 分层）',
       '评估与可观测性体系（离线评估 + 在线 trace）',
-      '安全与治理（最小权限、致命三件套）',
+      '安全与治理（最小权限、lethal trifecta）',
     ],
-    note: '这是地图里最值得投入的一层：不依赖任何具体框架，换一次框架、换一次模型，这里学到的判断力原样保留。《Agent 的七笔预算》里拆的感知 / 记忆 / 推理 / 行动 / 反思 / 协作 / 治理，说的就是这一层。',
+    note: '该层对具体框架依赖最低，模型或编排实现更迭后，相关设计判断仍可迁移。感知、记忆、推理、行动、反思、协作、治理等认知功能维度，均可在此层落点。',
     refs: [
-      { label: 'Anthropic · Building Effective Agents', href: 'https://www.anthropic.com/engineering/building-effective-agents', kind: '文章', gain: '分清工作流与 Agent，掌握常见编排模式的取舍' },
-      { label: 'Anthropic · Effective context engineering', href: 'https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents', kind: '文章', gain: '学会记忆、检索、压缩的上下文管理策略' },
-      { label: 'Model Context Protocol · 官方规范', href: 'https://modelcontextprotocol.io', kind: '规范', gain: '吃透 Agent-to-Tool 协议如何设计 schema 与鉴权' },
-      { label: 'Simon Willison · The lethal trifecta', href: 'https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/', kind: '文章', gain: '识别致命三件套，建立最小权限的安全直觉' },
-      { label: 'OWASP · LLM06:2025 Excessive Agency', href: 'https://owasp.org/www-project-top-10-for-large-language-model-applications/2_0_vulns/LLM06_ExcessiveAgency.html', kind: '规范', gain: '识别过度授权风险，划清 Agent 该有多大权限' },
+      { label: 'Anthropic · Building Effective Agents', href: 'https://www.anthropic.com/engineering/building-effective-agents', kind: '文章', gain: '区分工作流与 Agent，掌握常见编排模式的取舍' },
+      { label: 'Anthropic · Effective context engineering', href: 'https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents', kind: '文章', gain: '掌握记忆、检索、压缩的上下文管理策略' },
+      { label: 'Model Context Protocol · 官方规范', href: 'https://modelcontextprotocol.io', kind: '规范', gain: '理解 Agent-to-Tool 协议中 schema 与鉴权的设计要点' },
+      { label: 'Simon Willison · The lethal trifecta', href: 'https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/', kind: '文章', gain: '识别私有数据、不可信输入与对外动作并存的风险组合，建立最小权限原则' },
+      { label: 'OWASP · LLM06:2025 Excessive Agency', href: 'https://owasp.org/www-project-top-10-for-large-language-model-applications/2_0_vulns/LLM06_ExcessiveAgency.html', kind: '规范', gain: '识别过度授权风险，界定 Agent 权限边界' },
     ],
   },
   {
@@ -76,13 +76,13 @@ const layers: Layer[] = [
     durability: 'medium',
     skills: [
       'Python（AI 生态的通用语言，模型侧几乎无可替代）',
-      'Go（高并发网关 / Agent 基础设施的默认选择）',
+      'Go（高并发网关 / Agent 基础设施的常见选择）',
       'TypeScript（已有资产，前端到 Agent UI 的桥梁）',
     ],
-    note: 'Python 和 Go 常常同时出现，不是凑数：Python 管"模型怎么想"，Go 管"系统怎么扛"——Ollama、Weaviate、Temporal、GitHub 官方 MCP Server 都是 Go 写的，两者是分工，不是二选一。',
+    note: 'Python 与 Go 常并列出现，反映分工而非冗余：前者侧重模型侧编排与实验迭代，后者侧重高并发基础设施与网关路径。Ollama、Weaviate、Temporal、GitHub 官方 MCP Server 等均为 Go 实现，可作为这一分工的旁证。',
     refs: [
-      { label: 'Python · asyncio 官方文档', href: 'https://docs.python.org/3/library/asyncio.html', kind: '官方文档', gain: '掌握异步并发，写出模型侧高吞吐的 IO 代码' },
-      { label: 'Effective Go', href: 'https://go.dev/doc/effective_go', kind: '官方文档', gain: '写出地道的 Go 并发代码，扛住网关级高并发' },
+      { label: 'Python · asyncio 官方文档', href: 'https://docs.python.org/3/library/asyncio.html', kind: '官方文档', gain: '掌握异步并发，编写模型侧高吞吐 IO 代码' },
+      { label: 'Effective Go', href: 'https://go.dev/doc/effective_go', kind: '官方文档', gain: '掌握惯用 Go 并发写法，支撑网关级高并发场景' },
     ],
   },
   {
@@ -98,10 +98,10 @@ const layers: Layer[] = [
       'Dify / LangFlow（可视化编排平台）',
       'Llama 等开源模型的本地部署',
     ],
-    note: '这一层的价值是"练手感"，不是"建护城河"。同时收集五六个框架，容易停留在"还没形成判断"，而不是"见多识广"——选一个吃透，其余的知道边界在哪、什么时候该换，就够了。',
+    note: '该层主要用于形成操作性经验与实现参照，不宜等同于可持续竞争优势。并行跟踪多个框架，往往停留在工具熟悉度，而非形成可迁移的设计判断；更稳妥的做法是深入掌握其一，并明确其余方案的适用边界与替换条件。',
     refs: [
       { label: 'LangGraph · 官方文档', href: 'https://langchain-ai.github.io/langgraph/', kind: '官方文档', gain: '用显式状态机建模可控、可恢复的 Agent 流程' },
-      { label: 'LlamaIndex · 官方文档', href: 'https://docs.llamaindex.ai/', kind: '官方文档', gain: '快速搭起 RAG 的检索与索引基线' },
+      { label: 'LlamaIndex · 官方文档', href: 'https://docs.llamaindex.ai/', kind: '官方文档', gain: '建立 RAG 检索与索引的基线实现' },
     ],
   },
 ];
@@ -122,34 +122,34 @@ const capabilities: Capability[] = [
     summary: '怎么打造一个好产品——需求判断、价值排序、功能与噪声的取舍',
     layerTags: ['L1 地基层'],
     durability: 'durable',
-    note: '这层完全不因为"AI"这个前缀改变。AI 只是让"做出来"的成本变低了，"该不该做、做成什么样"的判断反而更值钱——这也是本文开头那张坐标图里，横轴之外真正稀缺的东西。',
+    note: '该能力与具体模型能力弱相关。生成成本下降后，"是否值得做、做成何种形态"的判断权重上升，是坐标图中相对稀缺的维度。',
     refs: [
-      { label: 'Marty Cagan · INSPIRED', href: 'https://www.svpg.com/books/inspired-how-to-create-tech-products-customers-love-2nd-edition/', kind: '书', gain: '建立"价值 · 可用性 · 商业可行性"三位一体的产品判断框架' },
-      { label: 'Shreyas Doshi · Why Product Sense Is the Only Product Skill That Will Matter in the AI Age', href: 'https://shreyasdoshi.substack.com/p/why-product-sense-is-the-only-product', kind: '文章', gain: '理解 AI 拉平执行力之后，判断力为何变得更稀缺' },
+      { label: 'Marty Cagan · INSPIRED', href: 'https://www.svpg.com/books/inspired-how-to-create-tech-products-customers-love-2nd-edition/', kind: '书', gain: '建立价值、可用性与商业可行性并重的产品判断框架' },
+      { label: 'Shreyas Doshi · Why Product Sense Is the Only Product Skill That Will Matter in the AI Age', href: 'https://shreyasdoshi.substack.com/p/why-product-sense-is-the-only-product', kind: '文章', gain: '理解执行成本下降后，产品判断力为何更关键' },
     ],
   },
   {
     title: 'AI Agent 产品体验',
-    summary: '把 Prompt、Tool、编排这些 AI 能力，封装成用户可配置、可信任的产品交互',
+    summary: '将 Prompt、Tool、编排等能力封装为可配置、可验证、可信任的产品交互',
     layerTags: ['L2 通用技艺层'],
     durability: 'durable',
-    note: '用户不会写提示词，也不该被要求写提示词。好的 Agent 产品要把提示词工程、工具选择、编排逻辑这些工程细节，翻译成看得懂、配得动、能验证的界面——表单、卡片、可解释的中间结果。',
+    note: '终端用户通常不应被要求直接编写提示词。成熟的 Agent 产品需将提示词工程、工具选择与编排逻辑转化为可理解、可配置、可核验的界面形态，例如结构化表单与可解释的中间结果。',
     link: { href: '/talks/agent-hitl-vs-yolo/', label: 'Agent 的 HITL 与 YOLO' },
     refs: [
-      { label: 'Google PAIR · People + AI Guidebook', href: 'https://pair.withgoogle.com/guidebook/', kind: '指南', gain: '覆盖数据、可解释性、信任校准的人机协作设计模式全集' },
-      { label: 'Microsoft Research · Guidelines for Human-AI Interaction', href: 'https://www.microsoft.com/en-us/research/project/guidelines-for-human-ai-interaction/', kind: '规范', gain: '18 条基于 20 年研究的循证准则，覆盖初次使用、出错、长期使用等场景' },
+      { label: 'Google PAIR · People + AI Guidebook', href: 'https://pair.withgoogle.com/guidebook/', kind: '指南', gain: '覆盖数据、可解释性、信任校准等人机协作设计模式' },
+      { label: 'Microsoft Research · Guidelines for Human-AI Interaction', href: 'https://www.microsoft.com/en-us/research/project/guidelines-for-human-ai-interaction/', kind: '规范', gain: '18 条基于长期研究的循证准则，覆盖初次使用、出错与长期使用等场景' },
     ],
   },
   {
     title: '端到端全栈交付',
-    summary: '前端 → 状态 → 服务 → 数据，打通完整链路的能力',
+    summary: '覆盖前端、状态、服务与数据的完整链路交付能力',
     layerTags: ['L1 地基层', 'L3 语言运行时层'],
     durability: 'durable',
-    note: '不需要每一层都是专家，但要有能力在出问题时知道"锅在哪一层"，能自己动手把链路跑通，而不是永远等别人。',
+    note: '不必在每一层都成为专家，但需具备跨层定位问题、并独立完成链路闭环的能力。',
     link: { href: '/blog/state-management-kernel-and-forks/', label: '一个内核，三种分歧：重新理解前端状态管理' },
     refs: [
-      { label: 'Ryan Singer · Shape Up', href: 'https://basecamp.com/shapeup', kind: '书', gain: '学会拆解、下注、限定周期，把一个想法端到端交付成产品' },
-      { label: 'The Twelve-Factor App', href: 'https://12factor.net/', kind: '方法论', gain: '一套从本地开发到生产部署都适用的云原生应用准则' },
+      { label: 'Ryan Singer · Shape Up', href: 'https://basecamp.com/shapeup', kind: '书', gain: '掌握范围界定、优先级下注与周期约束，将想法端到端交付为产品' },
+      { label: 'The Twelve-Factor App', href: 'https://12factor.net/', kind: '方法论', gain: '掌握从本地开发到生产部署适用的云原生应用准则' },
     ],
   },
   {
@@ -157,23 +157,23 @@ const capabilities: Capability[] = [
     summary: 'Agent 执行循环、Tool / MCP、Skill / Plugin、多 Agent 协作与编排模式',
     layerTags: ['L2 通用技艺层'],
     durability: 'mixed',
-    note: '这部分内容基本就是前面 L2 通用技艺层拆过的东西，放在产品视角下再看一遍要多问一句：这套编排，用户能感知到、能信任吗？纯技术视角只关心"能不能跑通"，产品视角还要关心"跑通之后，人愿不愿意把决定权交出去"。',
+    note: '与 L2 通用技艺层内容高度重叠，但从产品视角需追加检验：编排是否可被用户感知与信任。技术视角关注系统能否正确执行；产品视角还关注用户是否愿意在关键决策上授予代理权。',
     link: { href: '/talks/execution-topology-in-skills/', label: '浅谈 Skill 中的执行拓扑' },
     refs: [
-      { label: 'Chip Huyen · Agents（摘自 AI Engineering）', href: 'https://huyenchip.com/2025/01/07/agents.html', kind: '文章', gain: '系统梳理规划、工具调用、记忆与失败模式，产品视角审视这套编排是否可信' },
-      { label: 'Anthropic · How we built our multi-agent research system', href: 'https://www.anthropic.com/engineering/multi-agent-research-system', kind: '文章', gain: 'orchestrator-worker 生产级多智能体架构的一线工程复盘' },
+      { label: 'Chip Huyen · Agents（摘自 AI Engineering）', href: 'https://huyenchip.com/2025/01/07/agents.html', kind: '文章', gain: '系统梳理规划、工具调用、记忆与失败模式，并从产品视角评估编排可信度' },
+      { label: 'Anthropic · How we built our multi-agent research system', href: 'https://www.anthropic.com/engineering/multi-agent-research-system', kind: '文章', gain: '分析 orchestrator-worker 生产级多智能体架构的工程取舍' },
     ],
   },
   {
     title: 'AI 原生研发流程',
-    summary: '探索 AI Coding、自动化验证、端到端调试，提升个人与团队效率',
+    summary: '围绕 AI Coding、自动化验证与端到端调试，提升个人与团队研发效率',
     layerTags: ['L1 地基层'],
     durability: 'durable',
-    note: '不是"会用 Cursor / Claude Code"这么简单，是知道什么该交给 AI、什么必须自己判断，怎么给 agent 立护栏、怎么让验证自动化、怎么在它出错时快速定位是哪一层错了。这件事本身就是这张地图想传达的态度的具体实践。',
+    note: '重点不在熟悉某一具体工具，而在明确人机分工：哪些任务可委托给 AI、哪些判断必须由人作出，如何设置边界与自动化验证，以及故障时如何快速定位责任层。这是本能力地图所主张的实践形态。',
     link: { href: '/blog/cognitive-surrender/', label: '解读《Cognitive Surrender》：AI 时代中的认知投降' },
     refs: [
-      { label: 'Addy Osmani · Beyond Vibe Coding: From Coder to AI-Era Developer', href: 'https://www.oreilly.com/library/view/beyond-vibe-coding/9798341634749/', kind: '书', gain: '系统学习如何审查、验证、整合 AI 生成代码，而不只是"感觉良好"地生成' },
-      { label: 'Simon Willison · Designing agentic loops', href: 'https://simonwillison.net/2025/Sep/30/designing-agentic-loops/', kind: '文章', gain: '学会为 agent 设计工具与循环边界，判断什么任务值得交给 agentic loop' },
+      { label: 'Addy Osmani · Beyond Vibe Coding: From Coder to AI-Era Developer', href: 'https://www.oreilly.com/library/view/beyond-vibe-coding/9798341634749/', kind: '书', gain: '系统学习如何审查、验证并整合 AI 生成代码，而非仅依赖生成结果的表面可用性' },
+      { label: 'Simon Willison · Designing agentic loops', href: 'https://simonwillison.net/2025/Sep/30/designing-agentic-loops/', kind: '文章', gain: '为 agent 设计工具与循环边界，并判断任务是否适于 agentic loop' },
     ],
   },
 ];
@@ -188,17 +188,17 @@ interface Quadrant {
 
 // 顺序对应 2x2 网格的阅读顺序：左上、右上、左下、右下
 const quadrants: Quadrant[] = [
-  { tag: '产品强 · 技术弱', name: '有想法，落不了地', desc: '看得懂用户要什么，但受限于工程能力，做不出可用的东西，或做出来扛不住真实流量。' },
-  { tag: '产品强 · 技术强', name: '务实的浪漫', desc: '技术是护城河，产品判断是方向感。既能把系统做扎实，又清楚这套能力该为谁、解决什么问题——真正稀缺的位置。', star: true },
-  { tag: '产品弱 · 技术弱', name: '工具的搬运工', desc: '停留在"会调 API、会拼框架"，既没沉下去建护城河，也没抬头看做的东西有没有人用。' },
-  { tag: '产品弱 · 技术强', name: '精密的自嗨', desc: '架构漂亮、协议吃透，却没人愿意用——技术能解决"怎么做"，解决不了"值不值得做"。' },
+  { tag: '产品强 · 技术弱', name: '需求洞察充分，工程落地不足', desc: '能识别用户价值与问题空间，但受工程能力约束，难以交付可用系统，或系统难以支撑真实负载。' },
+  { tag: '产品强 · 技术强', name: '工程能力与产品判断兼备', desc: '既能构建稳健系统，又能明确服务对象与问题定义；技术构成可持续优势，产品判断提供方向约束——相对稀缺的位置。', star: true },
+  { tag: '产品弱 · 技术弱', name: '表层工具集成', desc: '停留在 API 调用与框架拼接层面，既缺少可迁移的工程深度，也缺少对用户价值与采用情况的检验。' },
+  { tag: '产品弱 · 技术强', name: '工程完备，产品价值不足', desc: '架构与协议掌握充分，但缺少采用与价值验证——技术可回答实现路径，难以单独回答投入是否值得。' },
 ];
 
 // 学习目标 1：Agent 设计模式 —— 认知功能（行）× 执行拓扑（列）的正交矩阵
 interface PatternCell {
   zh: string;
   en: string;
-  star?: boolean; // 最常用、最值得先吃透的模式
+  star?: boolean; // 使用频率高、优先掌握的模式
 }
 
 const patternCols: string[] = ['链式 Chain', '并行 Parallel', '路由 Route', '循环 Loop', '编排 Orchestrate', '层级 Hierarchy'];
@@ -224,14 +224,14 @@ const patternCells: (PatternCell | null)[][] = [
 
 // 两个进阶目标各自的权威资料
 const patternRefs: LayerRef[] = [
-  { label: 'Anthropic · Building Effective Agents', href: 'https://www.anthropic.com/engineering/building-effective-agents', kind: '文章', gain: '吃透链式 / 路由 / 并行 / 编排等基础模式的取舍' },
-  { label: '12-Factor Agents', href: 'https://github.com/humanlayer/12-factor-agents', kind: '仓库', gain: '把 Agent 当正经软件工程来做的 12 条原则' },
+  { label: 'Anthropic · Building Effective Agents', href: 'https://www.anthropic.com/engineering/building-effective-agents', kind: '文章', gain: '系统掌握链式、路由、并行与编排等基础模式的取舍' },
+  { label: '12-Factor Agents', href: 'https://github.com/humanlayer/12-factor-agents', kind: '仓库', gain: '将 Agent 纳入软件工程规范的 12 条原则' },
 ];
 const harnessRefs: LayerRef[] = [
-  { label: 'Thorsten Ball · How to Build an Agent', href: 'https://ampcode.com/how-to-build-an-agent', kind: '文章', gain: '几百行代码从 0 跑通一个能用的 coding agent' },
-  { label: 'Anthropic · Building Effective Agents', href: 'https://www.anthropic.com/engineering/building-effective-agents', kind: '文章', gain: 'harness 里编排与工具设计的官方建议' },
-  { label: 'Model Context Protocol · 官方规范', href: 'https://modelcontextprotocol.io', kind: '规范', gain: '把工具层做成标准协议，而非硬编码' },
-  { label: 'Anthropic · Claude Code: Best practices for agentic coding', href: 'https://www.anthropic.com/engineering/claude-code-best-practices', kind: '文章', gain: '官方一线的 agentic coding harness 实践经验' },
+  { label: 'Thorsten Ball · How to Build an Agent', href: 'https://ampcode.com/how-to-build-an-agent', kind: '文章', gain: '以较小代码量完成可用 coding agent 的最小实现' },
+  { label: 'Anthropic · Building Effective Agents', href: 'https://www.anthropic.com/engineering/building-effective-agents', kind: '文章', gain: '了解 harness 中编排与工具设计的官方建议' },
+  { label: 'Model Context Protocol · 官方规范', href: 'https://modelcontextprotocol.io', kind: '规范', gain: '将工具层标准化为协议接口，而非应用内硬编码' },
+  { label: 'Anthropic · Claude Code: Best practices for agentic coding', href: 'https://www.anthropic.com/engineering/claude-code-best-practices', kind: '文章', gain: '参考 agentic coding harness 的一线工程实践' },
 ];
 
 function durabilityClass(d: Durability | 'mixed'): string {
@@ -256,15 +256,15 @@ function durabilityLabel(d: Durability | 'mixed'): string {
         <p class="eyebrow"><a href="/zen/">zen</a> · 能力地图</p>
         <h1>AI Agent 工程师</h1>
         <p class="lead">
-          AI Agent 工程师的能力可以拆成两条轴：<strong>技术轴</strong>按长期价值分层，回答"什么值得深耕、什么只是练手"；<strong>产品轴</strong>衡量"做出来的东西，有没有人愿意用"。这份地图沿这两条轴展开——框架会换、协议会迭代，但底下"系统怎么设计、判断怎么下"那层，不因下一个模型发布而贬值。
+          AI Agent 工程师的能力可沿两条轴刻画：<strong>技术轴</strong>按知识半衰期分层，区分宜深耕的基础能力与更迭较快的实现工具；<strong>产品轴</strong>评估交付物是否具备可验证的用户价值与采用条件。框架与协议会迭代，系统的设计原则与工程判断相对更稳定。
         </p>
-        <p class="meta-note">写于 2026-07-12，随认知更新，不追求一次写对。</p>
+        <p class="meta-note">写于 2026-07-12；随认知更新修订，不追求一次定稿。</p>
       </header>
 
       <section class="section">
         <h2>两条轴，一张坐标</h2>
         <p class="section-intro">
-          技术轴解决"怎么做得对"，产品轴解决"值不值得做、做成什么样"。两条轴各自都能拉开差距，但真正稀缺的是<strong>右上角</strong>——技术扎实，又清楚自己在为谁解决什么问题。
+          技术轴对应"如何正确实现"，产品轴对应"是否值得实现、以及实现为何种形态"。两条轴均可独立形成差异，但相对稀缺的是<strong>右上角</strong>：工程能力扎实，且问题定义与服务对象清晰。
         </p>
         <div class="quad-legend">
           {quadrants.map((q) => (
@@ -279,12 +279,12 @@ function durabilityLabel(d: Durability | 'mixed'): string {
           <div class="axis-card">
             <span class="axis-index">第一条轴</span>
             <h3>技术轴 · 按长期价值分层</h3>
-            <p>L1 地基 → L2 通用技艺 → L3 语言运行时 → L4 框架平台，越往下越持久、越是护城河。下面「技术栈：能力分层」一节展开。</p>
+            <p>L1 地基 → L2 通用技艺 → L3 语言运行时 → L4 框架平台；越往下半衰期越长，越构成可持续优势。详见「技术栈：能力分层」。</p>
           </div>
           <div class="axis-card">
             <span class="axis-index">第二条轴</span>
-            <h3>产品轴 · 让能力被人用起来</h3>
-            <p>把 Prompt、Tool、编排这些能力，翻译成用户配得动、信得过的产品。下面「产品化能力：地图的第二条轴」一节展开。</p>
+            <h3>产品轴 · 将能力转化为可被采用的产品</h3>
+            <p>将 Prompt、Tool、编排等能力转化为可配置、可验证、可信任的产品形态。详见「产品化能力：地图的第二条轴」。</p>
           </div>
         </div>
       </section>
@@ -295,20 +295,20 @@ function durabilityLabel(d: Durability | 'mixed'): string {
           <pre class="mermaid">
 flowchart TB
     accTitle: 技术栈能力分层图
-    accDescr: 由上至下四层：L4 框架与平台层，半衰期 0.5 到 2 年；L3 语言与运行时层，半衰期 5 到 10 年；L2 通用技艺层，半衰期 3 到 5 年以上；L1 地基层，半衰期 10 年以上。箭头由上层指向下层，表示上层构建在下层之上，越往下越持久、越是护城河。
-    subgraph L4["L4 框架与平台层 · 0.5–2 年 · 易变 / 练手感"]
+    accDescr: 由上至下四层：L4 框架与平台层，半衰期 0.5 到 2 年；L3 语言与运行时层，半衰期 5 到 10 年；L2 通用技艺层，半衰期 3 到 5 年以上；L1 地基层，半衰期 10 年以上。箭头由上层指向下层，表示上层构建在下层之上，越往下半衰期越长。
+    subgraph L4["L4 框架与平台层 · 0.5–2 年 · 易变 / 操作性经验"]
         direction LR
         L4a["LangChain / LangGraph"] ~~~ L4b["LlamaIndex"] ~~~ L4c["AutoGen / CrewAI"] ~~~ L4d["Dify / LangFlow"]
     end
     subgraph L3["L3 语言与运行时层 · 5–10 年 · 中期 / 工具选择"]
         direction LR
-        L3a["Python · 模型怎么想"] ~~~ L3b["Go · 系统怎么扛"] ~~~ L3c["TypeScript · Agent UI 桥梁"]
+        L3a["Python · 模型侧编排"] ~~~ L3b["Go · 高并发基础设施"] ~~~ L3c["TypeScript · Agent UI"]
     end
-    subgraph L2["L2 通用技艺层 · 3–5 年 · 护城河 / 最值得投入"]
+    subgraph L2["L2 通用技艺层 · 3–5 年 · 优先投入"]
         direction LR
         L2a["Context Engineering"] ~~~ L2b["Tool 契约 · Agent 架构"] ~~~ L2c["RAG · MCP / A2A"] ~~~ L2d["评估可观测 · 安全治理"]
     end
-    subgraph L1["L1 地基层 · 10 年+ · 护城河 / 好工程师的底子"]
+    subgraph L1["L1 地基层 · 10 年+ · 工程基础"]
         direction LR
         L1a["分布式系统与并发"] ~~~ L1b["软件架构与设计"] ~~~ L1c["性能与成本权衡"] ~~~ L1d["需求拆解 · 工程判断"]
     end
@@ -318,7 +318,7 @@ flowchart TB
           </pre>
         </div>
         <p class="section-intro">
-          按<strong>半衰期</strong>分层，不按学习顺序排：越往下越不易过时、越难速成，是护城河；越往上越快出效果、越需常刷新，是练手感。每层下方附官方文档与权威文章，可直接参考进行学习。
+          按<strong>半衰期</strong>分层，而非学习顺序：越往下越不易过时、越难速成，构成可持续优势；越往上见效越快、越需定期更新，主要贡献操作性经验。每层附官方文档与权威文献，供对照学习。
         </p>
         <div class="legend">
           <span class="tag tag-durable">持久</span>
@@ -340,7 +340,7 @@ flowchart TB
               </ul>
               <p class="layer-note">{layer.note}</p>
               <div class="layer-refs">
-                <p class="layer-refs-title">权威学习资料👇</p>
+                <p class="layer-refs-title">参考资料</p>
                 <ul>
                   {layer.refs.map((ref) => (
                     <li class="ref-item">
@@ -361,7 +361,7 @@ flowchart TB
       <section class="section">
         <h2>进阶目标一 · 掌握 Agent 设计模式</h2>
         <p class="section-intro">
-          L2 通用技艺再往深走，是一套<strong>正交的设计模式框架</strong>：纵轴是 Agent 的七种认知功能（感知 → 治理），横轴是六种执行拓扑（链式 → 层级）。两轴一交叉，就定位到一个具体模式。带 <span class="star-inline">★</span> 的是最常用、最该先吃透的几个。表格比流程图更适合它——因为要表达的是"哪些组合有成熟解法、哪些还是空白"这层关系。
+          在 L2 之上，可进一步抽象为一套<strong>正交设计模式框架</strong>：纵轴为 Agent 的七种认知功能（感知 → 治理），横轴为六种执行拓扑（链式 → 层级）。两轴交叉可定位具体模式。带 <span class="star-inline">★</span> 的条目使用频率较高，建议优先掌握。采用表格而非流程图，是为呈现"哪些组合已有成熟解法、哪些仍属空白"。
         </p>
         <div class="matrix-scroll">
           <table class="pattern-matrix">
@@ -398,10 +398,10 @@ flowchart TB
           </table>
         </div>
         <p class="matrix-note">
-          不必背下每一格。真正的用法是：遇到一个 Agent 需求，先问"它卡在哪个认知功能上"，再问"该用哪种拓扑组织"，两轴一交叉，模式自己就浮出来了。
+          不必逐格记忆。更有效的用法是：面对具体需求时，先判断瓶颈落在哪一认知功能，再选择合适的执行拓扑；两轴交叉后，对应模式即可确定。
         </p>
         <div class="layer-refs standalone-refs">
-          <p class="layer-refs-title">权威学习资料👇</p>
+          <p class="layer-refs-title">参考资料</p>
           <ul>
             {patternRefs.map((ref) => (
               <li class="ref-item">
@@ -419,22 +419,22 @@ flowchart TB
       <section class="section">
         <h2>进阶目标二 · 从 0 到 1 实现一个 Agent Harness</h2>
         <p class="section-intro">
-          真正拉开差距的认知是：<strong>模型只占约 10%，剩下 90% 是包在它外面的 harness</strong>——模型是引擎，harness 才是车、是路、是交通规则。下图把一个基本 harness 拆成四层，由下到上层层加固：最底层是核心原语，最顶层是让它跑在生产上的运维外壳。能把这张图从 0 到 1 亲手实现一遍，L2 这层才算真正落地。
+          一个常见判断是：<strong>模型能力约占系统价值的较小份额，更大比重落在外围 harness</strong>——模型提供推理能力，harness 提供工具边界、循环控制、权限与运维约束。下图将基本 harness 拆为四层，自下而上逐层加固：底层为核心原语，顶层为生产运维外壳。完成一次从零到一的最小实现，有助于把 L2 的抽象判断落到可运行系统。
         </p>
         <div class="mermaid-wrap">
           <pre class="mermaid">
 flowchart TB
     accTitle: Agent Harness 结构解剖图
     accDescr: 由下到上四层结构：最底层是核心原语，Message 会话记录、LLM、Model Provider 抽象；往上一层是 Agent 循环，think-act-observe 循环、工具定义与并行派发、中间件与生命周期钩子、权限审批与结果裁剪；再往上是开发者接口，CLI TUI 交互、库 API 入口、分层配置与 Settings；最上层是运行与运维，会话记忆存储、部署与伸缩配置、评估与测试、可观测与 Tracing。箭头由上层指向下层，表示上层构建在下层之上。
-    subgraph H4["④ 运行与运维 · 让它跑在生产上"]
+    subgraph H4["④ 运行与运维 · 生产部署"]
         direction LR
         H4a["会话 / 记忆存储"] ~~~ H4b["部署与伸缩配置"] ~~~ H4c["评估与测试"] ~~~ H4d["可观测 / Tracing"]
     end
-    subgraph H3["③ 开发者接口 · 让人用得上"]
+    subgraph H3["③ 开发者接口 · 集成入口"]
         direction LR
         H3a["CLI / TUI 交互"] ~~~ H3b["库 API 入口"] ~~~ H3c["分层配置与 Settings"]
     end
-    subgraph H2["② Agent 循环 · 让它动起来"]
+    subgraph H2["② Agent 循环 · 执行控制"]
         direction LR
         H2a["think → act → observe 循环"] ~~~ H2b["工具定义与并行派发"] ~~~ H2c["中间件 / 生命周期钩子"] ~~~ H2d["权限审批 · 结果裁剪"]
     end
@@ -448,10 +448,10 @@ flowchart TB
           </pre>
         </div>
         <p class="matrix-note">
-          越靠下越稳定、越该先写：先有 Message + Model 抽象（换 provider 不改上层），再套 think-act-observe 循环，然后才是审批、CLI、可观测这些上层。参考实现证明这套结构几百行就能跑通——难的不是写出来，是想清楚每一层的边界。
+          越靠下越稳定，宜优先实现：先建立 Message 与 Model 抽象（更换 provider 无需改动上层），再叠加 think-act-observe 循环，随后才是审批、CLI 与可观测性。参考实现表明该结构可用较小代码量完成——难点通常不在编码量，而在各层边界的界定。
         </p>
         <div class="layer-refs standalone-refs">
-          <p class="layer-refs-title">权威学习资料👇</p>
+          <p class="layer-refs-title">参考资料</p>
           <ul>
             {harnessRefs.map((ref) => (
               <li class="ref-item">
@@ -469,7 +469,7 @@ flowchart TB
       <section class="section">
         <h2>产品化能力：地图的第二条轴（产品轴）</h2>
         <p class="section-intro">
-          技术栈之外，同样值得长期投入的另一条轴——产品判断力。协议都懂，也可能做不出一个让人愿意用的产品。
+          技术栈之外，同样值得长期投入的是产品判断力。即便协议与实现路径清晰，也不必然导向可被采用、可验证价值的产品。
         </p>
         <div class="cap-grid">
           {capabilities.map((cap, i) => (
@@ -486,7 +486,7 @@ flowchart TB
                 ))}
               </div>
               <div class="layer-refs">
-                <p class="layer-refs-title">权威学习资料👇</p>
+                <p class="layer-refs-title">参考资料</p>
                 <ul>
                   {cap.refs.map((ref) => (
                     <li class="ref-item">

@@ -11,39 +11,25 @@ interface ZenEntry {
 const entries: ZenEntry[] = [
   {
     href: '/zen/ai-agent-engineer/',
-    title: '能力地图 · AI Agent 工程师',
-    desc: '一份按长期价值分层、而非按学习顺序排列的技能地图：覆盖技术栈与产品化能力两条轴，拆到"过多久还值钱"的坐标系里。',
+    title: 'AI Agent 工程师',
+    desc: '一份按长期价值分层、而非按学习顺序排列的技能地图。',
   },
 ];
 ---
 
 <BaseLayout
   title="Zen"
-  description="一处没有公开入口的角落。放我关于技术选择、认知习惯和人生判断的禅悟与哲学思考。"
+  description="禅：正念当下，看清再动。"
   noindex={true}
 >
   <article class="zen">
     <header class="hero">
-      <p class="eyebrow">禅 · 我的沉思笔记</p>
-      <h1>Zen · 禅</h1>
+      <h1>禅</h1>
     </header>
 
     <div class="prose">
-      <p>
-        "禅"，是正念，也是心流。
-      </p>
-      <p>
-        在心理层面，正念是一种专注当下、不被分心的状态：不急不躁，守拙，坚信慢即是快。
-      </p>
-      <p>
-        而在工程技术里，它表达的是另一种状态：面对一个判断时，不急着用「快思考」给答案，而是先停下来，用「慢思考」和第一性原理，看清事物的本质，从本源上做判断。
-      </p>
-      <p>
-        做技术的这些年，越来越觉得真正重要的判断——一段代码该不该这样写、一个方案值不值得投入、一条路要不要走下去——往往不是分析出来的。你会在某一刻"知道"，然后才回头去找理由。那个"知道"比理由更可靠，也更难练。
-      </p>
-      <p>
-        这个角落就是我的"反思记录"：把那些模糊地"知道"的东西写下来，看看它经不经得起追问；也把那些分析到一半的思考放一放，等它自己沉淀出形状。不写给读者看，只写给自己看。
-      </p>
+      <p>正念当下。</p>
+      <p>慢即是快。看清本质，再做判断。</p>
     </div>
 
     <section class="index">
@@ -57,8 +43,6 @@ const entries: ZenEntry[] = [
         ))}
       </div>
     </section>
-
-    <p class="closing">想清楚了再写，写不清楚就放着。禅不是想通了什么，是愿意一直想。</p>
   </article>
 </BaseLayout>
 
@@ -70,20 +54,12 @@ const entries: ZenEntry[] = [
   .hero {
     margin-bottom: 2rem;
   }
-  .eyebrow {
-    margin: 0 0 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--fg-subtle);
-  }
   .hero h1 {
     margin: 0;
     font-size: 2.4rem;
   }
   .prose p {
-    margin: 1.25rem 0;
+    margin: 1rem 0;
     color: var(--fg-body);
     font-size: 1.05rem;
     line-height: 1.85;
@@ -130,15 +106,5 @@ const entries: ZenEntry[] = [
     color: var(--fg-muted);
     font-size: 0.92rem;
     line-height: 1.65;
-  }
-
-  .closing {
-    margin-top: 3rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-    color: var(--fg-muted);
-    font-size: 0.98rem;
-    line-height: 1.8;
-    text-align: center;
   }
 </style>
