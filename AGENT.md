@@ -135,7 +135,7 @@ draft: false                   # true 则不出现在列表/详情/RSS
 ## 站点身份（保持一致）
 
 - 显示名：蘇里
-- 邮箱：yanguangjie@bytedance.com
+- 邮箱：sulifreely42@gmail.com
 - GitHub：https://github.com/sulifreely
 - `site`：https://yanguangjie.com（`astro.config.mjs` → sitemap / RSS / canonical / og）
 
