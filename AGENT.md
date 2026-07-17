@@ -123,6 +123,8 @@ draft: false                   # true 则不出现在列表/详情/RSS
 
 新增 slide type 三处联动：`config.ts` schema → `notebook-tabs/*.astro` → `registry.ts`。组件优先复用 `notebook-tabs/primitives/`（`Md` / `SlideHead` / `Bullets` / `RefLinks`）。`diagram` 与博客同一套 Mermaid 配置，可直接复用博客图表源码。
 
+**给已有 slide 加字段（如 `lead`）也要两处联动：`config.ts` schema + 对应 `*.astro`。** Zod 默认 **静默丢弃** schema 未声明的键，`astro check` / `build` 都不会报错——字段会「写了却不显示」，容易误判成图表/样式坏了。不同 slide type 的字段并不通用（例：`split` 原本无 `lead`，`grid`/`diagram` 有）。改动后务必在浏览器实测确认新内容真的渲染出来，别只依赖构建通过。
+
 **独立导出：** `npm run build:talk -- <slug>` 读构建产物 `slides-{scenes|deck}/`，剥离 `[data-export-strip]`，注入署名，内联图/脚本；Google Fonts 留 CDN，自托管 webfont 改写到 `ASSET_ORIGIN`。细节在 `scripts/lib/export-policy.mjs`。
 
 **Deck HTML 注意：** Analytics / 任何非 head 合法节点不要放进 `<head>`（无效内容会导致 Astro 丢掉 `<body class="deck-root|deck-body">`，整页样式失效）。站点专用 chrome 包在 body 内并打 `data-export-strip`。

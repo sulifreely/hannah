@@ -19,3 +19,6 @@ const { slide } = Astro.props;
     </div>
   ))}
 </div>
+{slide.lead && (
+  <Md as="p" class="lead reveal" style="margin-top:clamp(1rem,2.6vh,1.6rem)" text={slide.lead} />
+)}

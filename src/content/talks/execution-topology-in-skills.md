@@ -42,16 +42,16 @@ deck:
       kicker: '01'
       heading: 两种编排，两种重量
       columns:
-        - label: 重型编排
+        - label: 重型编排 —— 确定性，像「函数」
           dot: var(--text-faint)
           items:
             - 状态机 / DAG / workflow engine
-            - 可视化节点，拖拽调度
-            - 把每一步写死成代码节点
-        - label: 轻型编排 —— “软”编排
+            - 结构化输入，只关注最终结果、单次无状态
+            - 把每一步写死成代码节点，流程由开发者预设
+        - label: 轻型编排 —— 自主性，像「对话」
           dot: var(--tab-warn)
           items:
-            - 写进 Skill 的操作流程
+            - 写进 Skill 的操作流程，由 LLM 临场决策
             - 顺序、分叉、检查点、退出条件
             - 用自然语言把行动边界写清楚
 
@@ -217,7 +217,7 @@ deck:
             A3["Agent 3\nrace 测试"]:::worker
             Out["审查整合\n跑完整测试"]:::io
             In --> A1 & A2 & A3 --> Out
-      lead: 三个 agent 必须写进同一条消息里派发才算并行，分成三条就退化成串行；收尾那一次完整测试，是唯一能发现 agent 之间是否互相踩到的机会。
+      lead: 三个 agent 必须写进同一条消息里派发才算并行，分成三条就退化成串行；收尾那一次完整测试，是唯一能发现各 agent 的返回，彼此之间是否会互相冲突的机会。
 
     - type: diagram
       section: '2'
@@ -594,6 +594,7 @@ deck:
             - 多小时运行的数据管道
             - 涉及资金、权限、生产发布
             - 高风险自动化闭环
+      lead: 但「更适合重型」不等于「放弃 Skill」。确定性（Graph，像函数）和自主性（Skill，像对话）本就是互补的两侧——把必须确定的那一段（一条数据管道、一次发布流程）封装成一个工具，确定性锁在工具内部，何时调用、拿结果做什么仍交给 Skill 决策。越过边界是给 Skill 添一件确定性工具，不是推翻它。
 
     - type: split
       section: '4'
@@ -612,7 +613,7 @@ deck:
             - Parallel：能指导并行，结果回收有丢失风险
             - Orchestrate：子任务多了，协调者开始失忆
             - Hierarchy：深层级时父任务失去全局视角
-      lead: 以上是基于 context window 行为的推断，不是实测数据。Orchestrate / Hierarchy 超过一定规模，是考虑引入 LangGraph 的信号。
+      lead: 以上是基于 context window 行为的推断，不是实测数据。Orchestrate / Hierarchy 超过一定规模，就该把这一段封装成一个确定性工具（如 LangGraph 编排）交回 Skill 调用——不是把整个 Skill 推翻重写。
 
     - type: bullets
       section: '5'

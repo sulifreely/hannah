@@ -54,6 +54,7 @@ const deckSplitSlide = z.object({
       }),
     )
     .length(2),
+  lead: z.string().optional(),
 });
 
 const deckCodeSlide = z.object({
