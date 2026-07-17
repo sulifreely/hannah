@@ -60,8 +60,9 @@ function slideClass(slide: (typeof slides)[number]) {
     <div class="keyboard-hint">← → · Space · Scroll</div>
     <a class="deck-back-link" data-export-strip href={`/talks/${talk.slug}/`}>← {talk.data.title}</a>
 
-    {slides.map((slide) => {
+    {slides.map((slide, i) => {
       const SlideComponent = SLIDE_RENDERERS[slide.type];
+      const page = i + 1;
       return (
         <section class={slideClass(slide)} data-section={slide.section}>
           <div class="page">
@@ -69,6 +70,9 @@ function slideClass(slide: (typeof slides)[number]) {
               <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
             <SlideComponent slide={slide as any} />
+            <span class="page-num" aria-label={`第 ${page} 页，共 ${slides.length} 页`}>
+              {page}<span class="page-num-sep">/</span>{slides.length}
+            </span>
           </div>
         </section>
       );

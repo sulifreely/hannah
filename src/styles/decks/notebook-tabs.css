@@ -137,7 +137,29 @@
   flex-direction: column;
   justify-content: center;
   padding: clamp(1.6rem, 4.5vw, 4.4rem);
+  /* Reserve room for the corner page number so body content doesn't collide. */
+  padding-bottom: clamp(2.2rem, 5.5vh, 3.4rem);
   overflow: hidden;
+}
+
+/* Notebook-style page index, bottom-right of every paper card. */
+.deck-root .page-num {
+  position: absolute;
+  bottom: clamp(0.65rem, 1.6vh, 1.1rem);
+  right: clamp(1rem, 2.2vw, 1.8rem);
+  z-index: 3;
+  font-family: var(--font-mono);
+  font-size: clamp(0.55rem, 1vh, 0.72rem);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  opacity: 0.55;
+  pointer-events: none;
+  user-select: none;
+}
+.deck-root .page-num-sep {
+  margin: 0 0.2em;
+  opacity: 0.7;
 }
 
 .deck-root .binder {
