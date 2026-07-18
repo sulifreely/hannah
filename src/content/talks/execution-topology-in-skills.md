@@ -27,7 +27,7 @@ deck:
       section: '1'
       eyebrow: Conference Talk · Agent Skill 设计
       title: 'Agent 中 Skill 的<span class="accent">执行拓扑</span>'
-      lead: '六种 Agent 编排模式在 Skill 中的使用理解，和可靠性分析，以及在 Skill 中如何表示&实现'
+      lead: '六种 Agent 编排模式如何在 Skill 中表示、运行与收口，以及它们各自的可靠性边界'
       cover: /images/talks/execution-topology-reliability.png
       coverAlt: 左边角色沿单一箭头稳步前进（日常够用），右边角色被多路 worker 的箭头淹没、抓着电话找 LangGraph 求救（规模变大）
 
@@ -86,14 +86,14 @@ deck:
           dot: var(--tab-1)
           items:
             - 'Chain — 渲染流水线：请求数据→更新 state→触发渲染→浏览器绘制，前后有严格顺序，并每一步只接收上一步的输出'
-            - 'Parallel — Promise.all 请求：A\B\C 三个接口一起并发，而业务最后要等最慢的那个接口返回，再聚合处理逻辑'
+            - 'Parallel — Promise.all 请求：A/B/C 三个接口一起并发，而业务最后要等最慢的那个接口返回，再聚合处理逻辑'
             - 'Route — 前端路由：URL 根据路由表匹配规则决定该渲染哪个组件、走哪套逻辑'
         - label: 后三种
           dot: var(--tab-warn)
           items:
             - 'Loop — 二分定位法：通过二分法寻找 bug，分析问题所在领域，注释一半的代码，然后保存，看效果，问题还在，再注释一半的代码，直到最终问题不再出现，即可定位到问题所在代码块，即可终止定位循环'
             - 'Orchestrate — GitLab CI 工作流编排：通过 yaml 编排定义任务、依赖、条件分支、失败策略，并发跑 lint / test / build 等任务，最后等结果汇总再决定能不能发布'
-            - 'Hierarchy — Monorepo 的包层级是严格树形从属分层（Hierarchy Tree），有明确的「底层基础包 → 中层工具 / UI 包 → 顶层业务应用」单向依赖规则'
+            - 'Hierarchy — 项目分工：技术负责人 → 模块负责人 → 实现成员；模块负责人还可以继续拆任务，每一层只管理自己负责的局部'
 
     - type: grid
       section: '2'
@@ -228,8 +228,6 @@ deck:
       refs:
         - label: dispatching-parallel-agents
           href: https://github.com/obra/superpowers/blob/main/skills/dispatching-parallel-agents/SKILL.md
-        - label: code-review
-          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/code-review/SKILL.md
 
     - type: diagram
       section: '2'
@@ -285,8 +283,6 @@ deck:
       refs:
         - label: prototype
           href: https://github.com/mattpocock/skills/blob/main/skills/engineering/prototype/SKILL.md
-        - label: triage
-          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/triage/SKILL.md
 
     - type: diagram
       section: '2'
@@ -352,10 +348,6 @@ deck:
       refs:
         - label: tdd
           href: https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md
-        - label: loop-on-ci
-          href: https://github.com/cursor/plugins/blob/0452e08a314c03621ec5ac1324f1ad1dd824f1a4/cursor-team-kit/skills/loop-on-ci/SKILL.md
-        - label: diagnosing-bugs
-          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/diagnosing-bugs/SKILL.md
 
     - type: code
       section: '2'
@@ -371,56 +363,6 @@ deck:
         没有「测试过 / 不过」这种客观信号，
         只有「感觉更好了」——Loop 只会原地打转。
       lead: 对照 TDD 就很清楚：Open Loop 的验收靠 Agent 自判，退出也靠自判。停止条件必须可测量——最大轮数、改动幅度小于阈值，或外部信号介入。缺了客观验收，Loop 就会越改越忙、越忙越偏。
-
-    - type: quote
-      section: '2'
-      eyebrow: 从停止条件，再往前一步
-      quote: The model spends; the harness budgets. 模型负责花，Harness 负责控制预算。
-      lead: 上一页说要设置最大轮数、改动阈值和外部信号。接下来还有一个问题：谁来数轮数、卡阈值、最后喊停？<br/><br/>不能把这件事继续交给模型。生成模型的本能总能找到下一处可改。我们应该控制预算（资源限制），保证循环不会无限跑下去，比如控制检查和修正的最大轮数、控制最终的客观达成目标。
-
-    - type: grid
-      section: '2'
-      kicker: Harness · 循环内预算
-      heading: 一个 Agent 自己转起来，主要控制五笔预算
-      columns: 3
-      cards:
-        - num: '01'
-          title: 感知 · 注意力预算
-          desc: 什么信息进入上下文？先做 Context Triage，避免看得太多，等于什么都没看见
-        - num: '02'
-          title: 记忆 · 连续性预算
-          desc: 什么值得跨时间保留？当前上下文是工作台，不是保存全部历史的仓库
-        - num: '03'
-          title: 推理 · 不确定性预算
-          desc: 这道题值得想多深？简单问题快速判断，复杂问题再分解、验证和回溯
-        - num: '04'
-          title: 行动 · 不可逆预算
-          desc: 哪些动作能直接做？读文件和部署服务风险不同，高风险动作必须经过权限与门禁
-        - num: '05'
-          title: 反思 · 校正预算
-          desc: 允许检查和修正几轮？Critic 负责找问题，Harness 负责限制次数并决定何时退出
-      lead: 刚才讲的最大轮数，属于控制反思预算；客观达成目标，属于控制不确定性预算。更完整地看，一个 Agent 内部一直在循环分配有限资源：看什么、记什么、想多深、能做什么，以及允许回头改几次。
-
-    - type: split
-      section: '2'
-      kicker: Harness · 外层预算
-      heading: 一个 Agent 装不下时，还要再控制两笔预算
-      columns:
-        - label: 协作 Collaboration · 分工预算
-          dot: var(--tab-2)
-          items:
-            - 回答任务怎么拆给多个 Agent
-            - 切开上下文、工具、目标和责任
-            - 价值来自专业化和隔离，不是让一群 Agent 聊天
-            - 失败信号：大家什么都知道，也一起被噪声淹没
-        - label: 治理 Governance · 信任预算
-          dot: var(--tab-warn)
-          items:
-            - 回答能力如何被限制、记录、审计和追责
-            - 审批门控（Approval Gate）、爆炸半径控制（Blast Radius Control）、可观测性（Observability）、Hooks
-            - 它是工具调用同层的运行时机制，不是事后补文档
-            - Agent 越强，越要做到可见、可停、可回放
-      lead: 五笔预算让单个 Agent 转起来；协作负责在装不下时分流，治理负责给所有循环划边界。<br/><br/> 完整框架见博客：[Agent 的七笔预算](https://yanguangjie.com/blog/agent-cognitive-budgets/)。
 
     - type: diagram
       section: '2'
@@ -460,13 +402,17 @@ deck:
         flowchart TD
             classDef orch fill:#f0c88a,stroke:#c8a455,color:#201d18
             classDef worker fill:#98d4bb,stroke:#70b898,color:#201d18
+            classDef critic fill:#f4b8c5,stroke:#d89aab,color:#201d18
             C(["Controller\n逐任务派发"]):::orch
-            I1["Implementer\n任务 1"]:::worker
-            I2["Implementer\n任务 2"]:::worker
-            I3["Implementer\n任务 3"]:::worker
-            C --> I1 & I2 & I3
-            I1 & I2 & I3 -.->|"实现+复核"| C
-      lead: 派发的是任务列表，来自单独的写计划环节。这个 Skill 真正做的是"实现 + 复核"的双重循环，任何任务没通过复核都不能标记完成，协调者的记忆负担全在"追踪谁复核过、谁还没有"。如果问和并行的区别？编排会负责协调与门禁，不是单纯的并行。<br/>Parallel = 同时做多件独立的事；Orchestrate = 有人持续管流程，并行只是它可能用到的一种手段。
+            I["Implementer\n实现 + 测试"]:::worker
+            R{"Reviewer\n复核通过？"}:::critic
+            F["Fix subagent\n修复问题"]:::worker
+            N["标记完成\n进入下一任务"]:::orch
+            C --> I --> R
+            R -- "否" --> F --> R
+            R -- "是" --> N
+            N -.->|"还有任务"| C
+      lead: 这个 Skill 按任务逐个推进：Controller 派实现、等复核、处理修复，验收通过后才进入下一项。Parallel 关注多件独立任务能否同时做；Orchestrate 关注谁持续管理流程、门禁与最终判断。
 
       refs:
         - label: subagent-driven-development
@@ -481,19 +427,19 @@ deck:
             classDef mgr fill:#d8b8a0,stroke:#b89882,color:#201d18
             classDef mid fill:#e8d0bc,stroke:#c8b09c,color:#201d18
             classDef worker fill:#98d4bb,stroke:#70b898,color:#201d18
-            Mgr(["Root workspace\n定整体版本"]):::mgr
-            L1(["packages/ui"]):::mid
-            L2(["packages/utils"]):::mid
-            W1["Button"]:::worker
-            W2["Input"]:::worker
-            W3["formatDate"]:::worker
-            W4["debounce"]:::worker
+            Mgr(["技术负责人\n定义整体目标"]):::mgr
+            L1(["前端负责人\n负责交互切片"]):::mid
+            L2(["服务端负责人\n负责数据切片"]):::mid
+            W1["UI Agent"]:::worker
+            W2["State Agent"]:::worker
+            W3["API Agent"]:::worker
+            W4["DB Agent"]:::worker
             Mgr --> L1 & L2
             L1 --> W1 & W2
             L2 --> W3 & W4
       bullets:
         - Orchestrate 描述「中心节点协调多个任务」，Hierarchy 描述「子节点还能继续委派」。两者不是互斥分类：一层调度是 Orchestrate，递归拆下去后也具备 Hierarchy
-        - 每层 package.json 必须在关键节点声明清楚依赖版本；子模块必须有明确的导出边界，不能绕过 package 直接 import 内部文件
+        - 每层只接收上级切给自己的目标，并负责自己的局部拆解、验收和向上交接；根节点不直接管理所有叶子任务
 
     - type: showcase
       section: '2'
@@ -535,6 +481,12 @@ deck:
       refs:
         - label: Cursor /orchestrate（递归子规划）
           href: https://github.com/cursor/plugins/blob/e46364b8be46000b7df0f260550cd712afbb8d36/orchestrate/skills/orchestrate/SKILL.md
+
+    - type: quote
+      section: '3'
+      eyebrow: 从模式到 Skill
+      quote: 拓扑是任务运行的形状，Skill 是把这种形状写成操作协议。
+      lead: 六种模式已经认识完了。接下来不再逐个看形状，而是把共同结构抽出来：什么时候进入、分几步、哪里分支、何时循环、靠什么工具验证，以及最终交付什么。
 
     - type: grid
       section: '3'
@@ -594,6 +546,12 @@ deck:
             - 即将执行高影响副作用动作
             - 给 2-4 个选项，推荐项放第一位
 
+    - type: quote
+      section: '4'
+      eyebrow: 从流程到确定性
+      quote: 流程写清楚，只解决了怎么走；执行者是概率模型，还要解决怎么收口。
+      lead: Skill 可以规定步骤、分支和交互边界，但不能让模型天然变成确定性程序。接下来要看的是：哪些地方可以保留自由，哪些判断必须留下状态、证据和硬门禁。
+
     - type: diagram
       section: '4'
       kicker: '13'
@@ -611,6 +569,56 @@ deck:
             A --> B --> C --> D
       lead: 越往右，越不能靠模型自己摸索。不是要把随机性消掉，而是在该约束的地方约束到位。
 
+    - type: quote
+      section: '4'
+      eyebrow: 从约束到预算
+      quote: The model spends; the harness budgets. 模型负责花，Harness 负责控制预算。
+      lead: 这些约束不能继续依赖模型自觉。最大轮数需要计数器，改动阈值需要比较器，外部动作需要权限门禁，客观验收需要模型之外的事实依据。模型负责生成下一步，Harness 负责记录状态、核验条件，并在目标达成或预算耗尽时停止。
+
+    - type: grid
+      section: '4'
+      kicker: Harness · 循环内预算
+      heading: 一个 Agent 自己转起来，主要控制五笔预算
+      columns: 3
+      cards:
+        - num: '01'
+          title: 感知 · 注意力预算
+          desc: 什么信息进入上下文？先做 Context Triage，避免看得太多，等于什么都没看见
+        - num: '02'
+          title: 记忆 · 连续性预算
+          desc: 什么值得跨时间保留？当前上下文是工作台，不是保存全部历史的仓库
+        - num: '03'
+          title: 推理 · 不确定性预算
+          desc: 这道题值得想多深？简单问题快速判断，复杂问题再分解、验证和回溯
+        - num: '04'
+          title: 行动 · 不可逆预算
+          desc: 哪些动作能直接做？读文件和部署服务风险不同，高风险动作必须经过权限与门禁
+        - num: '05'
+          title: 反思 · 校正预算
+          desc: 允许检查和修正几轮？客观验收决定是否继续，Harness 负责限制次数并强制退出
+      lead: Loop 里的最大轮数和客观验收，都属于反思的校正预算；推理预算管的是这道题值得想多深。更完整地看，一个 Agent 一直在分配有限资源：看什么、记什么、想多深、能做什么，以及允许回头改几次。
+
+    - type: split
+      section: '4'
+      kicker: Harness · 外层预算
+      heading: 一个 Agent 装不下时，还要再控制两笔预算
+      columns:
+        - label: 协作 Collaboration · 分工预算
+          dot: var(--tab-2)
+          items:
+            - 回答任务怎么拆给多个 Agent
+            - 切开上下文、工具、目标和责任
+            - 价值来自专业化和隔离，不是让一群 Agent 聊天
+            - 失败信号：大家什么都知道，也一起被噪声淹没
+        - label: 治理 Governance · 信任预算
+          dot: var(--tab-warn)
+          items:
+            - 回答能力如何被限制、记录、审计和追责
+            - 审批门控、爆炸半径控制、可观测性、钩子管线
+            - 它是工具调用同层的运行时机制，不是事后补文档
+            - Agent 越强，越要做到可见、可停、可回放
+      lead: 五笔预算让单个 Agent 转起来；协作负责在装不下时分流，治理负责给所有循环划边界。完整框架见博客：[Agent 的七笔预算](https://yanguangjie.com/blog/agent-cognitive-budgets/)。
+
     - type: grid
       section: '4'
       kicker: '14'
@@ -619,22 +627,23 @@ deck:
       cards:
         - num: '1'
           title: 显式状态
-          desc: 别让判断只藏在模型心里
+          desc: 把当前阶段、关键决策和完成条件写出来（比如TODO），让下一轮能准确接住
         - num: '2'
           title: 受限选择
-          desc: 把开放生成变成选择题
+          desc: 能枚举的决策改成选项，减少模型临场发挥和反复摇摆
         - num: '3'
           title: 工具校验
-          desc: 用证据替代模型的自信
+          desc: 用测试、typecheck、查询结果判断，不靠模型自己宣布完成
         - num: '4'
           title: 循环预算
-          desc: 设上限，强制更新假设
+          desc: 限制轮数、时间或 Token；每轮失败后必须更新假设
         - num: '5'
           title: 副作用门禁
-          desc: 高风险动作集中管理
+          desc: 发布、删除、发信等高风险动作集中审批，并尽量保留回滚能力
         - num: '6'
           title: 交付检查清单
-          desc: 简单、便宜、有效的最后一道门
+          desc: 提交前逐项核对产物、验证证据和遗留风险，避免漏掉收尾
+      lead: 这六个做法的共同点，是把关键判断从模型的临场自觉，变成 Harness 可以记录、验证和拦截的外部机制。
 
     - type: split
       section: '4'
@@ -672,7 +681,7 @@ deck:
             - Parallel：能指导并行，结果回收有丢失风险
             - Orchestrate：子任务多了，协调者开始失忆
             - Hierarchy：深层级时父任务失去全局视角
-      lead: Parallel / Orchestrate / Hierarchy 超过一定规模，就该把这一段封装成一个确定性工具（如 LangGraph 编排）交回 Skill 调用 —— 而不是强迫 Skill 做不擅长的事。
+      lead: 这是基于 context window 行为和前面案例得到的工程判断，不是 benchmark 结论。Parallel / Orchestrate / Hierarchy 超过一定规模，就该把这一段封装成确定性工具（如 LangGraph 编排）交回 Skill 调用，而不是强迫 Skill 做不擅长的事。
 
     - type: bullets
       section: '5'
@@ -685,7 +694,7 @@ deck:
 
     - type: quote
       section: '5'
-      quote: 在 Agent 中只通过 Skill 也能干很多事情，但我们此时能在心中建立编排模式的认知框架，识别出不同的拓扑模式，同时意识到其价值、边界、风险，本次分享的目的也就达到了。
+      quote: 在 Agent 中靠 Skill，六种拓扑都能跑起来；但拓扑越深、协作越多，越要把确定性下沉到 Harness 和工具。
       heading: 谢谢 Thank You
       centered: true
 draft: false
