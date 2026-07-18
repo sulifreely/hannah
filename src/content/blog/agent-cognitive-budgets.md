@@ -211,4 +211,4 @@ flowchart TD
 - Simon Willison，[The lethal trifecta for AI agents](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/) —— 治理部分提到的"致命三件套"
 
 
-如果你对这套预算怎么在更具体的工程场景里落地感兴趣，可以接着看[趣谈 Skill 中的执行拓扑](/talks/execution-topology-in-skills/)和[Agent 的 HITL 与 YOLO](/talks/agent-hitl-vs-yolo/)这两篇——里面讲的编排模式和自主程度，分别是协作预算和治理预算的具体落地写法。
+如果你对这套预算怎么在更具体的工程场景里落地感兴趣，可以接着看[浅谈 Skill 中的执行拓扑](/talks/execution-topology-in-skills/)和[Agent 的 HITL 与 YOLO](/talks/agent-hitl-vs-yolo/)这两篇——里面讲的编排模式和自主程度，分别是协作预算和治理预算的具体落地写法。

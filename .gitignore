@@ -36,3 +36,6 @@ pnpm-debug.log*
 
 # standalone talk exports
 dist-talk/
+
+# ai
+.trae/
