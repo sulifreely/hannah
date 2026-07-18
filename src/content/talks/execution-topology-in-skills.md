@@ -1,5 +1,5 @@
 ---
-title: 浅谈 Skill 中的执行拓扑
+title: Agent 中 Skill 的执行拓扑
 subtitle: 六种编排模式在 Skill 侧的可靠性与边界
 event: Agent 工程分享 / 2026
 date: 2026-07-07
@@ -26,7 +26,7 @@ deck:
     - type: title
       section: '1'
       eyebrow: Conference Talk · Agent Skill 设计
-      title: 'Skill 中的<br/><span class="accent">执行拓扑</span>'
+      title: 'Agent 中 Skill 的<span class="accent">执行拓扑</span>'
       lead: '六种 Agent 编排模式在 Skill 中的使用理解，和可靠性分析，以及在 Skill 中如何表示&实现'
       cover: /images/talks/execution-topology-reliability.png
       coverAlt: 左边角色沿单一箭头稳步前进（日常够用），右边角色被多路 worker 的箭头淹没、抓着电话找 LangGraph 求救（规模变大）
