@@ -1,0 +1,33 @@
+---
+import Md from './primitives/Md.astro';
+import SlideHead from './primitives/SlideHead.astro';
+
+const { slide } = Astro.props;
+const headers: string[] = slide.headers;
+const rows: string[][] = slide.rows;
+---
+
+<SlideHead kicker={slide.kicker} heading={slide.heading} />
+<div class="slide-table-wrap reveal">
+  <table class="slide-table">
+    <thead>
+      <tr>
+        {headers.map((header) => (
+          <th><Md text={header} /></th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          {headers.map((_, i) => (
+            <td><Md text={row[i] ?? ''} /></td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+{slide.lead && (
+  <Md as="p" class="lead reveal" style="margin-top:clamp(1rem,2.6vh,1.6rem)" text={slide.lead} />
+)}

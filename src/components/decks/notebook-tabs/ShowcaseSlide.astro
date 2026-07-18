@@ -16,5 +16,7 @@ const { slide } = Astro.props;
     <pre class="mermaid">{slide.mermaid}</pre>
   </div>
 </div>
-{slide.lead && <Md as="p" class="lead reveal" text={slide.lead} />}
+{slide.lead && (
+  <Md as="p" class="lead reveal" style="margin-top:clamp(1.2rem,3.2vh,2rem)" text={slide.lead} />
+)}
 {slide.refs && slide.refs.length > 0 && <RefLinks refs={slide.refs} />}

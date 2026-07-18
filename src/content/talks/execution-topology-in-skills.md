@@ -68,14 +68,14 @@ deck:
         flowchart LR
             classDef input fill:#d4c9b8,stroke:#b8a898,color:#201d18
             classDef skill fill:#c14a3a,stroke:#9c3628,color:#fff
-            A["指令"]:::input --> S(["Skill"]):::skill
-            B["编排模式"]:::input --> S
-            C["工具协议"]:::input --> S
-            D["验证门禁"]:::input --> S
+            A["指令 —— 怎么做"]:::input --> S(["Skill"]):::skill
+            B["编排模式 —— 按什么拓扑走"]:::input --> S
+            C["工具协议 —— 靠什么动手"]:::input --> S
+            D["验证门禁 —— 凭什么收口"]:::input --> S
       bullets:
         - 1. Agent 执行拓扑的六类基础设计模式：链式、并行、路由、循环、编排、层级
-        - 2. 这些模式分别在 Skill 里怎么表示和具体示例
-        - 3. 当执行者是 LLM 这种概率模型时，如何尽量保障结果确定
+        - 2. 这些模式分别在 Skill 里怎么表示，以及具体示例
+        - 3. 在 LLM 这种概率模型作为执行者时，如何尽量保障结果确定
 
     - type: split
       section: '2'
@@ -85,13 +85,13 @@ deck:
         - label: 前三种
           dot: var(--tab-1)
           items:
-            - 'Chain — 渲染流水线：请求数据→更新 state→触发渲染→浏览器绘制，每一步只接收上一步输出出来的东西'
+            - 'Chain — 渲染流水线：请求数据→更新 state→触发渲染→浏览器绘制，前后有严格顺序，并每一步只接收上一步的输出'
             - 'Parallel — Promise.all 请求：A\B\C 三个接口一起并发，而业务最后要等最慢的那个接口返回，再聚合处理逻辑'
-            - 'Route — 前端路由：URL 一变，该渲染哪个组件、走哪套逻辑，全看路由表匹配规则怎么写'
+            - 'Route — 前端路由：URL 根据路由表匹配规则决定该渲染哪个组件、走哪套逻辑'
         - label: 后三种
           dot: var(--tab-warn)
           items:
-            - 'Loop — HMR 调试循环：改一行代码→保存→热更新→看效果→不对再改，直到最终问题解决，即可终止调试循环'
+            - 'Loop — 二分定位法：通过二分法寻找 bug，分析问题所在领域，注释一半的代码，然后保存，看效果，问题还在，再注释一半的代码，直到最终问题不再出现，即可定位到问题所在代码块，即可终止定位循环'
             - 'Orchestrate — GitLab CI 工作流编排：通过 yaml 编排定义任务、依赖、条件分支、失败策略，并发跑 lint / test / build 等任务，最后等结果汇总再决定能不能发布'
             - 'Hierarchy — Monorepo 的包层级是严格树形从属分层（Hierarchy Tree），有明确的「底层基础包 → 中层工具 / UI 包 → 顶层业务应用」单向依赖规则'
 
@@ -122,9 +122,21 @@ deck:
 
     - type: quote
       section: '2'
-      eyebrow: 往深一层想 —— 拓扑到底决定了什么
+      eyebrow: 往深一层想
       quote: 拓扑不只是"先做什么、后做什么"的流程图，它决定的是资源在系统里怎么传播。
-      lead: 数据怎么从一个节点流到另一个节点，控制权怎么交接，错误怎么扩散，延迟怎么叠加，责任最终落在谁头上——这五件事，都是拓扑的形状决定的，不是靠某个节点自己做得足够好就能补救。链式让错误一路带下去，并行让错误在汇合点集中爆发，层级让错误在往上传的路上层层衰减也层层失真。选拓扑，就是在选这五件事分别会怎么发生。
+
+    - type: table
+      section: '2'
+      kicker: 拓扑决定了什么
+      heading: 五件事，都由拓扑的形状决定
+      headers: [维度, 拓扑在管什么, 举例]
+      rows:
+        - [数据, 节点间怎么流, 链式逐步传递]
+        - [控制权, 谁接手、怎么交接, Route 一判定型]
+        - [错误, 怎么扩散、在哪爆发, 链一路带下；并行汇合爆发；层级衰减失真]
+        - [延迟, 怎么叠加, 并行会等待最慢的那个；链式累加]
+        - [责任, 最终落在谁头上, Orchestrate 编排汇总结果；Hierarchy 层级分责兜底]
+      lead: 不是靠某个节点自己做得足够好就能补救。选拓扑，就是在选这五件事分别会怎么发生。
 
     - type: diagram
       section: '2'
@@ -139,9 +151,6 @@ deck:
             D["浏览器绘制"]:::step
             A --> B --> C --> D
       lead: 链越长，上一环的问题越难被发现。接口数据错了，state 层只会照单全收，渲染层只会想着怎么把它渲染得像模像样，没人会想起回头查一下请求那一步是不是出了什么问题。
-      refs:
-        - label: executing-plans
-          href: https://github.com/obra/superpowers/blob/main/skills/executing-plans/SKILL.md
 
     - type: showcase
       section: '2'
@@ -164,16 +173,19 @@ deck:
       mermaid: |
         flowchart LR
             classDef step fill:#98d4bb,stroke:#70b898,color:#201d18
-            A["加载计划\n审查疑虑"]:::step
+            A["加载并审阅计划"]:::step
             B["逐任务执行\n标记+验证"]:::step
             C["收尾\n转交后续 Skill"]:::step
             A --> B --> C
-      lead: 每一步的产出由 Skill 要求写进对话或 todo，下一步自然读取。Chain 靠 context 维持管道，不需要显式传参，但中途遇到阻塞必须停下来问，不能靠猜往下走。
+      lead: 每一步的产出由 Skill 要求写进对话或 Todo，下一步自然读取就等于拿到了上一步的输出。Chain 靠上下文维持管道，不需要显式传参，但中途遇到阻塞必须停下来问，不能靠猜往下走。
+      refs:
+        - label: executing-plans
+          href: https://github.com/obra/superpowers/blob/main/skills/executing-plans/SKILL.md
 
     - type: diagram
       section: '2'
       kicker: '05 · Parallel'
-      heading: 并行 — 没有强依赖，就同时做
+      heading: 并行 — 没有强依赖，就可以同时执行
       mermaid: |
         flowchart LR
             classDef io fill:#d4c9b8,stroke:#b8a898,color:#201d18
@@ -184,12 +196,7 @@ deck:
             W3["推荐位"]:::worker
             M["Promise.all\n合并渲染"]:::io
             In --> W1 & W2 & W3 --> M
-      lead: 并行的关键在"合并"，不在"发起"。三个请求一起发很容易，谁超时、谁失败、要不要兜底，才是真正考验 merge 逻辑的地方。没有好的合并策略，并行只是把出错的机会并行化。
-      refs:
-        - label: dispatching-parallel-agents
-          href: https://github.com/obra/superpowers/blob/main/skills/dispatching-parallel-agents/SKILL.md
-        - label: code-review
-          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/code-review/SKILL.md
+      lead: 并行的关键在"合并"，不在"发起"。三个请求一起发很容易，谁超时、谁失败、要不要兜底，才是真正考验 merge 逻辑的地方。没有好的合并策略，并行只会让出错的机会变得更大。
 
     - type: showcase
       section: '2'
@@ -203,7 +210,7 @@ deck:
         - tool-approval-race-conditions.test.ts：1 个失败
 
         ## 工作流
-        1. 识别独立域：按"坏在哪"分组，互不影响才能分
+        1. 识别独立域：按问题领域分组，互不影响才能并行
         2. 构造任务：每个 agent 给范围、目标、约束、期望输出
         3. 一条消息内同时派发三个 agent（分开发就是串行）
         4. 审查整合：读摘要、查冲突、跑一次完整测试
@@ -211,13 +218,18 @@ deck:
         flowchart LR
             classDef io fill:#d4c9b8,stroke:#b8a898,color:#201d18
             classDef worker fill:#c7b8ea,stroke:#a89ed4,color:#201d18
-            In["6 个失败测试\n按文件分域"]:::io
+            In["6 个失败测试\n按独立领域分组"]:::io
             A1["Agent 1\nabort 测试"]:::worker
             A2["Agent 2\nbatch 测试"]:::worker
             A3["Agent 3\nrace 测试"]:::worker
             Out["审查整合\n跑完整测试"]:::io
             In --> A1 & A2 & A3 --> Out
-      lead: 三个 agent 必须写进同一条消息里派发才算并行，分成三条就退化成串行；收尾那一次完整测试，是唯一能发现各 agent 的返回，彼此之间是否会互相冲突的机会。
+      lead: 三个 agent 必须写进同一条消息里同时派生（dispatch/spawn）才算并行，如果还是一个一个来就退化成串行；收尾那一次完整测试，是唯一能发现各 agent 的返回，彼此之间是否会互相冲突的机会（比如有没有改到共享逻辑）。
+      refs:
+        - label: dispatching-parallel-agents
+          href: https://github.com/obra/superpowers/blob/main/skills/dispatching-parallel-agents/SKILL.md
+        - label: code-review
+          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/code-review/SKILL.md
 
     - type: diagram
       section: '2'
@@ -242,11 +254,6 @@ deck:
       bullets:
         - Route 的核心是路由规则写得准不准：匹配错了，页面组件再精致也没用
         - 路由的价值通常在于让 URL 和视图状态对应清楚，不在于让某个页面本身变强
-      refs:
-        - label: prototype
-          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/prototype/SKILL.md
-        - label: triage
-          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/triage/SKILL.md
 
     - type: showcase
       section: '2'
@@ -275,6 +282,11 @@ deck:
             R -- "长什么样" --> B["UI.md\n多套 UI 变体"]:::step
             A & B --> Out["答案\n是唯一该留下的"]:::io
       lead: 问题真的模糊、又联系不到人时，Skill 给了兜底规则：按代码类型判断，后端模块归 LOGIC，页面或组件归 UI，并在开头写明这是个假设。
+      refs:
+        - label: prototype
+          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/prototype/SKILL.md
+        - label: triage
+          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/triage/SKILL.md
 
     - type: diagram
       section: '2'
@@ -285,26 +297,32 @@ deck:
             classDef gen fill:#a8d8ea,stroke:#80b8ce,color:#201d18
             classDef critic fill:#f0c88a,stroke:#c8a455,color:#201d18
             classDef done fill:#d4c9b8,stroke:#b8a898,color:#201d18
-            Gen(["改代码"]):::gen
+            Gen(["注释一半代码"]):::gen
             Critic(["保存看效果"]):::critic
-            Done(["符合预期 ✓"]):::done
+            Done(["问题消失\n定位到代码块"]):::done
             Gen -->|"保存"| Critic
-            Critic -->|"还不对"| Gen
-            Critic -->|"对了"| Done
+            Critic -->|"问题还在"| Gen
+            Critic -->|"问题消失"| Done
       bullets:
         - Loop 是最迷人也最危险的拓扑，能让系统从错误里恢复，也能让错误被不断放大
-        - 核心是停止条件、评估信号、每轮改动幅度这三件事，缺一个都可能让循环转不出来
-      refs:
-        - label: loop-on-ci
-          href: https://github.com/cursor/plugins/blob/0452e08a314c03621ec5ac1324f1ad1dd824f1a4/cursor-team-kit/skills/loop-on-ci/SKILL.md
-        - label: tdd
-          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md
-        - label: diagnosing-bugs
-          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/diagnosing-bugs/SKILL.md
+        - 核心是停止条件、评估信号、每轮改动幅度；写之前先想清楚要 Open Loop 还是 Closed Loop
+
+    - type: table
+      section: '2'
+      kicker: Loop · 两种写法
+      heading: Open Loop 边走边定，Closed Loop 事先定好
+      headers: [维度, Open Loop, Closed Loop]
+      rows:
+        - [目标, 开放，边走边定, 有界，事先定好]
+        - [路径可见性, 走的时候才知道, 大致看得清]
+        - [验收, 模糊，靠 Agent 自判, 明确，每步可判定]
+        - [开销, 难预估, 可控、可估]
+        - [适用场景, 探索、找方向, 交付确定的事]
+      lead: Closed Loop 更常用：更确定、更可控。可控的关键往往在验收是客观的，比如「问题还在 / 消失」、测试、typecheck。写 Skill 时先尝试 Closed Loop，把客观验收标准定义清楚，再让 loop 跑起来。
 
     - type: showcase
       section: '2'
-      kicker: Loop · 实例
+      kicker: Loop · Closed Loop 实例
       heading: 'tdd：Red-Green 循环，重构故意排除在外'
       skill: tdd
       code: |
@@ -317,9 +335,9 @@ deck:
         - 重构不属于这个循环
           它属于 review 阶段，不混进 red → green
 
-        ## 单个切片
-        写失败测试 → 写最小实现 → 通过？
-          否，回到写实现；是，切下一个边界
+        ## 为什么是 Closed Loop
+        每轮验收只有两个答案：测试失败 / 通过
+        目标有界（一个 seam），开销可估（一次一切片）
       mermaid: |
         flowchart LR
             classDef gen fill:#a8d8ea,stroke:#80b8ce,color:#201d18
@@ -330,12 +348,19 @@ deck:
             T -- "否" --> Green
             T -- "是，还有边界" --> Red
             T -- "是，边界用完" --> D["交给 review\n重构在此阶段"]:::done
-      lead: 重构被故意排除在这个循环之外。red→green 只负责让行为正确，一旦把"顺手重构"也塞进循环，测试就分不清自己在验证正确性还是在给重构背书。
+      lead: 测试过 / 不过就是客观验收，和上面二分定位里「问题还在 / 消失」是一类信号。red→green 只负责让行为正确；重构被故意排除在循环外，一旦把「顺手重构」也塞进来，测试就分不清自己在验证正确性，还是在给重构背书。
+      refs:
+        - label: tdd
+          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md
+        - label: loop-on-ci
+          href: https://github.com/cursor/plugins/blob/0452e08a314c03621ec5ac1324f1ad1dd824f1a4/cursor-team-kit/skills/loop-on-ci/SKILL.md
+        - label: diagnosing-bugs
+          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/diagnosing-bugs/SKILL.md
 
     - type: code
       section: '2'
-      kicker: 'Loop · 踩坑'
-      heading: 没有停止条件的 Loop 长什么样
+      kicker: 'Loop · Open Loop 踩坑'
+      heading: 没有客观验收时，Loop 会长什么样
       code: |
         第  1 轮："改了三处，语气更自然了"
         第  5 轮："调整了语序，读起来更流畅"
@@ -343,15 +368,59 @@ deck:
         第 19 轮："这里还有一处可以再优化"
         第 23 轮："……"
 
-        评判者（Critic），永远能找到可以改的地方。
-        那么如果没有预算的约束，Loop 只会原地打转，改不出个所以然。
-      lead: 退出条件不是"做好了就停"，评判者永远能挑出毛病。停止条件必须是可测量的：最大轮数、改动幅度 < 阈值，或外部信号介入。缺了这三件事任意一个，Loop 就会越改越忙、越忙越偏。
+        没有「测试过 / 不过」这种客观信号，
+        只有「感觉更好了」——Loop 只会原地打转。
+      lead: 对照 TDD 就很清楚：Open Loop 的验收靠 Agent 自判，退出也靠自判。停止条件必须可测量——最大轮数、改动幅度小于阈值，或外部信号介入。缺了客观验收，Loop 就会越改越忙、越忙越偏。
 
     - type: quote
       section: '2'
-      eyebrow: 关于预算，再想深一层
+      eyebrow: 从停止条件，再往前一步
       quote: The model spends; the harness budgets. 模型负责花，Harness 负责控制预算。
-      lead: 评判者永远能挑出下一处可改的地方，这是生成模型的本能，不是它的缺陷——所以不能指望模型自己判断"够了"，它天生没有这根弦。<br/><br/> 把完全自主权交给它，它不会因此变得更像专家，往往只是更快地把错误扩散到外部世界：改得更多、跑得更远，但方向未必更对。真正该管的，是让它在有限预算里更合理、更经济地把事做完——预算这件事必须交给模型之外的东西：跑这个循环的脚本、Agent 框架，或者背后盯着的人来记账、卡阈值、喊停。模型只管每一轮怎么花，真正数着轮数、划着边界的，是 harness。写 Skill 时如果把停止条件寄望于模型自己说"够了"，就是把 harness 该做的事，错交给了 model。
+      lead: 上一页说要设置最大轮数、改动阈值和外部信号。接下来还有一个问题：谁来数轮数、卡阈值、最后喊停？<br/><br/>不能把这件事继续交给模型。生成模型的本能总能找到下一处可改。我们应该控制预算（资源限制），保证循环不会无限跑下去，比如控制检查和修正的最大轮数、控制最终的客观达成目标。
+
+    - type: grid
+      section: '2'
+      kicker: Harness · 循环内预算
+      heading: 一个 Agent 自己转起来，主要控制五笔预算
+      columns: 3
+      cards:
+        - num: '01'
+          title: 感知 · 注意力预算
+          desc: 什么信息进入上下文？先做 Context Triage，避免看得太多，等于什么都没看见
+        - num: '02'
+          title: 记忆 · 连续性预算
+          desc: 什么值得跨时间保留？当前上下文是工作台，不是保存全部历史的仓库
+        - num: '03'
+          title: 推理 · 不确定性预算
+          desc: 这道题值得想多深？简单问题快速判断，复杂问题再分解、验证和回溯
+        - num: '04'
+          title: 行动 · 不可逆预算
+          desc: 哪些动作能直接做？读文件和部署服务风险不同，高风险动作必须经过权限与门禁
+        - num: '05'
+          title: 反思 · 校正预算
+          desc: 允许检查和修正几轮？Critic 负责找问题，Harness 负责限制次数并决定何时退出
+      lead: 刚才讲的最大轮数，属于控制反思预算；客观达成目标，属于控制不确定性预算。更完整地看，一个 Agent 内部一直在循环分配有限资源：看什么、记什么、想多深、能做什么，以及允许回头改几次。
+
+    - type: split
+      section: '2'
+      kicker: Harness · 外层预算
+      heading: 一个 Agent 装不下时，还要再控制两笔预算
+      columns:
+        - label: 协作 Collaboration · 分工预算
+          dot: var(--tab-2)
+          items:
+            - 回答任务怎么拆给多个 Agent
+            - 切开上下文、工具、目标和责任
+            - 价值来自专业化和隔离，不是让一群 Agent 聊天
+            - 失败信号：大家什么都知道，也一起被噪声淹没
+        - label: 治理 Governance · 信任预算
+          dot: var(--tab-warn)
+          items:
+            - 回答能力如何被限制、记录、审计和追责
+            - 审批门控（Approval Gate）、爆炸半径控制（Blast Radius Control）、可观测性（Observability）、Hooks
+            - 它是工具调用同层的运行时机制，不是事后补文档
+            - Agent 越强，越要做到可见、可停、可回放
+      lead: 五笔预算让单个 Agent 转起来；协作负责在装不下时分流，治理负责给所有循环划边界。<br/><br/> 完整框架见博客：[Agent 的七笔预算](https://yanguangjie.com/blog/agent-cognitive-budgets/)。
 
     - type: diagram
       section: '2'
@@ -368,9 +437,6 @@ deck:
             Orch --> W1 & W2 & W3
             W1 & W2 & W3 -.->|"结果回传"| Orch
       lead: GitLab CI 的 release job 通过 yaml 定义 lint / test / build 的触发顺序和失败策略，中心节点只管派发任务、汇总结果，业务代码由各个 job 自己跑，这就是 Orchestrate。失败模式通常是拆错边界：该顺序执行的塞进并行（比如 build 其实依赖 lint 先过），该独立跑的又互相等待。
-      refs:
-        - label: subagent-driven-development
-          href: https://github.com/obra/superpowers/blob/main/skills/subagent-driven-development/SKILL.md
 
     - type: showcase
       section: '2'
@@ -400,7 +466,11 @@ deck:
             I3["Implementer\n任务 3"]:::worker
             C --> I1 & I2 & I3
             I1 & I2 & I3 -.->|"实现+复核"| C
-      lead: 派发的是任务列表，来自单独的写计划环节。这个 Skill 真正做的是"实现 + 复核"的双重循环，任何任务没通过复核都不能标记完成，协调者的记忆负担全在"追踪谁复核过、谁还没有"。
+      lead: 派发的是任务列表，来自单独的写计划环节。这个 Skill 真正做的是"实现 + 复核"的双重循环，任何任务没通过复核都不能标记完成，协调者的记忆负担全在"追踪谁复核过、谁还没有"。如果问和并行的区别？编排会负责协调与门禁，不是单纯的并行。<br/>Parallel = 同时做多件独立的事；Orchestrate = 有人持续管流程，并行只是它可能用到的一种手段。
+
+      refs:
+        - label: subagent-driven-development
+          href: https://github.com/obra/superpowers/blob/main/skills/subagent-driven-development/SKILL.md
 
     - type: diagram
       section: '2'
@@ -422,20 +492,19 @@ deck:
             L1 --> W1 & W2
             L2 --> W3 & W4
       bullets:
-        - Orchestrate 与 Hierarchy 不是一回事：Orchestrate 是 CI 直接调度几个 job，一层就完事；Hierarchy 是「root workspace → package → 内部子模块」多层委派，root 只管到 package 这一层，子模块怎么拆、谁维护交给 package 自己决定
+        - Orchestrate 描述「中心节点协调多个任务」，Hierarchy 描述「子节点还能继续委派」。两者不是互斥分类：一层调度是 Orchestrate，递归拆下去后也具备 Hierarchy
         - 每层 package.json 必须在关键节点声明清楚依赖版本；子模块必须有明确的导出边界，不能绕过 package 直接 import 内部文件
-      refs:
-        - label: orchestrate
-          href: https://github.com/cursor/plugins/blob/e46364b8be46000b7df0f260550cd712afbb8d36/orchestrate/skills/orchestrate/SKILL.md
-        - label: to-issues
-          href: https://github.com/mattpocock/skills/blob/main/skills/engineering/to-issues/SKILL.md
 
     - type: showcase
       section: '2'
       kicker: Hierarchy · 实例
-      heading: 'orchestrate：Planner / Subplanner / Worker / Verifier'
-      skill: orchestrate
+      heading: '递归 Subplanner：一层编排如何长成层级树'
+      skill: Cursor /orchestrate（递归模式）
       code: |
+        ## 分界
+        Planner 直接派 Worker → 一层 Orchestrate
+        Subplanner 继续发布任务 → 多层 Hierarchy
+
         ## 节点类型
         Planner    — 拥有全局目标，只发布任务、读交接记录（handoff），不写代码
         Subplanner — 递归的 Planner，只拥有父级切给它的一片范围
@@ -462,20 +531,10 @@ deck:
             W1 -.->|"交接记录"| P
             W2 & W3 -.->|"交接记录"| SP
             SP -.->|"汇总交接记录"| P
-      lead: Worker 干完活只往上交一次交接记录（handoff），看不到、也不关心兄弟节点在干什么。深层级最容易"失忆"的地方就在这里：每一层只看得到自己直接孩子的交接记录，看不到整棵树。
-
-    - type: bullets
-      section: '2'
-      kicker: 互动 · 猜猜是哪种拓扑
-      heading: 这几个场景，你认得出来吗？
-      lead: 每个场景对应哪种模式？
-      bullets:
-        - '你让 AI 先搜索竞品、再整理要点、再写对比报告 → <strong>Chain</strong>'
-        - '你让 AI 同时给三个模块各写一组单元测试，互不依赖 → <strong>Parallel</strong>'
-        - '你问 AI 一个 bug，AI 先判断这是逻辑问题还是样式问题，再决定用哪套排查方法 → <strong>Route</strong>'
-        - '你说「帮我改这段文字」，AI 返回修改版，你说「再润色一点」……第 8 次你不确定是否更好了 → <strong>Loop（退出条件在哪？）</strong>'
-        - '你让 AI 先并发跑 lint / test / build 三项检查，自己不写代码，等结果汇总再决定能不能合并 → <strong>Orchestrate</strong>'
-        - 'AI 接到一个完整项目，拆成子任务分给三个 subagent，每个 subagent 发现太大、又各自再拆 → <strong>Hierarchy</strong>'
+      lead: 这里引用 `/orchestrate`，是因为它内部的 Subplanner 可以递归委派。根 Planner 直接调 Worker 时是一层 Orchestrate；Subplanner 再往下拆，执行图才长成 Hierarchy。Worker 只向父级交接，每一层只能看到直接孩子，层级越深越容易丢失全局信息。
+      refs:
+        - label: Cursor /orchestrate（递归子规划）
+          href: https://github.com/cursor/plugins/blob/e46364b8be46000b7df0f260550cd712afbb8d36/orchestrate/skills/orchestrate/SKILL.md
 
     - type: grid
       section: '3'
@@ -580,7 +639,7 @@ deck:
     - type: split
       section: '4'
       kicker: '15'
-      heading: 轻型编排不是万能药
+      heading: 注意轻型编排的边界
       columns:
         - label: 适合轻型编排
           dot: var(--tab-1)
@@ -599,34 +658,34 @@ deck:
     - type: split
       section: '4'
       kicker: '16'
-      heading: 六种拓扑在 Skill 侧的可靠性不均匀
+      heading: 六种拓扑在 Skill 轻编排模式下的可靠性分析
       columns:
         - label: 日常够用
           dot: var(--tab-1)
           items:
             - Chain：顺序执行，context 天然维持状态
             - Route：分类条件写清楚即可
-            - Loop：退出条件写清楚可控
+            - Loop：写成 Closed Loop，客观验收可控
         - label: 注意边界
           dot: var(--tab-warn)
           items:
             - Parallel：能指导并行，结果回收有丢失风险
             - Orchestrate：子任务多了，协调者开始失忆
             - Hierarchy：深层级时父任务失去全局视角
-      lead: 以上是基于 context window 行为的推断，不是实测数据。Orchestrate / Hierarchy 超过一定规模，就该把这一段封装成一个确定性工具（如 LangGraph 编排）交回 Skill 调用——不是把整个 Skill 推翻重写。
+      lead: Parallel / Orchestrate / Hierarchy 超过一定规模，就该把这一段封装成一个确定性工具（如 LangGraph 编排）交回 Skill 调用 —— 而不是强迫 Skill 做不擅长的事。
 
     - type: bullets
       section: '5'
       kicker: '17'
-      heading: 如果只记住三件事
+      heading: 最后，如果只记住三件事
       bullets:
-        - '<strong>编排</strong>就是给复杂任务建立结构：Chain 处理顺序，Parallel 处理并发，Route 处理分支，Loop 处理迭代，Orchestrate 处理协调，Hierarchy 处理拆解'
-        - 在 Skill 中实现编排，不一定要写成 DAG，把触发条件、阶段、分支、循环退出、工具协议、交付格式写清楚就够了
-        - '概率模型不可能天然确定，但可以让<strong>关键过程</strong>尽量确定：显式状态、受限选择、工具校验、循环预算、副作用门禁、检查清单'
+        - '<strong>执行拓扑</strong>就是给复杂任务建立结构：Chain 处理顺序，Parallel 处理并发，Route 处理分支，Loop 处理迭代，Orchestrate 处理协调，Hierarchy 处理拆解'
+        - 在 Skill 中实现一定程度的编排，不一定用到 DAG，把触发条件、阶段、分支、循环退出、工具协议、交付格式写清楚就够了
+        - '概率模型不可能保证确定输出（里面还是有太多黑箱，调 prompt 目前还像是手艺活），但可以让<strong>关键过程</strong>尽量确定：显式状态、受限选择、工具校验、循环预算、副作用门禁、检查清单'
 
     - type: quote
       section: '5'
-      quote: Skill 不是咒语，是一份操作手册。把路径写清楚，该发挥时发挥，该收住时收住。
+      quote: 在 Agent 中只通过 Skill 也能干很多事情，但我们此时能在心中建立编排模式的认知框架，识别出不同的拓扑模式，同时意识到其价值、边界、风险，本次分享的目的也就达到了。
       heading: 谢谢 Thank You
       centered: true
 draft: false

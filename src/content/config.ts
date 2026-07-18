@@ -64,6 +64,7 @@ const deckCodeSlide = z.object({
   heading: z.string().optional(),
   code: z.string(),
   bullets: z.array(z.string()).optional(),
+  lead: z.string().optional(),
 });
 
 const deckGridSlide = z.object({
@@ -120,6 +121,16 @@ const deckBulletsSlide = z.object({
   bullets: z.array(z.string()),
 });
 
+const deckTableSlide = z.object({
+  type: z.literal('table'),
+  ...deckSlideBase,
+  kicker: z.string().optional(),
+  heading: z.string(),
+  headers: z.array(z.string()).min(2),
+  rows: z.array(z.array(z.string())).min(1),
+  lead: z.string().optional(),
+});
+
 // A real Mermaid flowchart (same syntax + rendering pipeline as blog posts —
 // see remarkMermaid in astro.config.mjs and the mermaid.run() call in
 // NotebookTabsDeck.astro), for slides that want to reuse a diagram 1:1
@@ -168,6 +179,7 @@ const deckSlide = z.discriminatedUnion('type', [
   deckChainSlide,
   deckBranchSlide,
   deckBulletsSlide,
+  deckTableSlide,
   deckDiagramSlide,
   deckImageSlide,
   deckShowcaseSlide,
@@ -200,7 +212,7 @@ const talkBase = {
 //   ScenesDeck.astro.
 //
 // 'deck' — write each slide as a typed object under `deck.slides` (title /
-//   quote / split / code / grid / chain / branch / bullets — see the
+//   quote / split / code / grid / chain / branch / bullets / table — see the
 //   schemas above), optionally grouped into `deck.sections` for the tab
 //   rail. More upfront structure per slide, but you get the Notebook Tabs
 //   visual system (diagrams, code blocks, card grids) and Zod validates

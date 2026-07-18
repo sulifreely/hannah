@@ -119,7 +119,7 @@ draft: false                   # true 则不出现在列表/详情/RSS
 | `scenes`（默认） | 正文 Markdown；`---` 分页，`+++` 页内 beat | `slides-scenes` → ScenesDeck |
 | `deck` | `deck.slides[]`（+ 可选 `deck.sections`）；Zod discriminated union 校验 | `slides-deck` → NotebookTabsDeck |
 
-`deck` 示例见 `src/content/talks/execution-topology-in-skills.md`。当前 `type`：`title` / `quote` / `split` / `code` / `grid` / `chain` / `branch` / `bullets` / `diagram`。
+`deck` 示例见 `src/content/talks/execution-topology-in-skills.md`。当前 `type`：`title` / `quote` / `split` / `code` / `grid` / `chain` / `branch` / `bullets` / `table` / `diagram`。
 
 新增 slide type 三处联动：`config.ts` schema → `notebook-tabs/*.astro` → `registry.ts`。组件优先复用 `notebook-tabs/primitives/`（`Md` / `SlideHead` / `Bullets` / `RefLinks`）。`diagram` 与博客同一套 Mermaid 配置，可直接复用博客图表源码。
 

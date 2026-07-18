@@ -6,13 +6,14 @@ import GridSlide from './GridSlide.astro';
 import ChainSlide from './ChainSlide.astro';
 import BranchSlide from './BranchSlide.astro';
 import BulletsSlide from './BulletsSlide.astro';
+import TableSlide from './TableSlide.astro';
 import DiagramSlide from './DiagramSlide.astro';
 import ImageSlide from './ImageSlide.astro';
 import ShowcaseSlide from './ShowcaseSlide.astro';
 
 /**
  * One place to see every slide type this deck template knows how to render.
- * Adding a 9th slide type means: add its schema in content/config.ts, add
+ * Adding a new slide type means: add its schema in content/config.ts, add
  * its partial next to these, and register it here — NotebookTabsDeck.astro
  * itself never needs to change.
  */
@@ -25,6 +26,7 @@ export const SLIDE_RENDERERS = {
   chain: ChainSlide,
   branch: BranchSlide,
   bullets: BulletsSlide,
+  table: TableSlide,
   diagram: DiagramSlide,
   image: ImageSlide,
   showcase: ShowcaseSlide,

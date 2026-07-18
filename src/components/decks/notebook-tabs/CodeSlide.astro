@@ -1,4 +1,5 @@
 ---
+import Md from './primitives/Md.astro';
 import SlideHead from './primitives/SlideHead.astro';
 import Bullets from './primitives/Bullets.astro';
 
@@ -8,6 +9,9 @@ const { slide } = Astro.props;
 <SlideHead kicker={slide.kicker} heading={slide.heading} />
 <div
   class="code-block reveal"
-  style={slide.bullets ? 'margin-bottom:clamp(1.2rem,3vh,2rem)' : undefined}
+  style={slide.bullets || slide.lead ? 'margin-bottom:clamp(1.2rem,3vh,2rem)' : undefined}
 >{slide.code}</div>
 {slide.bullets && <Bullets items={slide.bullets} />}
+{slide.lead && (
+  <Md as="p" class="lead reveal" style="margin-top:clamp(1rem,2.6vh,1.6rem)" text={slide.lead} />
+)}
