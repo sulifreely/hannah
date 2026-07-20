@@ -3,9 +3,8 @@ import type { CollectionEntry } from 'astro:content';
 import Analytics from '@vercel/analytics/astro';
 import '@fontsource/comic-neue/400.css';
 import '@fontsource/comic-neue/700.css';
-import 'lxgw-wenkai-lite-webfont/lxgwwenkailite-regular.css';
-import 'lxgw-wenkai-lite-webfont/lxgwwenkailite-bold.css';
 import '../../styles/decks/notebook-tabs.css';
+import DeferredLxgw from '../DeferredLxgw.astro';
 import { SLIDE_RENDERERS } from './notebook-tabs/registry';
 
 type Props = { talk: CollectionEntry<'talks'> };
@@ -37,6 +36,7 @@ function slideClass(slide: (typeof slides)[number]) {
     <title>{talk.data.title} · Slides</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="robots" content="noindex" />
+    <DeferredLxgw />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

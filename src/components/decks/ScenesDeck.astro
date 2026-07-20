@@ -5,10 +5,9 @@ import Analytics from '@vercel/analytics/astro';
 import ThemeToggle from '../ThemeToggle.astro';
 import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/700.css';
-import 'lxgw-wenkai-lite-webfont/lxgwwenkailite-regular.css';
-import 'lxgw-wenkai-lite-webfont/lxgwwenkailite-bold.css';
 import '../../styles/global.css';
 import '../../styles/decks/chrome.css';
+import DeferredLxgw from '../DeferredLxgw.astro';
 
 type Props = { talk: CollectionEntry<'talks'> };
 
@@ -33,6 +32,7 @@ const scenes = talk.body
     <title>{talk.data.title} · Slides</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="robots" content="noindex" />
+    <DeferredLxgw />
     <script is:inline>
       (function () {
         try {

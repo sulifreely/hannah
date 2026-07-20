@@ -1,0 +1,18 @@
+---
+/**
+ * 非阻塞加载霞鹜文楷。
+ * 首屏先用 font-stack 里的系统中文字体（PingFang / YaHei / Songti），
+ * LXGW 的 @font-face CSS 与 woff2 子集在空闲后再进来，font-display:swap 完成切换。
+ */
+import lxgwHref from '../styles/lxgw.css?url';
+---
+
+<link
+  rel="stylesheet"
+  href={lxgwHref}
+  media="print"
+  onload="this.onload=null;this.setAttribute('media','all')"
+/>
+<noscript>
+  <link rel="stylesheet" href={lxgwHref} />
+</noscript>

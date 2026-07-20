@@ -1,0 +1,3 @@
+/* 霞鹜文楷：单独抽出，由 DeferredLxgw 异步注入，避免挡住首屏 CSS。 */
+@import 'lxgw-wenkai-lite-webfont/lxgwwenkailite-regular.css';
+@import 'lxgw-wenkai-lite-webfont/lxgwwenkailite-bold.css';

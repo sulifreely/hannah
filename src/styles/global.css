@@ -1,5 +1,6 @@
 :root {
   --max-width: 836px;
+  /* LXGW 异步注入：@font-face 未到 / 字体未下完时，浏览器会落到后面的系统字体 */
   --font-sans: Mulish, "LXGW WenKai Lite", "PingFang SC", "Microsoft YaHei",
     sans-serif;
   --font-serif: "LXGW WenKai Lite", Georgia, "Songti SC", serif;
