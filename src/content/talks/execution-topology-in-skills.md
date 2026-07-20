@@ -617,8 +617,7 @@ deck:
             - 审批门控、爆炸半径控制、可观测性、钩子管线
             - 它是工具调用同层的运行时机制，不是事后补文档
             - Agent 越强，越要做到可见、可停、可回放
-      lead: 五笔预算让单个 Agent 转起来；协作负责在装不下时分流，治理负责给所有循环划边界。完整框架见博客：[Agent 的七笔预算](https://yanguangjie.com/blog/agent-cognitive-budgets/)。
-
+      lead: 五笔预算让单个 Agent 转起来；协作负责在装不下时分流，治理负责给所有循环划边界。
     - type: grid
       section: '4'
       kicker: '14'
