@@ -137,6 +137,7 @@ draft: false                   # true 则不出现在列表/详情/RSS
 ## 站点身份（保持一致）
 
 - 显示名：蘇里
+- 邮箱[站点公开]：sulifreely@gmail.com（`about.astro` 展示）
 - 邮箱[个人]：sulifreely42@gmail.com
 - 邮箱[工作]：yanguangjie@bytedance.com
 - GitHub：https://github.com/sulifreely
