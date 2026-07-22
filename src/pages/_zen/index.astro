@@ -7,7 +7,7 @@ interface ZenEntry {
   desc: string;
 }
 
-// zen/ 下的所有子页面都在这里登记一条，作为这条路由的目录。
+// 目录条目；路由本身由 astro.config.mjs 里 zenDevOnly() 在 dev 时 injectRoute。
 const entries: ZenEntry[] = [
   {
     href: '/zen/ai-agent-engineer/',

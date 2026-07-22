@@ -190,6 +190,35 @@ function rehypeArticleLinks() {
   return (tree) => walk(tree);
 }
 
+/**
+ * /zen/* 只在本地 `astro dev` 注入；`src/pages/_zen/` 以下划线前缀排除自动路由，
+ * 生产 build / preview 不会生成这些页面。
+ * 新增子页时：文件放进 `_zen/`，并在下方 routes 里补一条 injectRoute。
+ * @returns {import('astro').AstroIntegration}
+ */
+function zenDevOnly() {
+  /** @type {{ pattern: string; entrypoint: string }[]} */
+  const routes = [
+    { pattern: '/zen', entrypoint: './src/pages/_zen/index.astro' },
+    {
+      pattern: '/zen/ai-agent-engineer',
+      entrypoint: './src/pages/_zen/ai-agent-engineer.astro',
+    },
+  ];
+
+  return {
+    name: 'zen-dev-only',
+    hooks: {
+      'astro:config:setup': (opts) => {
+        if (opts.command !== 'dev') return;
+        for (const route of routes) {
+          opts.injectRoute(route);
+        }
+      },
+    },
+  };
+}
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://yanguangjie.com',
@@ -198,10 +227,8 @@ export default defineConfig({
   adapter: vercel(),
   integrations: [
     mdx(),
-    sitemap({
-      // /zen/ 没有公开入口（不在导航中出现，本质是彩蛋页面），不应出现在 sitemap 里被搜索引擎发现。
-      filter: (page) => !new URL(page).pathname.startsWith('/zen/'),
-    }),
+    sitemap(),
+    zenDevOnly(),
   ],
   markdown: {
     remarkPlugins: [remarkMermaid, remarkDot],
